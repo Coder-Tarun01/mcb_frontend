@@ -1,0 +1,182 @@
+[
+  {
+    "id": "1",
+    "title": "Senior Frontend Developer",
+    "company": "TechCorp Solutions",
+    "location": "Mumbai, India",
+    "salary": {
+      "min": 800000,
+      "max": 1200000,
+      "currency": "INR"
+    },
+    "experience": {
+      "min": 3,
+      "max": 6
+    },
+    "type": "Full-time",
+    "description": "We are looking for a Senior Frontend Developer to join our growing team. You will be responsible for building user-facing features and ensuring a great user experience.",
+    "requirements": [
+      "3+ years of experience in React.js",
+      "Strong knowledge of TypeScript",
+      "Experience with modern CSS frameworks",
+      "Understanding of RESTful APIs",
+      "Experience with version control systems"
+    ],
+    "skills": ["React", "TypeScript", "CSS", "JavaScript", "Git"],
+    "postedDate": "2024-01-15",
+    "applicationDeadline": "2024-02-15",
+    "companyLogo": "https://via.placeholder.com/50x50/2563eb/ffffff?text=TC",
+    "isRemote": true,
+    "category": "Technology"
+  },
+  {
+    "id": "2",
+    "title": "Full Stack Developer",
+    "company": "InnovateTech",
+    "location": "Bangalore, India",
+    "salary": {
+      "min": 600000,
+      "max": 1000000,
+      "currency": "INR"
+    },
+    "experience": {
+      "min": 2,
+      "max": 5
+    },
+    "type": "Full-time",
+    "description": "Join our dynamic team as a Full Stack Developer. You will work on both frontend and backend development, creating scalable web applications.",
+    "requirements": [
+      "2+ years of full-stack development experience",
+      "Proficiency in React.js and Node.js",
+      "Database design and management skills",
+      "API development experience",
+      "Cloud platform knowledge"
+    ],
+    "skills": ["React", "Node.js", "MongoDB", "Express", "AWS"],
+    "postedDate": "2024-01-14",
+    "applicationDeadline": "2024-02-14",
+    "companyLogo": "https://via.placeholder.com/50x50/2563eb/ffffff?text=IT",
+    "isRemote": false,
+    "category": "Technology"
+  },
+  {
+    "id": "3",
+    "title": "UI/UX Designer",
+    "company": "DesignStudio Pro",
+    "location": "Delhi, India",
+    "salary": {
+      "min": 500000,
+      "max": 800000,
+      "currency": "INR"
+    },
+    "experience": {
+      "min": 1,
+      "max": 4
+    },
+    "type": "Full-time",
+    "description": "We are seeking a creative UI/UX Designer to create amazing user experiences for our digital products.",
+    "requirements": [
+      "1+ years of UI/UX design experience",
+      "Proficiency in Figma and Adobe Creative Suite",
+      "Understanding of user-centered design principles",
+      "Portfolio demonstrating design skills",
+      "Knowledge of HTML/CSS is a plus"
+    ],
+    "skills": ["Figma", "Adobe XD", "Photoshop", "Illustrator", "Prototyping"],
+    "postedDate": "2024-01-13",
+    "applicationDeadline": "2024-02-13",
+    "companyLogo": "https://via.placeholder.com/50x50/2563eb/ffffff?text=DS",
+    "isRemote": true,
+    "category": "Design"
+  },
+  {
+    "id": "4",
+    "title": "DevOps Engineer",
+    "company": "CloudTech Systems",
+    "location": "Pune, India",
+    "salary": {
+      "min": 700000,
+      "max": 1100000,
+      "currency": "INR"
+    },
+    "experience": {
+      "min": 2,
+      "max": 5
+    },
+    "type": "Full-time",
+    "description": "Looking for a DevOps Engineer to manage our cloud infrastructure and deployment pipelines.",
+    "requirements": [
+      "2+ years of DevOps experience",
+      "Experience with AWS/Azure/GCP",
+      "Docker and Kubernetes knowledge",
+      "CI/CD pipeline experience",
+      "Infrastructure as Code (IaC) skills"
+    ],
+    "skills": ["AWS", "Docker", "Kubernetes", "Jenkins", "Terraform"],
+    "postedDate": "2024-01-12",
+    "applicationDeadline": "2024-02-12",
+    "companyLogo": "https://via.placeholder.com/50x50/2563eb/ffffff?text=CT",
+    "isRemote": false,
+    "category": "Technology"
+  },
+  {
+    "id": "5",
+    "title": "Data Scientist",
+    "company": "DataInsights Inc",
+    "location": "Hyderabad, India",
+    "salary": {
+      "min": 900000,
+      "max": 1400000,
+      "currency": "INR"
+    },
+    "experience": {
+      "min": 3,
+      "max": 7
+    },
+    "type": "Full-time",
+    "description": "Join our data science team to extract insights from large datasets and build machine learning models.",
+    "requirements": [
+      "3+ years of data science experience",
+      "Proficiency in Python and R",
+      "Machine learning and statistical modeling",
+      "Experience with SQL and NoSQL databases",
+      "Data visualization skills"
+    ],
+    "skills": ["Python", "R", "Machine Learning", "SQL", "TensorFlow"],
+    "postedDate": "2024-01-11",
+    "applicationDeadline": "2024-02-11",
+    "companyLogo": "https://via.placeholder.com/50x50/2563eb/ffffff?text=DI",
+    "isRemote": true,
+    "category": "Data Science"
+  },
+  {
+    "id": "6",
+    "title": "Product Manager",
+    "company": "ProductLabs",
+    "location": "Chennai, India",
+    "salary": {
+      "min": 1000000,
+      "max": 1500000,
+      "currency": "INR"
+    },
+    "experience": {
+      "min": 4,
+      "max": 8
+    },
+    "type": "Full-time",
+    "description": "Lead product strategy and development for our flagship products. Work with cross-functional teams to deliver exceptional user experiences.",
+    "requirements": [
+      "4+ years of product management experience",
+      "Strong analytical and problem-solving skills",
+      "Experience with agile methodologies",
+      "Excellent communication and leadership skills",
+      "Technical background preferred"
+    ],
+    "skills": ["Product Management", "Agile", "Analytics", "Leadership", "Strategy"],
+    "postedDate": "2024-01-10",
+    "applicationDeadline": "2024-02-10",
+    "companyLogo": "https://via.placeholder.com/50x50/2563eb/ffffff?text=PL",
+    "isRemote": false,
+    "category": "Management"
+  }
+]
