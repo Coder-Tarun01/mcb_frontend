@@ -1,0 +1,994 @@
+{
+  "info": {
+    "name": "mycareerbuild Job Portal API",
+    "description": "Complete API collection for mycareerbuild Job Portal backend implementation",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3001/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "job_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "application_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"SecurePassword123!\",\n  \"role\": \"employee\",\n  \"phone\": \"+91 98765 43210\",\n  \"additionalData\": {\n    \"skills\": [\"React\", \"TypeScript\", \"Node.js\"],\n    \"experience\": \"3 years\",\n    \"education\": \"BS Computer Science\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data.token) {",
+                  "        pm.collectionVariables.set('jwt_token', response.data.token);",
+                  "        pm.collectionVariables.set('user_id', response.data.user.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"SecurePassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/refresh",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "refresh"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "logout"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User Profile",
+      "item": [
+        {
+          "name": "Get User Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/profile",
+              "host": ["{{base_url}}"],
+              "path": ["users", "profile"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update User Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe Updated\",\n  \"phone\": \"+91 98765 43210\",\n  \"profile\": {\n    \"headline\": \"Senior Frontend Developer\",\n    \"summary\": \"Updated professional summary...\",\n    \"skills\": [\"React\", \"TypeScript\", \"Node.js\", \"Vue.js\"],\n    \"personalDetails\": {\n      \"dateOfBirth\": \"1995-06-15\",\n      \"gender\": \"male\",\n      \"maritalStatus\": \"single\",\n      \"languages\": [\"English\", \"Hindi\"],\n      \"address\": {\n        \"street\": \"123 Main Street\",\n        \"city\": \"Mumbai\",\n        \"state\": \"Maharashtra\",\n        \"country\": \"India\",\n        \"postalCode\": \"400001\"\n      }\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/profile",
+              "host": ["{{base_url}}"],
+              "path": ["users", "profile"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Resume",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/path/to/resume.pdf"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/users/resume",
+              "host": ["{{base_url}}"],
+              "path": ["users", "resume"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Jobs",
+      "item": [
+        {
+          "name": "Get All Jobs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/jobs?page=1&limit=20&search=developer&location=mumbai&type=full-time&salaryMin=500000&salaryMax=1000000&experience=3&category=technology&sortBy=postedDate&sortOrder=desc",
+              "host": ["{{base_url}}"],
+              "path": ["jobs"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "search",
+                  "value": "developer"
+                },
+                {
+                  "key": "location",
+                  "value": "mumbai"
+                },
+                {
+                  "key": "type",
+                  "value": "full-time"
+                },
+                {
+                  "key": "salaryMin",
+                  "value": "500000"
+                },
+                {
+                  "key": "salaryMax",
+                  "value": "1000000"
+                },
+                {
+                  "key": "experience",
+                  "value": "3"
+                },
+                {
+                  "key": "category",
+                  "value": "technology"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "postedDate"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Job by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data.id) {",
+                  "        pm.collectionVariables.set('job_id', response.data.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/jobs/{{job_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["jobs", "{{job_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Job (Employer)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Senior Frontend Developer\",\n  \"description\": \"We are looking for a Senior Frontend Developer to join our growing team...\",\n  \"requirements\": [\n    \"3+ years of experience in React.js\",\n    \"Strong knowledge of TypeScript\"\n  ],\n  \"skills\": [\"React\", \"TypeScript\", \"CSS\", \"JavaScript\"],\n  \"location\": \"Mumbai, India\",\n  \"isRemote\": true,\n  \"type\": \"full-time\",\n  \"experience\": {\n    \"min\": 3,\n    \"max\": 6\n  },\n  \"salary\": {\n    \"min\": 800000,\n    \"max\": 1200000,\n    \"currency\": \"INR\",\n    \"isNegotiable\": true\n  },\n  \"benefits\": [\n    \"Health Insurance\",\n    \"Flexible Working Hours\",\n    \"Remote Work\"\n  ],\n  \"applicationDeadline\": \"2024-02-15T23:59:59Z\",\n  \"category\": \"technology\",\n  \"tags\": [\"frontend\", \"react\", \"typescript\", \"remote\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/jobs",
+              "host": ["{{base_url}}"],
+              "path": ["jobs"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Job (Employer)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Senior Frontend Developer - Updated\",\n  \"description\": \"Updated job description...\",\n  \"salary\": {\n    \"min\": 900000,\n    \"max\": 1300000,\n    \"currency\": \"INR\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/jobs/{{job_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["jobs", "{{job_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Job (Employer)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/jobs/{{job_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["jobs", "{{job_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Applications",
+      "item": [
+        {
+          "name": "Apply for Job",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data.applicationId) {",
+                  "        pm.collectionVariables.set('application_id', response.data.applicationId);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jobId\": \"{{job_id}}\",\n  \"coverLetter\": \"I am excited to apply for the Senior Frontend Developer position...\",\n  \"resumeId\": \"resume_123456789\",\n  \"additionalDocuments\": [\n    {\n      \"name\": \"Portfolio\",\n      \"url\": \"https://johndoe.dev/portfolio\"\n    }\n  ],\n  \"answers\": [\n    {\n      \"questionId\": \"q_123\",\n      \"answer\": \"I have 3 years of experience with React...\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/applications",
+              "host": ["{{base_url}}"],
+              "path": ["applications"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User Applications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/applications?status=submitted&page=1&limit=20&sortBy=appliedAt&sortOrder=desc",
+              "host": ["{{base_url}}"],
+              "path": ["applications"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "submitted"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "appliedAt"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Job Applications (Employer)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/jobs/{{job_id}}/applications",
+              "host": ["{{base_url}}"],
+              "path": ["jobs", "{{job_id}}", "applications"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Application Status (Employer)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"shortlisted\",\n  \"notes\": \"Strong technical background, good cultural fit\",\n  \"nextSteps\": \"Schedule technical interview\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/applications/{{application_id}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["applications", "{{application_id}}", "status"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Saved Jobs",
+      "item": [
+        {
+          "name": "Save Job",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jobId\": \"{{job_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/saved-jobs",
+              "host": ["{{base_url}}"],
+              "path": ["saved-jobs"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Saved Jobs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/saved-jobs",
+              "host": ["{{base_url}}"],
+              "path": ["saved-jobs"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Saved Job",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/saved-jobs/{{job_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["saved-jobs", "{{job_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Job Alerts",
+      "item": [
+        {
+          "name": "Create Job Alert",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Frontend Developer Jobs\",\n  \"keywords\": [\"react\", \"frontend\", \"javascript\"],\n  \"location\": \"Mumbai\",\n  \"jobType\": \"full-time\",\n  \"experience\": \"3-5\",\n  \"salaryMin\": 500000,\n  \"salaryMax\": 1000000,\n  \"frequency\": \"daily\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/job-alerts",
+              "host": ["{{base_url}}"],
+              "path": ["job-alerts"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Job Alerts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/job-alerts",
+              "host": ["{{base_url}}"],
+              "path": ["job-alerts"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Job Alert",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Frontend Developer Jobs\",\n  \"keywords\": [\"react\", \"frontend\", \"javascript\", \"typescript\"],\n  \"frequency\": \"weekly\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/job-alerts/{{alert_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["job-alerts", "{{alert_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Job Alert",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/job-alerts/{{alert_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["job-alerts", "{{alert_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Company Management",
+      "item": [
+        {
+          "name": "Get Company Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/companies/profile",
+              "host": ["{{base_url}}"],
+              "path": ["companies", "profile"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Company Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"TechCorp Solutions\",\n  \"description\": \"Leading technology company specializing in...\",\n  \"website\": \"https://techcorp.com\",\n  \"industry\": \"Technology\",\n  \"size\": \"100-500 employees\",\n  \"foundedYear\": 2015,\n  \"headquarters\": \"Mumbai, India\",\n  \"benefits\": [\n    \"Health Insurance\",\n    \"Flexible Working Hours\",\n    \"Remote Work\",\n    \"Professional Development\"\n  ],\n  \"culture\": \"Innovative, collaborative, and growth-oriented\",\n  \"values\": [\n    \"Innovation\",\n    \"Integrity\",\n    \"Excellence\",\n    \"Collaboration\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/companies/profile",
+              "host": ["{{base_url}}"],
+              "path": ["companies", "profile"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "item": [
+        {
+          "name": "Get Dashboard Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/analytics/dashboard",
+              "host": ["{{base_url}}"],
+              "path": ["analytics", "dashboard"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Search",
+      "item": [
+        {
+          "name": "Search Jobs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/search/jobs?q=react developer&location=mumbai&type=full-time&salaryMin=500000&salaryMax=1000000&experience=3&category=technology&sortBy=postedDate&sortOrder=desc&page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["search", "jobs"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "react developer"
+                },
+                {
+                  "key": "location",
+                  "value": "mumbai"
+                },
+                {
+                  "key": "type",
+                  "value": "full-time"
+                },
+                {
+                  "key": "salaryMin",
+                  "value": "500000"
+                },
+                {
+                  "key": "salaryMax",
+                  "value": "1000000"
+                },
+                {
+                  "key": "experience",
+                  "value": "3"
+                },
+                {
+                  "key": "category",
+                  "value": "technology"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "postedDate"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Candidates (Employer)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/search/candidates?q=frontend developer&location=mumbai&experience=3&skills=react,typescript&availability=immediate&page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["search", "candidates"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "frontend developer"
+                },
+                {
+                  "key": "location",
+                  "value": "mumbai"
+                },
+                {
+                  "key": "experience",
+                  "value": "3"
+                },
+                {
+                  "key": "skills",
+                  "value": "react,typescript"
+                },
+                {
+                  "key": "availability",
+                  "value": "immediate"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "File Upload",
+      "item": [
+        {
+          "name": "Upload File",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/path/to/document.pdf"
+                },
+                {
+                  "key": "type",
+                  "value": "resume",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/upload",
+              "host": ["{{base_url}}"],
+              "path": ["upload"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Get Notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/notifications",
+              "host": ["{{base_url}}"],
+              "path": ["notifications"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mark Notification as Read",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/notifications/{{notification_id}}/read",
+              "host": ["{{base_url}}"],
+              "path": ["notifications", "{{notification_id}}", "read"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mark All Notifications as Read",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/notifications/read-all",
+              "host": ["{{base_url}}"],
+              "path": ["notifications", "read-all"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
