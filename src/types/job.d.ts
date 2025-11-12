@@ -33,6 +33,7 @@ export interface Job {
   applicantsCount?: number;
   isBookmarked?: boolean;
   isNew?: boolean;
+  source?: 'internal' | 'external';
 }
 
 export interface JobFilter {

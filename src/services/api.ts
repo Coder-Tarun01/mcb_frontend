@@ -1,5 +1,6 @@
 import { Job, JobFilter } from '../types/job';
 import { User } from '../types/user';
+import { SuggestionResponseDto } from '../types/search';
 
 // Additional TypeScript interfaces for API responses
 export interface Notification {
@@ -1218,6 +1219,26 @@ export const applicationsAPI = {
   }
 };
 
+export const suggestAPI = {
+  fetchSuggestions: async (query: string, signal?: AbortSignal): Promise<SuggestionResponseDto> => {
+    try {
+      const params = new URLSearchParams();
+      if (query && query.trim()) {
+        params.set('query', query.trim());
+      }
+      const url = params.toString() ? `/suggest?${params.toString()}` : '/suggest';
+      const response = await makeRequest(url, { signal });
+      return response.json();
+    } catch (error) {
+      if ((error as any)?.name === 'AbortError') {
+        throw error;
+      }
+      console.error('Error fetching autocomplete suggestions:', error);
+      throw error;
+    }
+  }
+};
+
 // Search API calls
 export const searchAPI = {
   searchJobs: async (filters: JobFilter): Promise<Job[]> => {
@@ -1242,53 +1263,6 @@ export const searchAPI = {
   getRecommendedJobs: async (): Promise<Job[]> => {
     const response = await makeRequest('/search/recommended');
     return response.json();
-  },
-
-  // Autocomplete functions
-  autocomplete: async (query: string): Promise<{ jobs: Job[]; companies: string[]; locations: string[]; skills: string[] }> => {
-    try {
-      if (!query || query.length < 2) {
-        return { jobs: [], companies: [], locations: [], skills: [] };
-      }
-      const response = await makeRequest(`/search/autocomplete?q=${encodeURIComponent(query)}&limit=5`);
-      return response.json();
-    } catch (error) {
-      console.error('Autocomplete error:', error);
-      return { jobs: [], companies: [], locations: [], skills: [] };
-    }
-  },
-
-  autocompleteJobTitles: async (query: string): Promise<string[]> => {
-    try {
-      if (!query || query.length < 2) return [];
-      const response = await makeRequest(`/search/autocomplete/titles?q=${encodeURIComponent(query)}&limit=10`);
-      return response.json();
-    } catch (error) {
-      console.error('Autocomplete titles error:', error);
-      return [];
-    }
-  },
-
-  autocompleteCompanies: async (query: string): Promise<string[]> => {
-    try {
-      if (!query || query.length < 2) return [];
-      const response = await makeRequest(`/search/autocomplete/companies?q=${encodeURIComponent(query)}&limit=10`);
-      return response.json();
-    } catch (error) {
-      console.error('Autocomplete companies error:', error);
-      return [];
-    }
-  },
-
-  autocompleteLocations: async (query: string): Promise<string[]> => {
-    try {
-      if (!query || query.length < 2) return [];
-      const response = await makeRequest(`/search/autocomplete/locations?q=${encodeURIComponent(query)}&limit=10`);
-      return response.json();
-    } catch (error) {
-      console.error('Autocomplete locations error:', error);
-      return [];
-    }
   },
 };
 

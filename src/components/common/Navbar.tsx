@@ -1,22 +1,19 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Search, 
   User, 
   LogOut, 
   Menu, 
   X, 
   ChevronDown,
-  Building2,
-  Briefcase,
-  MapPin,
-  GraduationCap
+  Building2
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import JobsDropdown from '../jobs/JobsDropdown';
 import NotificationBell from '../notifications/NotificationBell';
-import { searchAPI } from '../../services/api';
+import AutocompleteSearch from '../search/AutocompleteSearch';
+import { SearchSubmissionPayload } from '../../types/search';
 
 const Navbar: React.FC = () => {
   const { user, logout, isEmployee, isEmployer } = useAuth();
@@ -24,147 +21,6 @@ const Navbar: React.FC = () => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isJobsDropdownOpen, setIsJobsDropdownOpen] = useState(false);
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  
-  // Autocomplete state
-  const [suggestions, setSuggestions] = useState<any>({ jobs: [], companies: [], locations: [], skills: [] });
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(-1);
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
-
-  // Click outside to close dropdown
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node) &&
-        !searchInputRef.current?.contains(event.target as Node)
-      ) {
-        setShowDropdown(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const handleSearchInputChange = (value: string) => {
-    setSearchQuery(value);
-    setShowDropdown(value.length >= 2);
-    setSelectedIndex(-1); // Reset selection when typing
-    
-    if (debounceTimer.current) clearTimeout(debounceTimer.current);
-    
-    if (value.length >= 2) {
-      debounceTimer.current = setTimeout(() => {
-        fetchSuggestions(value);
-      }, 300);
-    } else {
-      setSuggestions({ jobs: [], companies: [], locations: [], skills: [] });
-    }
-  };
-
-  const fetchSuggestions = async (query: string) => {
-    try {
-      const data = await searchAPI.autocomplete(query);
-      setSuggestions({
-        jobs: data.jobs || [],
-        companies: data.companies || [],
-        locations: data.locations || [],
-        skills: data.skills || []
-      });
-    } catch (error) {
-      console.error('Autocomplete error:', error);
-      setSuggestions({ jobs: [], companies: [], locations: [], skills: [] });
-    }
-  };
-
-  const selectSuggestion = (value: string) => {
-    setSearchQuery(value);
-    setShowDropdown(false);
-    setSelectedIndex(-1);
-    navigate(`/search?q=${encodeURIComponent(value.trim())}`);
-  };
-
-  const getAllSuggestions = () => {
-    const allSuggestions: Array<{ value: string; type: 'job' | 'company' | 'location' | 'skill' }> = [];
-    
-    // Add job suggestions
-    if (suggestions.jobs && Array.isArray(suggestions.jobs)) {
-      suggestions.jobs.slice(0, 3).forEach((job: any) => {
-        allSuggestions.push({ value: job.title, type: 'job' });
-      });
-    }
-    
-    // Add company suggestions (show all companies)
-    if (suggestions.companies && Array.isArray(suggestions.companies)) {
-      suggestions.companies.forEach((company: string) => {
-        allSuggestions.push({ value: company, type: 'company' });
-      });
-    }
-    
-    // Add location suggestions
-    if (suggestions.locations && Array.isArray(suggestions.locations)) {
-      suggestions.locations.slice(0, 3).forEach((location: string) => {
-        allSuggestions.push({ value: location, type: 'location' });
-      });
-    }
-    
-    // Add skill suggestions
-    if (suggestions.skills && Array.isArray(suggestions.skills)) {
-      suggestions.skills.slice(0, 3).forEach((skill: string) => {
-        allSuggestions.push({ value: skill, type: 'skill' });
-      });
-    }
-    
-    return allSuggestions;
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!showDropdown) return;
-    
-    const allSuggestions = getAllSuggestions();
-    
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault();
-        setSelectedIndex(prev => 
-          prev < allSuggestions.length - 1 ? prev + 1 : 0
-        );
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        setSelectedIndex(prev => 
-          prev > 0 ? prev - 1 : allSuggestions.length - 1
-        );
-        break;
-      case 'Enter':
-        e.preventDefault();
-        if (selectedIndex >= 0 && selectedIndex < allSuggestions.length) {
-          selectSuggestion(allSuggestions[selectedIndex].value);
-        } else if (searchQuery.trim()) {
-          handleSearch(e as any);
-        }
-        break;
-      case 'Escape':
-        setShowDropdown(false);
-        setSelectedIndex(-1);
-        break;
-    }
-  };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchQuery('');
-      setShowDropdown(false);
-    }
-  };
-
   const handleLogout = () => {
     logout();
     navigate('/');
@@ -181,6 +37,14 @@ const Navbar: React.FC = () => {
       return location.pathname === '/';
     }
     return location.pathname.startsWith(path);
+  };
+
+  const handleAutocompleteSubmit = (payload: SearchSubmissionPayload) => {
+    const params = new URLSearchParams();
+    if (payload.query.trim()) params.set('q', payload.query.trim());
+    if (payload.location?.trim()) params.set('location', payload.location.trim());
+    navigate(`/search?${params.toString()}`);
+    setIsMobileMenuOpen(false);
   };
 
   return (
@@ -256,136 +120,18 @@ const Navbar: React.FC = () => {
           </ul>
         </nav>
 
-        {/* Search Bar with Autocomplete */}
-        <form onSubmit={handleSearch} className={`flex-1 max-w-xs min-w-[160px] md:max-w-sm md:min-w-[180px] sm:max-w-[180px] sm:min-w-[140px] mx-2 md:mx-2 sm:mx-2 relative transition-all duration-300 ease-in-out flex-shrink lg:max-w-sm xl:max-w-md lg:mx-2 xl:mx-3 ${isSearchFocused ? 'focused' : ''}`}>
-          <div className="relative w-full">
-            <Search className="absolute left-4 md:left-3 sm:left-3 top-1/2 -translate-y-1/2 w-5 h-5 md:w-4 md:h-4 sm:w-4 sm:h-4 text-gray-400 transition-colors duration-200 ease-in-out pointer-events-none" />
-            <input
-              ref={searchInputRef}
-              type="text"
+        {/* Search Bar */}
+        <div className="flex-1 flex justify-center px-1 sm:px-2 md:px-3 lg:px-4">
+          <div className="w-full max-w-[480px] sm:max-w-[520px] md:max-w-[560px] lg:max-w-[600px] xl:max-w-[680px] 2xl:max-w-[760px] flex-shrink">
+            <AutocompleteSearch
+              context="navbar"
               placeholder="Search jobs, companies, skills..."
-              value={searchQuery}
-              onChange={(e) => handleSearchInputChange(e.target.value)}
-              onKeyDown={handleKeyDown}
-              onFocus={() => {
-                setIsSearchFocused(true);
-                if (searchQuery.length >= 2) setShowDropdown(true);
-              }}
-              onBlur={() => setIsSearchFocused(false)}
-              className="w-full py-3.5 px-4 pl-11 md:py-3 md:px-3 md:pl-9 sm:py-3 sm:px-3 sm:pl-9 border border-gray-300 rounded-xl text-sm md:text-sm sm:text-xs bg-white transition-all duration-200 ease-in-out h-11 md:h-11 sm:h-10 shadow-sm shadow-black/5 focus:outline-none focus:border-blue-500 focus:shadow-lg focus:shadow-blue-500/10"
-              autoComplete="off"
+              className="w-full"
+              allowLocation={false}
+              onSubmit={handleAutocompleteSubmit}
             />
-            
-            {/* Autocomplete Dropdown */}
-            {showDropdown && (
-              <div ref={dropdownRef} className="absolute top-[calc(100%+4px)] left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg shadow-black/15 max-h-[350px] overflow-y-auto z-[2000]">
-                {(!suggestions.jobs || suggestions.jobs.length === 0) && (!suggestions.companies || suggestions.companies.length === 0) && (!suggestions.locations || suggestions.locations.length === 0) && (!suggestions.skills || suggestions.skills.length === 0) ? (
-                  <div className="py-5 px-4 text-center">
-                    <div className="text-sm font-medium text-gray-700 mb-1.5">No results found for "{searchQuery}"</div>
-                    <div className="text-xs text-gray-500">Try different keywords</div>
-                  </div>
-                ) : (
-                  <>
-                    {suggestions.jobs && suggestions.jobs.length > 0 && (
-                      <div className="py-1.5 border-b border-gray-100 last:border-b-0">
-                        <div className="py-1.5 px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Jobs</div>
-                        {suggestions.jobs.slice(0, 3).map((job: any, jobIndex: number) => {
-                          const globalIndex = jobIndex;
-                          const isSelected = selectedIndex === globalIndex;
-                          return (
-                            <div
-                              key={job.id}
-                              className={`flex items-center py-2 px-3 cursor-pointer transition-colors duration-150 ease-in-out ${isSelected ? 'bg-blue-500 text-white' : 'hover:bg-gray-50'}`}
-                              onClick={() => selectSuggestion(job.title)}
-                            >
-                              <Briefcase size={14} className={`mr-2.5 flex-shrink-0 ${isSelected ? 'text-white' : 'text-gray-500'}`} />
-                              <div className="flex-1 min-w-0">
-                                <div className={`text-xs font-medium whitespace-nowrap overflow-hidden text-ellipsis ${isSelected ? 'text-white' : 'text-gray-900'}`}>{job.title}</div>
-                                <div className={`text-xs whitespace-nowrap overflow-hidden text-ellipsis mt-0.5 ${isSelected ? 'text-white' : 'text-gray-500'}`}>{job.company}</div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                    
-                    {suggestions.companies && suggestions.companies.length > 0 && (
-                      <div className="py-1.5 border-b border-gray-100 last:border-b-0">
-                        <div className="py-1.5 px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Companies</div>
-                        {suggestions.companies.map((company: string, companyIndex: number) => {
-                          const jobsDisplayed = Math.min(3, suggestions.jobs?.length || 0);
-                          const globalIndex = jobsDisplayed + companyIndex;
-                          const isSelected = selectedIndex === globalIndex;
-                          return (
-                            <div
-                              key={companyIndex}
-                              className={`flex items-center py-2 px-3 cursor-pointer transition-colors duration-150 ease-in-out ${isSelected ? 'bg-blue-500 text-white' : 'hover:bg-gray-50'}`}
-                              onClick={() => selectSuggestion(company)}
-                            >
-                              <Building2 size={14} className={`mr-2.5 flex-shrink-0 ${isSelected ? 'text-white' : 'text-gray-500'}`} />
-                              <div className="flex-1 min-w-0">
-                                <div className={`text-xs font-medium whitespace-nowrap overflow-hidden text-ellipsis ${isSelected ? 'text-white' : 'text-gray-900'}`}>{company}</div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-
-                    {suggestions.locations && suggestions.locations.length > 0 && (
-                      <div className="py-1.5 border-b border-gray-100 last:border-b-0">
-                        <div className="py-1.5 px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Locations</div>
-                        {suggestions.locations.slice(0, 3).map((location: string, locationIndex: number) => {
-                          const jobsDisplayed = Math.min(3, suggestions.jobs?.length || 0);
-                          const companiesDisplayed = Math.min(3, suggestions.companies?.length || 0);
-                          const globalIndex = jobsDisplayed + companiesDisplayed + locationIndex;
-                          const isSelected = selectedIndex === globalIndex;
-                          return (
-                            <div
-                              key={locationIndex}
-                              className={`flex items-center py-2 px-3 cursor-pointer transition-colors duration-150 ease-in-out ${isSelected ? 'bg-blue-500 text-white' : 'hover:bg-gray-50'}`}
-                              onClick={() => selectSuggestion(location)}
-                            >
-                              <MapPin size={14} className={`mr-2.5 flex-shrink-0 ${isSelected ? 'text-white' : 'text-gray-500'}`} />
-                              <div className="flex-1 min-w-0">
-                                <div className={`text-xs font-medium whitespace-nowrap overflow-hidden text-ellipsis ${isSelected ? 'text-white' : 'text-gray-900'}`}>{location}</div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-
-                    {suggestions.skills && suggestions.skills.length > 0 && (
-                      <div className="py-1.5 border-b border-gray-100 last:border-b-0">
-                        <div className="py-1.5 px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Skills</div>
-                        {suggestions.skills.slice(0, 3).map((skill: string, skillIndex: number) => {
-                          const jobsDisplayed = Math.min(3, suggestions.jobs?.length || 0);
-                          const companiesDisplayed = Math.min(3, suggestions.companies?.length || 0);
-                          const locationsDisplayed = Math.min(3, suggestions.locations?.length || 0);
-                          const globalIndex = jobsDisplayed + companiesDisplayed + locationsDisplayed + skillIndex;
-                          const isSelected = selectedIndex === globalIndex;
-                          return (
-                            <div
-                              key={skillIndex}
-                              className={`flex items-center py-2 px-3 cursor-pointer transition-colors duration-150 ease-in-out ${isSelected ? 'bg-blue-500 text-white' : 'hover:bg-gray-50'}`}
-                              onClick={() => selectSuggestion(skill)}
-                            >
-                              <GraduationCap size={14} className={`mr-2.5 flex-shrink-0 ${isSelected ? 'text-white' : 'text-gray-500'}`} />
-                              <div className="flex-1 min-w-0">
-                                <div className={`text-xs font-medium whitespace-nowrap overflow-hidden text-ellipsis ${isSelected ? 'text-white' : 'text-gray-900'}`}>{skill}</div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            )}
           </div>
-        </form>
+        </div>
 
         {/* User Actions */}
         <div className="hidden md:flex items-center gap-1 flex-shrink-0 whitespace-nowrap">
