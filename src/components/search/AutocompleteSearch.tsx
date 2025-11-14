@@ -445,16 +445,14 @@ const AutocompleteSearch: React.FC<AutocompleteSearchProps> = ({
 
   const handleSuggestionSelect = useCallback(
     (item: SuggestionItem) => {
-      if (item.category === 'locations') {
+      const isLocationCategory = item.category === 'locations';
+      const nextLocation = isLocationCategory ? item.value : normalizedLocation || undefined;
+
+      if (isLocationCategory) {
         setLocation(item.value);
-        commitSearch({
-          query: query.trim(),
-          location: item.value,
-          context,
-          category: item.category,
-          suggestion: item,
-        });
-      } else if (item.category === 'recent') {
+      }
+
+      if (item.category === 'recent') {
         commitSearch({
           query: item.value || query.trim(),
           location: item.subtitle || normalizedLocation || undefined,
@@ -467,7 +465,7 @@ const AutocompleteSearch: React.FC<AutocompleteSearchProps> = ({
       } else if (item.category === 'trending') {
         commitSearch({
           query: item.value,
-          location: normalizedLocation || undefined,
+          location: nextLocation,
           context,
           category: item.category,
           suggestion: item,
@@ -477,7 +475,7 @@ const AutocompleteSearch: React.FC<AutocompleteSearchProps> = ({
         setQuery(item.value);
         commitSearch({
           query: item.value,
-          location: normalizedLocation || undefined,
+          location: nextLocation,
           context,
           category: item.category,
           suggestion: item,
@@ -636,8 +634,14 @@ const AutocompleteSearch: React.FC<AutocompleteSearchProps> = ({
                   </div>
                   <ul className="flex flex-col gap-1">
                     {section.items.map((item) => {
-                      const itemIndex = flattenedItems.findIndex((flat) => flat.item.id === item.id);
+      const itemIndex = flattenedItems.findIndex((flat) => flat.item.id === item.id);
                       const isActive = itemIndex === activeIndex;
+      const description =
+        section.id === 'recent'
+          ? item.subtitle
+          : section.id === 'locations'
+          ? item.subtitle
+          : item.subtitle;
                       return (
                         <li key={item.id}>
                           <button
@@ -665,9 +669,9 @@ const AutocompleteSearch: React.FC<AutocompleteSearchProps> = ({
                               <p className="text-sm font-semibold text-slate-800">
                                 {highlightMatch(item.label)}
                               </p>
-                              {(item.subtitle || section.id === 'locations') && (
+                              {(description || section.id === 'locations') && (
                                 <p className="text-xs text-slate-500">
-                                  {item.subtitle ||
+                                  {description ||
                                     (section.id === 'locations' ? 'Location match' : undefined)}
                                 </p>
                               )}

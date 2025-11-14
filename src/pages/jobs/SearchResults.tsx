@@ -37,6 +37,18 @@ interface SearchFilters {
   isRemote: boolean;
 }
 
+const buildFiltersFromParams = (params: URLSearchParams): SearchFilters => ({
+  keyword: params.get('q') || '',
+  location: params.get('location') || '',
+  jobType: params.get('type') || '',
+  salaryMin: params.get('minSalary') || '',
+  salaryMax: params.get('maxSalary') || '',
+  experience: params.get('experience') || '',
+  company: params.get('company') || '',
+  category: params.get('category') || '',
+  isRemote: params.get('remote') === 'true'
+});
+
 const SearchResults: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -63,26 +75,29 @@ const SearchResults: React.FC = () => {
   const jobsPerPage = 12;
 
   // Filters
-  const [filters, setFilters] = useState<SearchFilters>({
-    keyword: searchParams.get('q') || '',
-    location: searchParams.get('location') || '',
-    jobType: searchParams.get('type') || '',
-    salaryMin: searchParams.get('minSalary') || '',
-    salaryMax: searchParams.get('maxSalary') || '',
-    experience: searchParams.get('experience') || '',
-    company: searchParams.get('company') || '',
-    category: searchParams.get('category') || '',
-    isRemote: searchParams.get('remote') === 'true'
-  });
+  const [filters, setFilters] = useState<SearchFilters>(() => buildFiltersFromParams(searchParams));
 
   // Initialize once on mount
   const hasInitialized = useRef(false);
+  const skipSyncRef = useRef(false);
+  const latestParamsRef = useRef(searchParams.toString());
+
   useEffect(() => {
     if (!hasInitialized.current) {
       hasInitialized.current = true;
       performSearch();
     }
   }, []);
+
+  useEffect(() => {
+    const paramsString = searchParams.toString();
+    if (paramsString === latestParamsRef.current) {
+      return;
+    }
+    latestParamsRef.current = paramsString;
+    skipSyncRef.current = true;
+    setFilters(buildFiltersFromParams(searchParams));
+  }, [searchParams]);
 
   useEffect(() => {
     loadSavedJobs();
@@ -148,10 +163,21 @@ const SearchResults: React.FC = () => {
 
       // Apply location filter (client-side for better matching)
       if (filters.location && filters.location.toLowerCase() !== 'remote') {
-        const location = filters.location.toLowerCase();
-        filteredResults = filteredResults.filter(job => 
-          job.location?.toLowerCase().includes(location)
-        );
+        const locationNeedle = filters.location.toLowerCase();
+        filteredResults = filteredResults.filter((job: any) => {
+          const locationsToCheck = [
+            job.location,
+            job.city,
+            job.state,
+            job.country,
+            job.fullAddress,
+          ];
+          return locationsToCheck.some(
+            (value) =>
+              typeof value === 'string' &&
+              value.toLowerCase().includes(locationNeedle)
+          );
+        });
       }
 
       // Apply remote filter (client-side)
@@ -392,6 +418,8 @@ const SearchResults: React.FC = () => {
     if (filters.company) params.set('company', filters.company);
     if (filters.category) params.set('category', filters.category);
     if (filters.isRemote) params.set('remote', 'true');
+    const paramsString = params.toString();
+    latestParamsRef.current = paramsString;
     setSearchParams(params);
     performSearch();
   };
@@ -404,6 +432,11 @@ const SearchResults: React.FC = () => {
   const debounceId = useRef<number | null>(null);
   useEffect(() => {
     if (!hasInitialized.current) return;
+    if (skipSyncRef.current) {
+      skipSyncRef.current = false;
+      performSearch();
+      return;
+    }
     if (debounceId.current) window.clearTimeout(debounceId.current);
     debounceId.current = window.setTimeout(() => {
       syncParamsAndSearch();

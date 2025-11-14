@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AutocompleteSearch from '../search/AutocompleteSearch';
 import { SearchSubmissionPayload } from '../../types/search';
@@ -20,6 +20,7 @@ const JobSearchBar: React.FC<JobSearchBarProps> = ({ onSearch, className = '', v
   const navigate = useNavigate();
   const defaultQuery = valueFilters?.keyword ?? '';
   const defaultLocation = valueFilters?.location ?? '';
+  const lastSearchRef = useRef<SearchFilters | null>(null);
 
   const handleSubmit = useCallback(
     (payload: SearchSubmissionPayload) => {
@@ -31,10 +32,12 @@ const JobSearchBar: React.FC<JobSearchBarProps> = ({ onSearch, className = '', v
         return;
       }
       if (onSearch) {
-        onSearch({
-          keyword: payload.query,
-          location: payload.location || '',
-        });
+        const nextFilters: SearchFilters = {
+          keyword: payload.query.trim(),
+          location: payload.location?.trim() || '',
+        };
+        lastSearchRef.current = nextFilters;
+        onSearch(nextFilters);
       }
     },
     [behaveLikeNavbar, navigate, onSearch]
@@ -44,10 +47,16 @@ const JobSearchBar: React.FC<JobSearchBarProps> = ({ onSearch, className = '', v
     (payload: SearchSubmissionPayload) => {
       if (behaveLikeNavbar) return;
       if (!onSearch) return;
-      onSearch({
-        keyword: payload.query,
-        location: payload.location || '',
-      });
+      const nextFilters: SearchFilters = {
+        keyword: payload.query.trim(),
+        location: payload.location?.trim() || '',
+      };
+      const last = lastSearchRef.current;
+      if (last && last.keyword === nextFilters.keyword && last.location === nextFilters.location) {
+        return;
+      }
+      lastSearchRef.current = nextFilters;
+      onSearch(nextFilters);
     },
     [behaveLikeNavbar, onSearch]
   );

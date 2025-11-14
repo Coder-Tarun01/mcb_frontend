@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
 import { 
   Mail, 
   MapPin, 
@@ -34,23 +35,58 @@ const Contact: React.FC = () => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setIsSubmitted(false);
-      setFormData({
-        name: '',
-        email: '',
-        subject: '',
-        message: '',
-        inquiryType: 'general'
+    try {
+      const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
+      const API_BASE_URL = BASE_URL.endsWith('/api') ? BASE_URL : `${BASE_URL}/api`;
+      
+      const response = await fetch(`${API_BASE_URL}/email/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message,
+          inquiryType: formData.inquiryType
+        }),
       });
-    }, 3000);
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to send message');
+      }
+
+      if (data.success) {
+        toast.success(data.message || 'Message sent successfully!');
+        setIsSubmitted(true);
+        
+        // Reset form after 3 seconds
+        setTimeout(() => {
+          setIsSubmitted(false);
+          setFormData({
+            name: '',
+            email: '',
+            subject: '',
+            message: '',
+            inquiryType: 'general'
+          });
+        }, 3000);
+      } else {
+        throw new Error(data.message || 'Failed to send message');
+      }
+    } catch (error) {
+      console.error('Error sending contact form:', error);
+      toast.error(
+        error instanceof Error 
+          ? error.message 
+          : 'Failed to send message. Please try again later.'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactInfo = [

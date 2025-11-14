@@ -127,7 +127,6 @@ const Navbar: React.FC = () => {
               context="navbar"
               placeholder="Search jobs, companies, skills..."
               className="w-full"
-              allowLocation={false}
               onSubmit={handleAutocompleteSubmit}
             />
           </div>

@@ -132,8 +132,8 @@ const Jobs: React.FC = () => {
     }
 
     if (filters.location) {
-      const location = filters.location.toLowerCase();
-      if (location === 'remote') {
+      const locationNeedle = filters.location.toLowerCase();
+      if (locationNeedle === 'remote') {
         // Filter for remote jobs specifically
         console.log('Filtering for remote jobs. Total jobs:', jobs.length);
         const remoteJobs = filtered.filter(job => 
@@ -146,9 +146,20 @@ const Jobs: React.FC = () => {
         filtered = remoteJobs;
       } else {
         // Filter by location for non-remote jobs
-        filtered = filtered.filter(job => 
-          job.location?.toLowerCase().includes(location)
-        );
+        filtered = filtered.filter((job: any) => {
+          const locationsToCheck = [
+            job.location,
+            job.city,
+            job.state,
+            job.country,
+            job.fullAddress,
+          ];
+          return locationsToCheck.some(
+            (value) =>
+              typeof value === 'string' &&
+              value.toLowerCase().includes(locationNeedle)
+          );
+        });
       }
     }
 
