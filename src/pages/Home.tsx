@@ -16,6 +16,7 @@ import {
   Building2,
   Award
 } from 'lucide-react';
+import JobSearchBar from '../components/jobs/JobSearchBar';
 import SEOHead from '../components/seo/SEOHead';
 import OrganizationSchema from '../components/seo/OrganizationSchema';
 import WebsiteSchema from '../components/seo/WebsiteSchema';
@@ -65,10 +66,6 @@ const Home: React.FC = () => {
       document.activeElement.blur();
     }
     navigate(`/jobs/${jobIdOrSlug}`);
-  };
-
-  const handleExploreJobs = () => {
-    navigate('/jobs');
   };
 
   useEffect(() => {
@@ -343,22 +340,10 @@ const Home: React.FC = () => {
                 Join thousands of professionals who found their perfect match.
               </p>
               
-              <div className="mt-6 flex flex-wrap gap-4">
-                <button
-                  onClick={handleExploreJobs}
-                  className="inline-flex items-center gap-2 rounded-full bg-white/15 px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:bg-white/25 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-blue-500"
-                >
-                  Explore Jobs
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-                {!user && (
-                  <button
-                    onClick={() => navigate('/signup')}
-                    className="inline-flex items-center gap-2 rounded-full border border-white/40 bg-transparent px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:bg-white/10 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-blue-500"
-                  >
-                    Create Free Account
-                  </button>
-                )}
+              <div className="max-w-full m-0 relative z-30 flex justify-center">
+                <div className="w-full max-w-2xl sm:max-w-md md:max-w-2xl lg:max-w-3xl xl:max-w-4xl">
+                  <JobSearchBar behaveLikeNavbar className="max-w-2xl sm:max-w-md md:max-w-2xl lg:max-w-3xl xl:max-w-4xl" />
+                </div>
               </div>
             </motion.div>
 

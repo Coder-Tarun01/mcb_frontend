@@ -277,6 +277,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return user?.role === 'employer';
   };
 
+  const isAdmin = (): boolean => {
+    return user?.role === 'admin';
+  };
+
   const value: AuthContextType = {
     user,
     login,
@@ -287,6 +291,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     hasRole,
     isEmployee,
     isEmployer,
+    isAdmin,
     sessionExpired,
     handleSessionExpired
   };

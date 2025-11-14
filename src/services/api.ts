@@ -1,6 +1,21 @@
 import { Job, JobFilter } from '../types/job';
 import { User } from '../types/user';
-import { SuggestionResponseDto } from '../types/search';
+
+const DEFAULT_BACKEND_URL = 'http://localhost:4000';
+
+function resolveBackendBaseUrl(): string {
+  const envUrl = (process.env.REACT_APP_API_URL || '').trim();
+  if (envUrl.length > 0) {
+    return envUrl.replace(/\/+$/, '');
+  }
+
+  return DEFAULT_BACKEND_URL;
+}
+
+export const BACKEND_BASE_URL = resolveBackendBaseUrl();
+export const API_BASE_URL = BACKEND_BASE_URL.endsWith('/api')
+  ? BACKEND_BASE_URL
+  : `${BACKEND_BASE_URL}/api`;
 
 // Additional TypeScript interfaces for API responses
 export interface Notification {
@@ -18,6 +33,83 @@ export interface Notification {
   createdAt: string;
   readAt?: string;
   expiresAt?: string;
+}
+
+export interface FresherNotificationJob {
+  id: number;
+  title: string;
+  company: string;
+  location?: string | null;
+  experience?: string | null;
+  jobType: string;
+  link?: string | null;
+  notifySent: number;
+  createdAt: string;
+}
+
+export interface FresherNotificationStats {
+  total: number;
+  pending: number;
+  notified: number;
+}
+
+export interface NotificationCsvError {
+  row: number;
+  email?: string;
+  message: string;
+}
+
+export interface NotificationCsvSummary {
+  processed: number;
+  inserted: number;
+  updated: number;
+  skipped: number;
+  errors: NotificationCsvError[];
+}
+
+export interface NotificationLogEntry {
+  timestamp: string | null;
+  status: string;
+  meta?: Record<string, unknown> | string;
+  raw: string;
+}
+
+export interface NotificationLogData {
+  success: NotificationLogEntry[];
+  failed: NotificationLogEntry[];
+}
+
+export interface NotificationRunSummary {
+  ok: boolean;
+  source: string;
+  jobsQueried: number;
+  jobsNotified: number;
+  recipientsAttempted: number;
+  recipientsSucceeded: number;
+  recipientsFailed: number;
+  skipped: boolean;
+  errors: Array<Record<string, unknown>>;
+}
+
+export interface NotificationJobsResult {
+  jobs: FresherNotificationJob[];
+  stats: FresherNotificationStats;
+}
+
+export interface NotificationApiResponse<T> {
+  success: boolean;
+  message?: string;
+  data?: T;
+  error?: string;
+}
+
+export interface AdminKeyOptions {
+  adminKey: string;
+}
+
+export interface FetchFresherJobsOptions extends AdminKeyOptions {
+  includeNotified?: boolean;
+  limit?: number;
 }
 
 export interface Application {
@@ -87,9 +179,6 @@ export interface SearchFilters {
 
 // Centralized Backend URL Configuration
 // Single URL configuration for both API and static file access
-  const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
-  const API_BASE_URL = BASE_URL.endsWith('/api') ? BASE_URL : `${BASE_URL}/api`;
-  export const BACKEND_BASE_URL = BASE_URL.replace(/\/api\/?$/, '');
 
 // Helper function to get auth token
 const getAuthToken = (): string | null => {
@@ -1219,26 +1308,6 @@ export const applicationsAPI = {
   }
 };
 
-export const suggestAPI = {
-  fetchSuggestions: async (query: string, signal?: AbortSignal): Promise<SuggestionResponseDto> => {
-    try {
-      const params = new URLSearchParams();
-      if (query && query.trim()) {
-        params.set('query', query.trim());
-      }
-      const url = params.toString() ? `/suggest?${params.toString()}` : '/suggest';
-      const response = await makeRequest(url, { signal });
-      return response.json();
-    } catch (error) {
-      if ((error as any)?.name === 'AbortError') {
-        throw error;
-      }
-      console.error('Error fetching autocomplete suggestions:', error);
-      throw error;
-    }
-  }
-};
-
 // Search API calls
 export const searchAPI = {
   searchJobs: async (filters: JobFilter): Promise<Job[]> => {
@@ -1263,6 +1332,53 @@ export const searchAPI = {
   getRecommendedJobs: async (): Promise<Job[]> => {
     const response = await makeRequest('/search/recommended');
     return response.json();
+  },
+
+  // Autocomplete functions
+  autocomplete: async (query: string): Promise<{ jobs: Job[]; companies: string[]; locations: string[]; skills: string[] }> => {
+    try {
+      if (!query || query.length < 2) {
+        return { jobs: [], companies: [], locations: [], skills: [] };
+      }
+      const response = await makeRequest(`/search/autocomplete?q=${encodeURIComponent(query)}&limit=5`);
+      return response.json();
+    } catch (error) {
+      console.error('Autocomplete error:', error);
+      return { jobs: [], companies: [], locations: [], skills: [] };
+    }
+  },
+
+  autocompleteJobTitles: async (query: string): Promise<string[]> => {
+    try {
+      if (!query || query.length < 2) return [];
+      const response = await makeRequest(`/search/autocomplete/titles?q=${encodeURIComponent(query)}&limit=10`);
+      return response.json();
+    } catch (error) {
+      console.error('Autocomplete titles error:', error);
+      return [];
+    }
+  },
+
+  autocompleteCompanies: async (query: string): Promise<string[]> => {
+    try {
+      if (!query || query.length < 2) return [];
+      const response = await makeRequest(`/search/autocomplete/companies?q=${encodeURIComponent(query)}&limit=10`);
+      return response.json();
+    } catch (error) {
+      console.error('Autocomplete companies error:', error);
+      return [];
+    }
+  },
+
+  autocompleteLocations: async (query: string): Promise<string[]> => {
+    try {
+      if (!query || query.length < 2) return [];
+      const response = await makeRequest(`/search/autocomplete/locations?q=${encodeURIComponent(query)}&limit=10`);
+      return response.json();
+    } catch (error) {
+      console.error('Autocomplete locations error:', error);
+      return [];
+    }
   },
 };
 
@@ -2014,6 +2130,139 @@ export const notificationsAPI = {
     });
     return response.json();
   }
+};
+
+const ADMIN_KEY_HEADER = 'X-Admin-Key';
+
+export const notificationAdminAPI = {
+  fetchFresherJobs: async (options: FetchFresherJobsOptions): Promise<NotificationApiResponse<NotificationJobsResult>> => {
+    const trimmedKey = options?.adminKey?.trim();
+    if (!trimmedKey) {
+      throw new Error('Admin key is required');
+    }
+
+    const params = new URLSearchParams();
+    if (options?.includeNotified) {
+      params.set('includeNotified', 'true');
+    }
+    if (typeof options?.limit === 'number') {
+      params.set('limit', String(options.limit));
+    }
+    const query = params.toString() ? `?${params.toString()}` : '';
+    const response = await makeRequest(`/notifications/jobs/freshers${query}` , {
+      headers: {
+        [ADMIN_KEY_HEADER]: trimmedKey,
+      },
+    });
+    const json = (await response.json()) as NotificationApiResponse<NotificationJobsResult>;
+    if (!json.success) {
+      throw new Error(json.error || json.message || 'Failed to fetch fresher jobs');
+    }
+    return {
+      success: true,
+      message: json.message,
+      data:
+        json.data || {
+          jobs: [],
+          stats: {
+            total: 0,
+            pending: 0,
+            notified: 0,
+          },
+        },
+    };
+  },
+
+  uploadSubscribersCsv: async (file: File, adminKey: string): Promise<NotificationApiResponse<NotificationCsvSummary>> => {
+    const trimmedKey = adminKey.trim();
+    if (!trimmedKey) {
+      throw new Error('Admin key is required');
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await makeFormRequest('/notifications/upload-csv', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        [ADMIN_KEY_HEADER]: trimmedKey,
+      },
+    });
+
+    const json = (await response.json()) as NotificationApiResponse<NotificationCsvSummary>;
+    if (!json.success) {
+      throw new Error(json.error || json.message || 'Failed to upload subscriber CSV');
+    }
+
+    return {
+      success: true,
+      message: json.message,
+      data: json.data,
+    };
+  },
+
+  triggerManualSend: async (adminKey: string): Promise<NotificationApiResponse<NotificationRunSummary>> => {
+    const trimmedKey = adminKey.trim();
+    if (!trimmedKey) {
+      throw new Error('Admin key is required');
+    }
+
+    try {
+      const response = await makeRequest('/notifications/send-mails', {
+        headers: {
+          [ADMIN_KEY_HEADER]: trimmedKey,
+        },
+      });
+      const json = (await response.json()) as NotificationApiResponse<NotificationRunSummary>;
+      if (!json.success) {
+        return {
+          success: false,
+          message: json.error || json.message,
+          data: json.data,
+        };
+      }
+      return json;
+    } catch (error) {
+      const apiError = error as APIError;
+      const details = (apiError?.details || null) as NotificationApiResponse<NotificationRunSummary> | null;
+      if (details) {
+        return {
+          success: false,
+          message: details.error || details.message || apiError.message,
+          data: details.data,
+        };
+      }
+      throw error;
+    }
+  },
+
+  fetchLogs: async (adminKey: string, limit?: number): Promise<NotificationApiResponse<NotificationLogData>> => {
+    const trimmedKey = adminKey.trim();
+    if (!trimmedKey) {
+      throw new Error('Admin key is required');
+    }
+
+    const params = new URLSearchParams();
+    if (typeof limit === 'number') {
+      params.set('limit', String(limit));
+    }
+    const query = params.toString() ? `?${params.toString()}` : '';
+    const response = await makeRequest(`/notifications/logs${query}`, {
+      headers: {
+        [ADMIN_KEY_HEADER]: trimmedKey,
+      },
+    });
+    const json = (await response.json()) as NotificationApiResponse<NotificationLogData>;
+    if (!json.success) {
+      throw new Error(json.error || json.message || 'Failed to fetch notification logs');
+    }
+    return {
+      success: true,
+      message: json.message,
+      data: json.data || { success: [], failed: [] },
+    };
+  },
 };
 
 // Analytics API calls

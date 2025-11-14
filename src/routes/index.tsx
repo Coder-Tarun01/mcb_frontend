@@ -48,6 +48,7 @@ const CandidateProfile = React.lazy(() => import('../pages/Employer Access/Candi
 
 // Registration Components
 const CompanyRegister = React.lazy(() => import('../pages/CompanyRegister'));
+const NotificationDashboard = React.lazy(() => import('../pages/NotificationDashboard'));
 
 
 // Loading component
@@ -212,6 +213,11 @@ const AppRoutes: React.FC = () => {
               <CandidateProfile />
             </ProtectedRoute>
           }
+        />
+
+        <Route 
+          path="/admin/notifications" 
+          element={<NotificationDashboard />}
         />
 
         {/* Registration Routes */}

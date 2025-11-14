@@ -35,6 +35,7 @@ const EmployerResume = lazy(() => import('../pages/Employer Access/Resume'));
 const CompanyRegister = lazy(() => import('../pages/CompanyRegister'));
 const RegisterProfessional = lazy(() => import('../pages/Employer Access/RegisterProfessional'));
 const RegisterFresher = lazy(() => import('../pages/Employer Access/RegisterFresher'));
+const NotificationDashboard = lazy(() => import('../pages/NotificationDashboard'));
 
 // Route configuration
 export const routeConfig: RouteObject[] = [
@@ -252,6 +253,12 @@ export const routeConfig: RouteObject[] = [
   {
     path: '/employer/resume',
     element: <EmployerResume />,
+    errorElement: <NotFound />,
+  },
+
+  {
+    path: '/admin/notifications',
+    element: <NotificationDashboard />,
     errorElement: <NotFound />,
   },
 
