@@ -137,11 +137,6 @@ export class NavigationUtils {
     this.goTo(ROUTES.COMPANY_PROFILE);
   }
 
-  // Navigate to company overview
-  static goToCompanyOverview() {
-    this.goTo(ROUTES.COMPANY_OVERVIEW);
-  }
-
   // Navigate to transactions
   static goToTransactions() {
     this.goTo(ROUTES.TRANSACTIONS);
@@ -239,7 +234,6 @@ export const navigationHelpers = {
       [ROUTES.MANAGE_JOBS]: 'Manage Jobs',
       [ROUTES.BROWSE_CANDIDATES]: 'Browse Candidates',
       [ROUTES.COMPANY_PROFILE]: 'Company Profile',
-      [ROUTES.COMPANY_OVERVIEW]: 'Company Overview',
       [ROUTES.TRANSACTIONS]: 'Transactions',
       [ROUTES.EMPLOYER_RESUME]: 'Resume',
       [ROUTES.ABOUT]: 'About',

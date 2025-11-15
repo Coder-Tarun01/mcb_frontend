@@ -38,7 +38,6 @@ const EmployerAnalytics = React.lazy(() => import('../pages/Employer Access/Empl
 const PostJob = React.lazy(() => import('../pages/Employer Access/PostJob'));
 const CompanyProfile = React.lazy(() => import('../pages/Employer Access/CompanyProfile'));
 const Company = React.lazy(() => import('../pages/Company'));
-const CompanyOverview = React.lazy(() => import('../pages/Employer Access/CompanyOverview'));
 const ManageJobs = React.lazy(() => import('../pages/Employer Access/ManageJobs'));
 const EditJob = React.lazy(() => import('../pages/Employer Access/EditJob'));
 const JobApplications = React.lazy(() => import('../pages/Employer Access/JobApplications'));
@@ -150,18 +149,9 @@ const AppRoutes: React.FC = () => {
               <CompanyProfile />
             </ProtectedRoute>
           } 
-        />
+        /> 
         
-        <Route 
-          path="/employer/overview" 
-          element={
-            <ProtectedRoute requiredRole="employer">
-              <CompanyOverview />
-            </ProtectedRoute>
-          } 
-        />
-        
-        <Route 
+        <Route
           path="/employer/jobs" 
           element={
             <ProtectedRoute requiredRole="employer">

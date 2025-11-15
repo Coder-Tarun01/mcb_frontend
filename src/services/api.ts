@@ -1,5 +1,6 @@
 import { Job, JobFilter } from '../types/job';
 import { User } from '../types/user';
+import { SuggestionResponseDto } from '../types/search';
 
 const DEFAULT_BACKEND_URL = 'http://localhost:4000';
 
@@ -738,6 +739,7 @@ export const jobsAPI = {
       if (filters?.location) queryParams.append('location', filters.location);
       if (filters?.type) queryParams.append('type', filters.type);
       if (filters?.category) queryParams.append('category', filters.category);
+      if (filters?.experience) queryParams.append('experience', filters.experience);
       if (typeof filters?.isRemote !== 'undefined') queryParams.append('isRemote', String(filters.isRemote));
       if (filters?.company) queryParams.append('company', filters.company);
       if (filters?.sortBy) queryParams.append('sortBy', filters.sortBy);
@@ -749,6 +751,23 @@ export const jobsAPI = {
       return data;
     } catch (error) {
       console.error('Error fetching jobs:', error);
+      throw error;
+    }
+  },
+
+  // Get Home Page Jobs (all 4 categories)
+  fetchHomePageJobs: async (): Promise<{
+    remote: Job[];
+    fresher: Job[];
+    government: Job[];
+    experienced: Job[];
+  }> => {
+    try {
+      const response = await makeRequest('/jobs/home-jobs');
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching home page jobs:', error);
       throw error;
     }
   },
@@ -1378,6 +1397,28 @@ export const searchAPI = {
     } catch (error) {
       console.error('Autocomplete locations error:', error);
       return [];
+    }
+  },
+};
+
+// Suggest API calls (advanced autocomplete with fuzzy search)
+export const suggestAPI = {
+  fetchSuggestions: async (query: string, signal?: AbortSignal): Promise<SuggestionResponseDto> => {
+    try {
+      if (!query || query.length < 2) {
+        return { jobs: [], companies: [], locations: [], skills: [] };
+      }
+      const response = await makeRequest(`/suggest?query=${encodeURIComponent(query)}`, {
+        signal,
+      });
+      return response.json();
+    } catch (error: any) {
+      // Don't log AbortError as it's expected when cancelling requests
+      if (error?.name !== 'AbortError') {
+        console.error('Suggestions error:', error);
+      }
+      // Re-throw AbortError so caller can handle it
+      throw error;
     }
   },
 };

@@ -54,13 +54,19 @@ const Jobs: React.FC = () => {
     const query = searchParams.get('q');
     const location = searchParams.get('location');
     const type = searchParams.get('type');
+    const experience = searchParams.get('experience');
+    const category = searchParams.get('category');
+    const isRemote = searchParams.get('isRemote');
     
-    if (query || location || type) {
+    if (query || location || type || experience || category || isRemote) {
       setFilters(prev => ({
         ...prev,
         keyword: query || '',
         location: location || '',
-        jobType: type || ''
+        jobType: type || '',
+        experience: experience || '',
+        category: category || '',
+        isRemote: isRemote === 'true' || false
       }));
     }
   }, [searchParams]);
@@ -73,19 +79,35 @@ const Jobs: React.FC = () => {
         const query = searchParams.get('q');
         const location = searchParams.get('location');
         const type = searchParams.get('type');
+        const experience = searchParams.get('experience');
+        const category = searchParams.get('category');
+        const isRemote = searchParams.get('isRemote');
         
-        let apiFilters = {};
+        let apiFilters: any = { limit: 500 };
         
         // Apply server-side filtering based on URL parameters
-        if (location === 'remote') {
-          apiFilters = { isRemote: true, limit: 500 };
-        } else if (type === 'domain') {
-          // For domain jobs, load all jobs and filter client-side for domain-specific categories
-          apiFilters = { limit: 500 };
-        } else if (query) {
-          apiFilters = { search: query, limit: 500 };
-        } else {
-          apiFilters = { limit: 500 };
+        if (isRemote === 'true') {
+          apiFilters.isRemote = true;
+        } else if (location === 'remote') {
+          apiFilters.isRemote = true;
+        } else if (location) {
+          apiFilters.location = location;
+        }
+        
+        if (experience) {
+          apiFilters.experience = experience;
+        }
+        
+        if (category) {
+          apiFilters.category = category;
+        }
+        
+        if (type) {
+          apiFilters.type = type;
+        }
+        
+        if (query) {
+          apiFilters.search = query;
         }
         
         const response = await jobsAPI.fetchJobs(apiFilters);
@@ -102,6 +124,35 @@ const Jobs: React.FC = () => {
             job.category === 'Data Science' ||
             job.category === 'Product Management'
           );
+        }
+        
+        // Apply fresher filter as fallback if experience=fresher is in URL but backend didn't filter
+        // This ensures frontend filtering happens BEFORE rendering and pagination
+        if (experience === 'fresher') {
+          jobsArray = jobsArray.filter(job => {
+            const typeLower = job.type ? String(job.type).toLowerCase() : '';
+            const expLower = job.experienceLevel ? String(job.experienceLevel).toLowerCase() : '';
+            const expMin = job.experience && typeof job.experience === 'object' ? (job.experience as any).min : null;
+            
+            // Strict fresher filter: Only 0-1 year experience
+            // Check if type explicitly mentions fresher
+            if (typeLower.includes('fresher') || typeLower.includes('entry')) {
+              return true;
+            }
+            
+            // Check if experienceLevel explicitly mentions fresher
+            if (expLower.includes('fresher') || expLower.includes('entry')) {
+              return true;
+            }
+            
+            // Check if experience.min === 0 (0 years experience)
+            if (expMin === 0) {
+              return true;
+            }
+            
+            // Exclude all others (too loose if we include null)
+            return false;
+          });
         }
         
         setJobs(jobsArray);
@@ -131,25 +182,107 @@ const Jobs: React.FC = () => {
       );
     }
 
+    // Apply isRemote filter if set
+    if (filters.isRemote === true) {
+      filtered = filtered.filter(job => 
+        job.isRemote === true || 
+        job.locationType === 'Remote' ||
+        (job.location && job.location.toLowerCase().includes('remote')) ||
+        (job.type && job.type.toLowerCase() === 'remote')
+      );
+    }
+
     if (filters.location) {
       const location = filters.location.toLowerCase();
       if (location === 'remote') {
         // Filter for remote jobs specifically
-        console.log('Filtering for remote jobs. Total jobs:', jobs.length);
-        const remoteJobs = filtered.filter(job => 
+        filtered = filtered.filter(job => 
           job.isRemote === true || 
           job.locationType === 'Remote' ||
-          job.location?.toLowerCase().includes('remote')
+          job.location?.toLowerCase().includes('remote') ||
+          (job.type && job.type.toLowerCase() === 'remote')
         );
-        console.log('Remote jobs found:', remoteJobs.length);
-        console.log('Sample remote job data:', remoteJobs[0]);
-        filtered = remoteJobs;
       } else {
         // Filter by location for non-remote jobs
         filtered = filtered.filter(job => 
           job.location?.toLowerCase().includes(location)
         );
       }
+    }
+
+    // Apply experience filter (this is a secondary filter for UI state changes)
+    // Note: Primary filtering for experience=fresher happens in loadJobs above
+    if (filters.experience && !searchParams.get('experience')) {
+      // Only apply if not already filtered by URL parameter
+      const experience = filters.experience.toLowerCase();
+      if (experience === 'fresher') {
+        filtered = filtered.filter(job => {
+          const typeLower = job.type ? String(job.type).toLowerCase() : '';
+          const expLower = job.experienceLevel ? String(job.experienceLevel).toLowerCase() : '';
+          const expMin = job.experience && typeof job.experience === 'object' ? (job.experience as any).min : null;
+          
+          // Strict fresher filter
+          if (typeLower.includes('fresher') || typeLower.includes('entry')) {
+            return true;
+          }
+          if (expLower.includes('fresher') || expLower.includes('entry')) {
+            return true;
+          }
+          if (expMin === 0) {
+            return true;
+          }
+          return false;
+        });
+      } else if (experience === 'experienced') {
+        filtered = filtered.filter(job => {
+          const typeLower = job.type ? String(job.type).toLowerCase() : '';
+          const expLower = job.experienceLevel ? String(job.experienceLevel).toLowerCase() : '';
+          const expMin = job.experience && typeof job.experience === 'object' ? (job.experience as any).min : null;
+          
+          // Exclude fresher/entry level
+          if (
+            typeLower.includes('fresher') ||
+            typeLower.includes('entry') ||
+            expLower.includes('fresher') ||
+            expLower.includes('entry')
+          ) {
+            return false;
+          }
+          
+          // Exclude if experience is 0
+          if (expMin === 0) {
+            return false;
+          }
+          
+          // Include if experience > 0 or type is experienced
+          return (
+            typeLower === 'experienced' ||
+            (expMin !== null && expMin > 0) ||
+            (expMin === null && !typeLower.includes('fresher') && typeLower !== '')
+          );
+        });
+      }
+    }
+
+    // Apply category filter
+    if (filters.category) {
+      const category = filters.category.toLowerCase();
+      filtered = filtered.filter(job => {
+        const categoryLower = job.category ? String(job.category).toLowerCase() : '';
+        const companyLower = job.company ? String(job.company).toLowerCase() : '';
+        const titleLower = job.title ? String(job.title).toLowerCase() : '';
+        
+        return (
+          categoryLower === category ||
+          categoryLower === 'public sector' ||
+          companyLower.includes('government') ||
+          companyLower.includes('govt') ||
+          companyLower.includes('gov') ||
+          companyLower.includes('public sector') ||
+          titleLower.includes('government') ||
+          titleLower.includes('govt')
+        );
+      });
     }
 
     if (filters.salaryMin !== undefined) {

@@ -94,13 +94,6 @@ const EmployerSidebar: React.FC<EmployerSidebarProps> = ({ className = '', isOpe
       isActive: location.pathname.startsWith('/employer/candidates')
     },
     {
-      id: 'company-overview',
-      label: 'Company Overview',
-      icon: FileText,
-      path: '/employer/overview',
-      isActive: location.pathname.startsWith('/employer/overview')
-    },
-    {
       id: 'transactions',
       label: 'Transactions',
       icon: CreditCard,
@@ -175,10 +168,10 @@ const EmployerSidebar: React.FC<EmployerSidebarProps> = ({ className = '', isOpe
       )}
 
       {/* Company Profile Section */}
-      <div className="pt-6 pb-8 px-5 md:pt-8 md:pb-6 md:px-4 lg:pt-10 lg:pb-8 border-b border-gray-200/60 bg-gradient-to-br from-blue-50/30 via-white to-slate-50/30 backdrop-blur-sm flex-shrink-0">
-        <div className="flex flex-col items-center gap-4">
+      <div className="pt-4 pb-4 px-5 md:pt-5 md:pb-4 md:px-4 border-b border-gray-200/60 bg-gradient-to-br from-blue-50/30 via-white to-slate-50/30 backdrop-blur-sm flex-shrink-0">
+        <div className="flex flex-col items-center gap-3">
           <div className="relative group">
-            <div className="relative w-24 h-24 md:w-20 md:h-20 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-100 to-blue-50 border-2 border-blue-200/50 rounded-2xl flex items-center justify-center cursor-pointer transition-all duration-300 ease-in-out shadow-lg shadow-blue-500/10 hover:scale-105 hover:shadow-xl hover:shadow-blue-500/20 hover:border-blue-300 overflow-hidden">
+            <div className="relative w-20 h-20 md:w-16 md:h-16 sm:w-14 sm:h-14 bg-gradient-to-br from-blue-100 to-blue-50 border-2 border-blue-200/50 rounded-xl flex items-center justify-center cursor-pointer transition-all duration-300 ease-in-out shadow-lg shadow-blue-500/10 hover:scale-105 hover:shadow-xl hover:shadow-blue-500/20 hover:border-blue-300 overflow-hidden">
               {isLoadingProfile ? (
                 <div className="w-8 h-8 border-[3px] border-blue-400 border-t-transparent rounded-full animate-spin"></div>
               ) : (() => {
@@ -189,7 +182,7 @@ const EmployerSidebar: React.FC<EmployerSidebarProps> = ({ className = '', isOpe
                   const src = isAbsolute ? raw : `${BACKEND_BASE_URL}${String(raw).startsWith('/') ? '' : '/'}${raw}`;
                   return <img src={src} alt={getCompanyName()} className="w-full h-full rounded-2xl object-cover bg-white" />;
                 }
-                return <Building2 className="w-12 h-12 md:w-10 md:h-10 sm:w-8 sm:h-8 text-blue-600" />;
+                return <Building2 className="w-10 h-10 md:w-9 md:h-9 sm:w-8 sm:h-8 text-blue-600" />;
               })()}
               <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-blue-600/0 group-hover:from-blue-500/10 group-hover:to-blue-600/20 transition-all duration-300 rounded-2xl"></div>
             </div>
@@ -211,10 +204,10 @@ const EmployerSidebar: React.FC<EmployerSidebarProps> = ({ className = '', isOpe
             </motion.button>
           </div>
           <div className="text-center">
-            <div className="text-lg md:text-base sm:text-sm font-bold text-gray-900 mb-1 tracking-tight">
+            <div className="text-base md:text-sm sm:text-xs font-bold text-gray-900 mb-0.5 tracking-tight">
               {getCompanyName()}
             </div>
-            <div className="text-xs text-gray-500 font-medium uppercase tracking-wider">
+            <div className="text-[10px] md:text-[10px] text-gray-500 font-medium uppercase tracking-wider">
               Employer Portal
             </div>
           </div>
@@ -222,9 +215,9 @@ const EmployerSidebar: React.FC<EmployerSidebarProps> = ({ className = '', isOpe
       </div>
 
       {/* Navigation Menu */}
-      <nav className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden min-h-0 px-3 py-4 md:py-3">
+      <nav className="flex-1 flex flex-col overflow-hidden min-h-0 px-3 py-3 md:py-2">
         {/* Navigation Items */}
-        <div className="flex flex-col gap-1.5 flex-1 min-h-0">
+        <div className="flex flex-col gap-1.5 pb-2">
           {navigationItems.map((item, index) => (
             <motion.button
               key={item.id}
@@ -266,7 +259,7 @@ const EmployerSidebar: React.FC<EmployerSidebarProps> = ({ className = '', isOpe
         </div>
         
         {/* Logout Button */}
-        <div className="flex-shrink-0 mt-auto pt-4 border-t border-gray-200/60">
+        <div className="flex-shrink-0 mt-auto pt-3 border-t border-gray-200/60">
           <motion.button
             onClick={handleLogout}
             className="w-full flex items-center gap-3 py-3 px-4 md:py-2.5 md:px-3 sm:py-2 sm:px-2 bg-gradient-to-r from-red-50 to-red-100/50 text-red-600 border border-red-200/50 font-semibold rounded-xl cursor-pointer transition-all duration-200 ease-in-out text-left relative overflow-hidden hover:bg-gradient-to-r hover:from-red-100 hover:to-red-200 hover:text-red-700 hover:border-red-300 hover:shadow-md hover:shadow-red-500/10 whitespace-nowrap group"

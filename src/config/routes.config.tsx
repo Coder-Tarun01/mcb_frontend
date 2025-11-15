@@ -25,7 +25,6 @@ const CVManager = lazy(() => import('../pages/dashboard/CVManager'));
 const EmployerDashboard = lazy(() => import('../pages/Employer Access/EmployerDashboard'));
 const PostJob = lazy(() => import('../pages/Employer Access/PostJob'));
 const CompanyProfile = lazy(() => import('../pages/Employer Access/CompanyProfile'));
-const CompanyOverview = lazy(() => import('../pages/Employer Access/CompanyOverview'));
 const ManageJobs = lazy(() => import('../pages/Employer Access/ManageJobs'));
 const Transactions = lazy(() => import('../pages/Employer Access/Transactions'));
 const BrowseCandidates = lazy(() => import('../pages/Employer Access/BrowseCandidates'));
@@ -228,11 +227,6 @@ export const routeConfig: RouteObject[] = [
   {
     path: '/employer/profile',
     element: <CompanyProfile />,
-    errorElement: <NotFound />,
-  },
-  {
-    path: '/employer/overview',
-    element: <CompanyOverview />,
     errorElement: <NotFound />,
   },
   {
