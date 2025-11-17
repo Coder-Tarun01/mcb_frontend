@@ -34,6 +34,7 @@ const ApplicationDetails: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [withdrawing, setWithdrawing] = useState(false);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [resumeLoading, setResumeLoading] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -81,6 +82,48 @@ const ApplicationDetails: React.FC = () => {
     } finally {
       setWithdrawing(false);
       setShowWithdrawModal(false);
+    }
+  };
+
+  const resolveResumeUrl = (url?: string | null) => {
+    if (!url) return null;
+    if (/^https?:\/\//i.test(url)) return url;
+    return `${process.env.REACT_APP_API_URL || 'http://localhost:4000'}${url}`;
+  };
+
+  const handleResumeAction = async (action: 'view' | 'download') => {
+    if (!application || resumeLoading) return;
+
+    let finalUrl: string | null = resolveResumeUrl(application.resumeUrl);
+
+    try {
+      setResumeLoading(true);
+      const { downloadUrl } = await applicationsAPI.getApplicationResumeUrl(application.id);
+      finalUrl = downloadUrl || finalUrl;
+    } catch (error) {
+      console.error('Error fetching resume URL:', error);
+      if (!finalUrl) {
+        alert('Unable to access resume. Please try again later.');
+        return;
+      }
+    } finally {
+      setResumeLoading(false);
+    }
+
+    if (!finalUrl) {
+      alert('Resume not available.');
+      return;
+    }
+
+    if (action === 'view') {
+      window.open(finalUrl, '_blank', 'noopener,noreferrer');
+    } else {
+      const link = document.createElement('a');
+      link.href = finalUrl;
+      link.download = `resume-${job?.title || 'application'}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   };
 
@@ -347,14 +390,24 @@ const ApplicationDetails: React.FC = () => {
                     <Download size={16} />
                     Resume
                   </div>
-                  <a 
-                    href={application.resumeUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800 underline"
-                  >
-                    View Resume
-                  </a>
+                  <div className="flex flex-wrap gap-3">
+                    <button
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                      onClick={() => handleResumeAction('view')}
+                      disabled={resumeLoading}
+                    >
+                      <FileText size={16} />
+                      {resumeLoading ? 'Loading...' : 'View Resume'}
+                    </button>
+                    <button
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                      onClick={() => handleResumeAction('download')}
+                      disabled={resumeLoading}
+                    >
+                      <Download size={16} />
+                      {resumeLoading ? 'Preparing...' : 'Download Resume'}
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

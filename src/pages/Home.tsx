@@ -16,7 +16,6 @@ import {
   Building2,
   Award
 } from 'lucide-react';
-import JobSearchBar from '../components/jobs/JobSearchBar';
 import SEOHead from '../components/seo/SEOHead';
 import OrganizationSchema from '../components/seo/OrganizationSchema';
 import WebsiteSchema from '../components/seo/WebsiteSchema';
@@ -261,12 +260,6 @@ const Home: React.FC = () => {
                 Connect with top companies and discover amazing career opportunities. 
                 Join thousands of professionals who found their perfect match.
               </p>
-              
-              <div className="max-w-full m-0 relative z-30 flex justify-center">
-                <div className="w-full max-w-2xl sm:max-w-md md:max-w-2xl lg:max-w-3xl xl:max-w-4xl">
-                  <JobSearchBar behaveLikeNavbar className="max-w-2xl sm:max-w-md md:max-w-2xl lg:max-w-3xl xl:max-w-4xl" />
-                </div>
-              </div>
             </motion.div>
 
             {/* Right Side - YouTube Video */}

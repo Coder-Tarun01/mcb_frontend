@@ -1238,6 +1238,18 @@ export const applicationsAPI = {
     return { success: result.deleted };
   },
 
+  getApplicationResumeUrl: async (applicationId: string): Promise<{ downloadUrl: string }> => {
+    const response = await makeRequest(`/applications/${applicationId}/resume/download`);
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data?.message || 'Failed to get resume URL');
+    }
+    if (!data?.downloadUrl) {
+      throw new Error('Resume URL not available');
+    }
+    return { downloadUrl: data.downloadUrl };
+  },
+
   // Update application status (employer only)
   updateApplicationStatus: async (applicationId: string, status: 'pending' | 'reviewed' | 'accepted' | 'rejected'): Promise<Application> => {
     try {
