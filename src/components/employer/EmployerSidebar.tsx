@@ -155,7 +155,7 @@ const EmployerSidebar: React.FC<EmployerSidebarProps> = ({ className = '', isOpe
           x: onClose ? (isOpen ? 0 : -320) : 0 
         }}
         transition={{ type: "spring", damping: 25, stiffness: 200 }}
-        className={`fixed md:relative w-72 lg:w-64 h-screen md:h-[calc(100vh-32px)] bg-gradient-to-b from-white via-slate-50/50 to-white border-r border-gray-200/60 md:border md:border-gray-200 md:rounded-lg flex flex-col z-[100] shadow-xl md:shadow-none shadow-black/10 overflow-hidden md:overflow-visible flex-shrink-0 md:ml-0 mr-0 ${className}`}>
+        className={`fixed md:relative w-72 lg:w-64 h-screen md:h-[calc(100vh-32px)] bg-gradient-to-b from-white via-slate-50/50 to-white border-r border-gray-200/60 md:border md:border-gray-200 md:rounded-lg flex flex-col z-[100] shadow-xl md:shadow-none shadow-black/10 overflow-y-auto md:overflow-visible flex-shrink-0 md:ml-0 mr-0 ${className}`}>
       {/* Mobile Close Button */}
       {onClose && (
         <button
@@ -215,14 +215,14 @@ const EmployerSidebar: React.FC<EmployerSidebarProps> = ({ className = '', isOpe
       </div>
 
       {/* Navigation Menu */}
-      <nav className="flex-1 flex flex-col overflow-hidden min-h-0 px-3 py-3 md:py-2">
+      <nav className="flex-1 flex flex-col overflow-y-auto min-h-0 px-3 py-3 md:py-2">
         {/* Navigation Items */}
         <div className="flex flex-col gap-1.5 pb-2">
           {navigationItems.map((item, index) => (
             <motion.button
               key={item.id}
               onClick={() => handleNavigation(item.path)}
-              className={`group flex items-center gap-3 py-3 px-4 md:py-2.5 md:px-3 sm:py-2 sm:px-2 rounded-xl text-sm md:text-sm sm:text-xs font-medium cursor-pointer transition-all duration-200 ease-in-out text-left relative overflow-hidden flex-shrink-0 whitespace-nowrap ${
+              className={`group flex items-center gap-3 py-3 px-4 md:py-2.5 md:px-3 sm:py-2 sm:px-2 rounded-xl text-sm md:text-sm sm:text-xs font-medium cursor-pointer transition-all duration-200 ease-in-out text-left relative overflow-hidden flex-shrink-0 ${
                 item.isActive 
                   ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25' 
                   : 'text-gray-600 hover:bg-gradient-to-r hover:from-blue-50 hover:to-slate-50 hover:text-blue-600'
@@ -241,7 +241,7 @@ const EmployerSidebar: React.FC<EmployerSidebarProps> = ({ className = '', isOpe
               }`}>
                 <item.icon className="w-full h-full" />
               </div>
-              <span className={`flex-1 whitespace-nowrap overflow-hidden text-ellipsis font-medium ${
+              <span className={`flex-1 truncate font-medium ${
                 item.isActive ? 'text-white' : 'text-gray-700 group-hover:text-blue-600'
               }`}>
                 {item.label}
@@ -269,7 +269,7 @@ const EmployerSidebar: React.FC<EmployerSidebarProps> = ({ className = '', isOpe
             <div className="flex items-center justify-center w-5 h-5 md:w-4.5 md:h-4.5 sm:w-4 sm:h-4 flex-shrink-0 text-red-600 group-hover:text-red-700 transition-colors">
               <LogOut className="w-full h-full" />
             </div>
-            <span className="flex-1 whitespace-nowrap overflow-hidden text-ellipsis text-sm md:text-sm sm:text-xs">
+            <span className="flex-1 truncate text-sm md:text-sm sm:text-xs">
               Log Out
             </span>
           </motion.button>

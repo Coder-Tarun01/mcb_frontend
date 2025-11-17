@@ -349,7 +349,7 @@ const JobDetails: React.FC = () => {
               </div>
             </div>
             
-            <div className="flex gap-3 flex-shrink-0">
+            <div className="flex gap-3 flex-shrink-0 flex-wrap w-full md:w-auto">
               <button 
                 onClick={handleBookmark} 
                 disabled={bookmarkLoading}
@@ -358,11 +358,11 @@ const JobDetails: React.FC = () => {
                 <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-white' : ''}`} />
                 {bookmarkLoading ? 'Saving...' : (isBookmarked ? 'Saved' : 'Save')}
               </button>
-              <button onClick={handleShare} className="flex items-center gap-1.5 py-2.5 px-4 bg-slate-50 border border-gray-200 rounded-lg text-gray-700 text-sm font-medium cursor-pointer transition-all duration-300 hover:bg-gray-200 hover:border-gray-300">
+              <button onClick={handleShare} className="flex items-center gap-1.5 py-2.5 px-4 bg-slate-50 border border-gray-200 rounded-lg text-gray-700 text-sm font-medium cursor-pointer transition-all duration-300 hover:bg-gray-200 hover:border-gray-300 flex-1 md:flex-none justify-center">
                 <Share2 className="w-4 h-4" />
                 Share
               </button>
-              <button onClick={handleApply} className="bg-gradient-to-r from-blue-500 to-blue-700 text-white border-none rounded-lg py-3 px-6 text-base font-semibold cursor-pointer transition-all duration-300 shadow-lg shadow-blue-500/30 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/40">
+              <button onClick={handleApply} className="bg-gradient-to-r from-blue-500 to-blue-700 text-white border-none rounded-lg py-3 px-6 text-base font-semibold cursor-pointer transition-all duration-300 shadow-lg shadow-blue-500/30 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/40 flex-1 md:flex-none justify-center">
                 Apply Now
               </button>
             </div>
@@ -476,8 +476,8 @@ const JobDetails: React.FC = () => {
         </div>
 
         {/* Main Content */}
-        <div className={`grid grid-cols-1 ${job.applicationDeadline ? 'lg:grid-cols-3' : ''} gap-8`}>
-          <div className={`${job.applicationDeadline ? 'lg:col-span-2' : ''} bg-white rounded-2xl p-4 sm:p-6 md:p-8 shadow-sm border border-gray-200`}>
+        <div className={`grid grid-cols-1 ${job.applicationDeadline ? 'xl:grid-cols-3' : ''} gap-8`}>
+          <div className={`${job.applicationDeadline ? 'xl:col-span-2' : ''} bg-white rounded-2xl p-4 sm:p-6 md:p-8 shadow-sm border border-gray-200`}>
             {/* Job Description */}
             <section className="mb-10">
               <h2 className="text-2xl font-bold text-gray-900 m-0 mb-5 pb-3 border-b-2 border-gray-200 relative">

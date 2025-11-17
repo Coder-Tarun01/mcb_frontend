@@ -321,6 +321,31 @@
 }
 
 /* Responsive Design */
+@media (max-width: 1024px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  .verification-item {
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .verification-content {
+    width: 100%;
+  }
+
+  .verification-action {
+    width: 100%;
+  }
+
+  .action-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 @media (max-width: 768px) {
   .company-register-page {
     padding: 20px 12px;
@@ -373,6 +398,16 @@
 
   .section-title {
     font-size: 1.3rem;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .primary-btn {
+    width: 100%;
+    justify-content: center;
   }
 }
 

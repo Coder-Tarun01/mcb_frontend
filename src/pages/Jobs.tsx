@@ -491,11 +491,11 @@ const Jobs: React.FC = () => {
         </div>
       </header>
 
-      <div className="container max-w-7xl mx-auto py-8 px-6 mt-8">
+      <div className="max-w-7xl mx-auto py-8 px-6 mt-8">
         {/* Main Content Area */}
         <main className="bg-transparent rounded-none shadow-none border-none overflow-visible">
             {/* Results Header */}
-            <div className="px-4 sm:px-6 pt-8 pb-6 border-b border-gray-200 flex justify-between items-center bg-transparent mb-8 max-w-6xl mx-auto">
+            <div className="px-4 sm:px-6 pt-8 pb-6 border-b border-gray-200 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between bg-transparent mb-8 max-w-6xl mx-auto">
               <div className="flex-1">
                 <h2 className="text-2xl font-semibold text-gray-800 m-0 mb-1">
                   {filteredJobs.length} Job{filteredJobs.length !== 1 ? 's' : ''} Available
@@ -515,9 +515,9 @@ const Jobs: React.FC = () => {
                 </p>
               </div>
 
-              <div className="flex items-center gap-4">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 sm:gap-4 w-full lg:w-auto">
                 <button
-                  className={`border-none py-3 px-6 rounded-md font-semibold cursor-pointer transition-all duration-200 mr-4 flex-shrink-0 ${
+                  className={`border-none py-3 px-6 rounded-md font-semibold cursor-pointer transition-all duration-200 w-full sm:w-auto ${
                     getActiveFiltersCount() > 0
                       ? 'bg-blue-500 text-white hover:bg-blue-600 hover:-translate-y-0.5'
                       : 'bg-gray-200 text-gray-600 hover:bg-gray-300 cursor-pointer'
@@ -527,12 +527,12 @@ const Jobs: React.FC = () => {
                   Clear All Filters
                 </button>
                 
-                <div className="flex items-center gap-2 bg-white border border-gray-300 py-2 px-3 rounded-md">
+                <div className="flex items-center gap-2 bg-white border border-gray-300 py-2 px-3 rounded-md w-full sm:w-auto">
                   <SortAsc className="w-4 h-4 text-gray-500" />
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="bg-none border-none text-gray-700 text-sm font-medium cursor-pointer outline-none"
+                    className="bg-none border-none text-gray-700 text-sm font-medium cursor-pointer outline-none w-full"
                   >
                     <option value="newest">Newest First</option>
                     <option value="oldest">Oldest First</option>
@@ -542,16 +542,16 @@ const Jobs: React.FC = () => {
                   </select>
                 </div>
 
-                <div className="flex bg-white border border-gray-300 rounded-md overflow-hidden">
+                <div className="flex bg-white border border-gray-300 rounded-md overflow-hidden w-full sm:w-auto">
                   <button
-                    className={`flex items-center justify-center w-10 h-10 bg-none border-none cursor-pointer transition-all duration-200 ${viewMode === 'grid' ? 'bg-blue-500 text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'}`}
+                    className={`flex items-center justify-center flex-1 sm:w-10 h-10 bg-none border-none cursor-pointer transition-all duration-200 ${viewMode === 'grid' ? 'bg-blue-500 text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'}`}
                     onClick={() => setViewMode('grid')}
                     title="Grid View"
                   >
                     <Grid3X3 className="w-4.5 h-4.5" />
                   </button>
                   <button
-                    className={`flex items-center justify-center w-10 h-10 bg-none border-none cursor-pointer transition-all duration-200 ${viewMode === 'list' ? 'bg-blue-500 text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'}`}
+                    className={`flex items-center justify-center flex-1 sm:w-10 h-10 bg-none border-none cursor-pointer transition-all duration-200 ${viewMode === 'list' ? 'bg-blue-500 text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'}`}
                     onClick={() => setViewMode('list')}
                     title="List View"
                   >
@@ -730,13 +730,13 @@ const Jobs: React.FC = () => {
 
                 {/* Pagination Controls */}
                 {totalPages > 1 && (
-                  <div className="flex flex-col items-center justify-center gap-4 mt-8 mb-12">
-                    <div className="flex items-center gap-2">
+                  <div className="flex flex-col items-center justify-center gap-2 mt-8 mb-12 w-full">
+                    <div className="flex flex-col md:flex-row items-stretch md:items-center justify-center gap-3 md:gap-2 w-full">
                       {/* Previous Button */}
                       <button
                         onClick={handlePreviousPage}
                         disabled={currentPage === 1}
-                        className={`flex items-center justify-center gap-2 px-4 py-2 rounded-md font-medium transition-all duration-200 ${
+                        className={`flex items-center justify-center gap-2 px-4 py-2 rounded-md font-medium transition-all duration-200 w-full md:w-auto ${
                           currentPage === 1
                             ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                             : 'bg-blue-500 text-white hover:bg-blue-600 hover:-translate-y-0.5 cursor-pointer'
@@ -747,7 +747,7 @@ const Jobs: React.FC = () => {
                       </button>
 
                       {/* Page Numbers */}
-                      <div className="flex items-center gap-1">
+                      <div className="flex flex-wrap items-center justify-center gap-1">
                         {getPageNumbers().map((page, idx) => (
                           page === '...' ? (
                             <span key={`ellipsis-${idx}`} className="px-2 text-gray-500">
@@ -757,7 +757,7 @@ const Jobs: React.FC = () => {
                             <button
                               key={page}
                               onClick={() => handlePageChange(page as number)}
-                              className={`min-w-[40px] h-10 px-3 rounded-md font-medium transition-all duration-200 ${
+                              className={`min-w-[36px] h-9 md:min-w-[40px] md:h-10 px-3 rounded-md font-medium transition-all duration-200 ${
                                 currentPage === page
                                   ? 'bg-blue-500 text-white shadow-md'
                                   : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 hover:border-blue-500'
@@ -773,7 +773,7 @@ const Jobs: React.FC = () => {
                       <button
                         onClick={handleNextPage}
                         disabled={currentPage === totalPages}
-                        className={`flex items-center justify-center gap-2 px-4 py-2 rounded-md font-medium transition-all duration-200 ${
+                        className={`flex items-center justify-center gap-2 px-4 py-2 rounded-md font-medium transition-all duration-200 w-full md:w-auto ${
                           currentPage === totalPages
                             ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                             : 'bg-blue-500 text-white hover:bg-blue-600 hover:-translate-y-0.5 cursor-pointer'

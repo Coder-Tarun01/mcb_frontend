@@ -384,13 +384,13 @@ const Apply: React.FC = () => {
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
           {/* Job Summary - Left Column */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="lg:col-span-1"
+            className="order-2 xl:order-1"
           >
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 sticky top-8">
               <div className="flex items-start gap-4 mb-6">
@@ -485,7 +485,7 @@ const Apply: React.FC = () => {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="lg:col-span-2"
+            className="order-1 xl:order-2 xl:col-span-2"
           >
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
               <div className="p-4 sm:p-6 border-b border-gray-200">
@@ -524,7 +524,7 @@ const Apply: React.FC = () => {
                     <User size={20} className="text-blue-600" />
                     Personal Information
                   </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
                         Full Name *
@@ -594,7 +594,7 @@ const Apply: React.FC = () => {
                     <Briefcase size={20} className="text-blue-600" />
                     Professional Details
                   </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label htmlFor="experience" className="block text-sm font-medium text-gray-700 mb-2">
                         Total Experience *
@@ -723,7 +723,7 @@ const Apply: React.FC = () => {
                     <GraduationCap size={20} className="text-blue-600" />
                     Education Details
                   </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label htmlFor="qualification" className="block text-sm font-medium text-gray-700 mb-2">
                         Highest Qualification

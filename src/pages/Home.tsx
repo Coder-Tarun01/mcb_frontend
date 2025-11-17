@@ -200,7 +200,7 @@ const Home: React.FC = () => {
       {/* Hero Section */}
       <section className="relative overflow-hidden min-h-[70vh] bg-gradient-to-br from-blue-900 via-blue-500 to-blue-400 before:content-[''] before:absolute before:inset-0 before:opacity-30">
         {/* 3D Background Elements */}
-        <div className="absolute inset-0 pointer-events-none z-10">
+        <div className="absolute inset-0 pointer-events-none z-10 hidden md:block">
           <div className="absolute inset-0">
             <div className="absolute w-20 h-20 top-[20%] left-[10%] rounded-full bg-gradient-to-br from-blue-500/20 to-blue-400/10 backdrop-blur-[10px] animate-floatShape"></div>
             <div className="absolute w-30 h-30 top-[60%] right-[15%] rounded-full bg-gradient-to-br from-blue-300/15 to-blue-500/8 backdrop-blur-[10px] animate-floatShape animation-delay-2000"></div>
@@ -335,7 +335,7 @@ const Home: React.FC = () => {
                     scale: 1.02,
                     transition: { duration: 0.3 }
                   }}
-                  className="bg-gradient-to-br from-white/90 to-slate-50/80 rounded-2xl p-0 backdrop-blur-[10px] border border-white/20 relative overflow-hidden transition-all duration-300 cursor-pointer flex flex-col h-auto md:h-[320px] transform-gpu"
+                  className="bg-gradient-to-br from-white/90 to-slate-50/80 rounded-2xl p-0 backdrop-blur-[10px] border border-white/20 relative overflow-hidden transition-all duration-300 cursor-pointer flex flex-col min-h-[280px] sm:min-h-[300px] lg:min-h-[320px] transform-gpu"
                   data-force-render={forceRender}
                   onClick={() => {
                     const slug = (job as any).slug || buildJobSlug({
@@ -513,7 +513,7 @@ const Home: React.FC = () => {
                     scale: 1.02,
                     transition: { duration: 0.3 }
                   }}
-                  className="bg-gradient-to-br from-white/90 to-slate-50/80 rounded-2xl p-0 backdrop-blur-[10px] border border-white/20 relative overflow-hidden transition-all duration-300 cursor-pointer flex flex-col h-auto md:h-[320px] transform-gpu"
+                  className="bg-gradient-to-br from-white/90 to-slate-50/80 rounded-2xl p-0 backdrop-blur-[10px] border border-white/20 relative overflow-hidden transition-all duration-300 cursor-pointer flex flex-col min-h-[280px] sm:min-h-[300px] lg:min-h-[320px] transform-gpu"
                   data-force-render={forceRender}
                   onClick={() => {
                     const slug = (job as any).slug || buildJobSlug({
@@ -688,7 +688,7 @@ const Home: React.FC = () => {
                     scale: 1.02,
                     transition: { duration: 0.3 }
                   }}
-                  className="bg-gradient-to-br from-white/90 to-slate-50/80 rounded-2xl p-0 backdrop-blur-[10px] border border-white/20 relative overflow-hidden transition-all duration-300 cursor-pointer flex flex-col h-auto md:h-[320px] transform-gpu"
+                  className="bg-gradient-to-br from-white/90 to-slate-50/80 rounded-2xl p-0 backdrop-blur-[10px] border border-white/20 relative overflow-hidden transition-all duration-300 cursor-pointer flex flex-col min-h-[280px] sm:min-h-[300px] lg:min-h-[320px] transform-gpu"
                   data-force-render={forceRender}
                   onClick={() => {
                     const slug = (job as any).slug || buildJobSlug({
@@ -863,7 +863,7 @@ const Home: React.FC = () => {
                     scale: 1.02,
                     transition: { duration: 0.3 }
                   }}
-                  className="bg-gradient-to-br from-white/90 to-slate-50/80 rounded-2xl p-0 backdrop-blur-[10px] border border-white/20 relative overflow-hidden transition-all duration-300 cursor-pointer flex flex-col h-auto md:h-[320px] transform-gpu"
+                  className="bg-gradient-to-br from-white/90 to-slate-50/80 rounded-2xl p-0 backdrop-blur-[10px] border border-white/20 relative overflow-hidden transition-all duration-300 cursor-pointer flex flex-col min-h-[280px] sm:min-h-[300px] lg:min-h-[320px] transform-gpu"
                   data-force-render={forceRender}
                   onClick={() => {
                     const slug = (job as any).slug || buildJobSlug({
@@ -1099,7 +1099,8 @@ const Home: React.FC = () => {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-10 gap-3 mb-2 max-w-[1400px] mx-auto px-4 py-4 relative overflow-x-auto rounded-2xl bg-white/60 border border-white/70 shadow-[0_8px_30px_rgba(0,0,0,0.06)] backdrop-blur-sm">
+          <div className="w-full overflow-x-auto">
+            <div className="flex lg:grid lg:grid-cols-10 gap-3 mb-2 max-w-[1400px] mx-auto px-4 py-4 rounded-2xl bg-white/60 border border-white/70 shadow-[0_8px_30px_rgba(0,0,0,0.06)] backdrop-blur-sm">
             {collaborations.map((collaboration, index) => (
               <motion.div
                 key={collaboration.name}
@@ -1131,7 +1132,7 @@ const Home: React.FC = () => {
                   zIndex: 1000,
                   boxShadow: "0 25px 80px rgba(59, 130, 246, 0.3)"
                 }}
-                className="flex items-center justify-center p-3 bg-transparent rounded-lg transition-all duration-300 cursor-pointer relative overflow-hidden min-h-[80px] transform-gpu cursor-grab select-none touch-none hover:-translate-y-0.5 hover:scale-[1.02] active:cursor-grabbing active:scale-[1.1] active:rotate-[3deg]"
+                className="flex items-center justify-center p-3 bg-transparent rounded-lg transition-all duration-300 cursor-pointer relative overflow-hidden min-h-[80px] min-w-[140px] lg:min-w-0 transform-gpu cursor-grab select-none touch-none hover:-translate-y-0.5 hover:scale-[1.02] active:cursor-grabbing active:scale-[1.1] active:rotate-[3deg]"
                 style={{ animationDelay: `${index * 0.5}s` }}
                 title={`${collaboration.name} - Drag to move`}
               >
@@ -1152,6 +1153,7 @@ const Home: React.FC = () => {
                 </div>
               </motion.div>
             ))}
+            </div>
           </div>
         </div>
       </section>

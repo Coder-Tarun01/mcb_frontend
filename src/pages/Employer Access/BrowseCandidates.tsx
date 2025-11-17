@@ -316,13 +316,13 @@ const BrowseCandidates: React.FC = () => {
         transition={{ duration: 0.6 }}
         className="max-w-4xl w-full m-0 p-4 sm:p-6 bg-white rounded-xl shadow-lg"
       >
-        <div className="flex items-center mb-6 gap-5 relative">
-          <button onClick={() => navigate('/employer/dashboard')} className="flex items-center gap-2 bg-transparent border-none text-gray-600 text-[15px] font-medium cursor-pointer transition-all duration-300 flex-shrink-0 absolute left-0 z-10 hover:text-blue-700 hover:-translate-x-1">
+        <div className="flex items-center mb-6 gap-5 relative flex-col sm:flex-row">
+          <button onClick={() => navigate('/employer/dashboard')} className="flex items-center gap-2 bg-transparent border-none text-gray-600 text-[15px] font-medium cursor-pointer transition-all duration-300 flex-shrink-0 sm:absolute sm:left-0 z-10 hover:text-blue-700 hover:-translate-x-1 order-2 sm:order-1 w-full sm:w-auto justify-center sm:justify-start">
             <ArrowLeft className="w-[18px] h-[18px]" />
             <span>Back to Dashboard</span>
           </button>
-          <div className="flex-1 text-center w-full flex justify-center items-center">
-            <h1 className="text-4xl font-bold text-blue-500 m-0 leading-tight tracking-[-0.02em]">Browse Candidates</h1>
+          <div className="flex-1 text-center w-full flex justify-center items-center order-1 sm:order-2">
+            <h1 className="text-3xl sm:text-4xl font-bold text-blue-500 m-0 leading-tight tracking-[-0.02em]">Browse Candidates</h1>
           </div>
         </div>
 
@@ -333,7 +333,7 @@ const BrowseCandidates: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             className="bg-white rounded-2xl p-5 shadow-sm border border-gray-200"
           >
-            <div className="flex items-center gap-4 mb-5">
+            <div className="flex flex-col lg:flex-row items-stretch gap-4 mb-5">
               <div className="relative flex-1">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input 
@@ -344,14 +344,14 @@ const BrowseCandidates: React.FC = () => {
                   className="w-full py-3.5 px-4 pl-12 border border-gray-300 rounded-lg bg-white text-base text-gray-800 transition-all duration-300 focus:outline-none focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1)] placeholder:text-gray-400"
                 />
               </div>
-              <button className="flex items-center gap-2 bg-blue-500 text-white border-none rounded-lg py-3.5 px-6 font-semibold text-sm cursor-pointer transition-all duration-300 whitespace-nowrap hover:bg-blue-600 hover:-translate-y-0.5">
+              <button className="flex items-center gap-2 bg-blue-500 text-white border-none rounded-lg py-3.5 px-6 font-semibold text-sm cursor-pointer transition-all duration-300 whitespace-nowrap hover:bg-blue-600 hover:-translate-y-0.5 w-full lg:w-auto justify-center">
                 <Search className="w-4 h-4 text-white" />
                 <span className="text-white">Search</span>
               </button>
             </div>
             
-            <div className="flex gap-4 flex-wrap mb-4">
-              <div className="relative min-w-[200px]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+              <div className="relative">
                 <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 z-10" />
                 <select 
                   value={locationFilter}
@@ -368,7 +368,7 @@ const BrowseCandidates: React.FC = () => {
                 </select>
               </div>
               
-              <div className="relative min-w-[200px]">
+              <div className="relative">
                 <Award className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 z-10" />
                 <select 
                   value={experienceFilter}
@@ -383,7 +383,7 @@ const BrowseCandidates: React.FC = () => {
                 </select>
               </div>
               
-              <div className="relative min-w-[200px]">
+              <div className="relative">
                 <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 z-10" />
                 <select 
                   value={skillsFilter}
@@ -480,7 +480,7 @@ const BrowseCandidates: React.FC = () => {
               transition={{ delay: 0.1 }}
               className="bg-white rounded-2xl p-5 shadow-sm border border-gray-200"
             >
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6 items-stretch">
+              <div className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6 items-stretch">
                 {candidates.map((candidate) => (
                 <div key={candidate.id} className="bg-white border border-gray-200 rounded-xl p-4 sm:p-5 transition-all duration-300 relative h-full flex flex-col min-h-[400px] sm:min-h-[450px] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(0,0,0,0.1)] hover:border-blue-500">
                   <div className="flex items-start gap-4 mb-4 relative flex-shrink-0">

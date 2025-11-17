@@ -206,10 +206,11 @@ const ApplicationDetails: React.FC = () => {
   const StatusIcon = statusInfo.icon;
 
   return (
-    <div className="min-h-screen p-6 bg-gray-50">
+    <div className="min-h-screen pt-0 pb-6 px-6 bg-gray-50">
+      <div className="w-full max-w-7xl mx-auto border-2 border-gray-200 rounded-2xl p-4 sm:p-6">
       {/* Back Button */}
       <motion.button
-        className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-white rounded-lg transition-all duration-200 mb-6"
+        className="flex items-center gap-2 px-3 sm:px-4 py-2 text-sm sm:text-base text-gray-600 hover:text-gray-800 hover:bg-white rounded-lg transition-all duration-200 mb-6 w-full sm:w-auto justify-center sm:justify-start"
         onClick={() => navigate('/dashboard/applied')}
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -221,15 +222,15 @@ const ApplicationDetails: React.FC = () => {
 
       {/* Application Header */}
       <motion.div
-        className="bg-white rounded-2xl p-8 shadow-md border border-gray-200 mb-8"
+        className="bg-white rounded-2xl p-5 sm:p-8 shadow-md border border-gray-200 mb-8"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <div className="flex justify-between items-start gap-6 lg:flex-row md:flex-col">
+        <div className="flex flex-col lg:flex-row justify-between items-start gap-4 sm:gap-6">
           {/* Job Info */}
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-gray-800 mb-4">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4 break-words">
               {job?.title || application.job?.title || 'Job Title'}
             </h1>
             <div className="flex items-center gap-2 text-gray-600 mb-2">
@@ -263,12 +264,12 @@ const ApplicationDetails: React.FC = () => {
         </div>
       </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Status Timeline */}
           <motion.div
-            className="bg-white rounded-2xl p-6 shadow-md border border-gray-200"
+            className="bg-white rounded-2xl p-5 sm:p-6 shadow-md border border-gray-200"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.1 }}
@@ -336,7 +337,7 @@ const ApplicationDetails: React.FC = () => {
 
           {/* Application Details */}
           <motion.div
-            className="bg-white rounded-2xl p-6 shadow-md border border-gray-200"
+            className="bg-white rounded-2xl p-5 sm:p-6 shadow-md border border-gray-200"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.2 }}
@@ -416,7 +417,7 @@ const ApplicationDetails: React.FC = () => {
           {/* Job Information */}
           {job && (
             <motion.div
-              className="bg-white rounded-2xl p-6 shadow-md border border-gray-200"
+              className="bg-white rounded-2xl p-5 sm:p-6 shadow-md border border-gray-200"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.3 }}
@@ -644,6 +645,7 @@ const ApplicationDetails: React.FC = () => {
           </motion.div>
         </div>
       )}
+      </div>
     </div>
   );
 };

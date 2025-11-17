@@ -52,7 +52,7 @@ interface RecentApplication {
 }
 
 const EmployerDashboard: React.FC = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, isEmployer, isLoading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'overview');
@@ -74,6 +74,20 @@ const EmployerDashboard: React.FC = () => {
       loadDashboardData();
     }
   }, [user, navigate, isEmployer, authLoading]);
+
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam && tabParam !== activeTab) {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams, activeTab]);
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('tab', tabId);
+    setSearchParams(newParams, { replace: true });
+  };
 
   const loadDashboardData = async () => {
     setIsLoading(true);
@@ -154,6 +168,12 @@ const EmployerDashboard: React.FC = () => {
     }
   ];
 
+  const dashboardTabs = [
+    { id: 'overview', label: 'Overview' },
+    { id: 'jobs', label: 'Jobs' },
+    { id: 'applications', label: 'Applications' }
+  ];
+
   const renderOverviewTab = () => (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -169,7 +189,7 @@ const EmployerDashboard: React.FC = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-6 mb-10">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4 sm:gap-6 mb-10">
         {statsCards.map((stat, index) => (
           <motion.div
             key={stat.label}
@@ -241,7 +261,7 @@ const EmployerDashboard: React.FC = () => {
       className="jobs-tab"
     >
       <div className="flex justify-between items-start mb-8 flex-wrap gap-4">
-        <div className="flex-1 min-w-[200px]">
+        <div className="flex-1 min-w-0 w-full lg:w-auto">
           <h2 className="text-3xl font-bold text-gray-800 m-0 mb-2 leading-tight">Posted Jobs</h2>
           <p className="text-base text-gray-500 m-0 mb-8 leading-relaxed">
             Manage your job postings and track applications
@@ -249,7 +269,7 @@ const EmployerDashboard: React.FC = () => {
         </div>
         <button
           onClick={() => navigate('/employer/post-job')}
-          className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white border-none py-3 px-5 rounded-lg font-semibold text-sm cursor-pointer transition-all duration-300 whitespace-nowrap hover:from-blue-700 hover:to-blue-600 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
+          className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white border-none py-3 px-5 rounded-lg font-semibold text-sm cursor-pointer transition-all duration-300 whitespace-nowrap hover:from-blue-700 hover:to-blue-600 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)] w-full sm:w-auto justify-center"
         >
           <Plus className="w-4 h-4" />
           <span>Post New Job</span>
@@ -368,18 +388,18 @@ const EmployerDashboard: React.FC = () => {
                   </div>
 
       <div className="flex gap-4 mb-6 flex-wrap">
-        <div className="flex flex-col gap-2 min-w-[200px]">
+        <div className="flex flex-col gap-2 w-full sm:min-w-[220px]">
           <label className="text-sm font-semibold text-gray-700">Filter by Job</label>
-          <select className="py-2.5 px-3 border border-gray-300 rounded-lg bg-white text-gray-700 text-sm cursor-pointer transition-all duration-300 focus:outline-none focus:border-blue-600 focus:shadow-[0_0_0_3px_rgba(37,99,235,0.1)]">
+          <select className="py-2.5 px-3 border border-gray-300 rounded-lg bg-white text-gray-700 text-sm cursor-pointer transition-all duration-300 focus:outline-none focus:border-blue-600 focus:shadow-[0_0_0_3px_rgba(37,99,235,0.1)] w-full">
             <option value="">All Jobs</option>
             {postedJobs.map(job => (
               <option key={job.id} value={job.id}>{job.title}</option>
             ))}
           </select>
               </div>
-        <div className="flex flex-col gap-2 min-w-[200px]">
+        <div className="flex flex-col gap-2 w-full sm:min-w-[220px]">
           <label className="text-sm font-semibold text-gray-700">Status</label>
-          <select className="py-2.5 px-3 border border-gray-300 rounded-lg bg-white text-gray-700 text-sm cursor-pointer transition-all duration-300 focus:outline-none focus:border-blue-600 focus:shadow-[0_0_0_3px_rgba(37,99,235,0.1)]">
+          <select className="py-2.5 px-3 border border-gray-300 rounded-lg bg-white text-gray-700 text-sm cursor-pointer transition-all duration-300 focus:outline-none focus:border-blue-600 focus:shadow-[0_0_0_3px_rgba(37,99,235,0.1)] w-full">
             <option value="">All Status</option>
             <option value="new">New</option>
             <option value="reviewed">Reviewed</option>
@@ -415,7 +435,7 @@ const EmployerDashboard: React.FC = () => {
             return (
               <div key={application.id} className="bg-white border border-gray-200 rounded-xl p-6 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)] hover:border-blue-500">
                 <div className="flex justify-between items-start mb-4 flex-wrap gap-4">
-                  <div className="flex items-center gap-3 flex-1 min-w-[200px]">
+                  <div className="flex items-center gap-3 flex-1 min-w-0 w-full lg:w-auto">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-600 to-blue-500 flex items-center justify-center text-white font-semibold text-base flex-shrink-0">
                       <span>{initials}</span>
                     </div>
@@ -783,6 +803,8 @@ const EmployerDashboard: React.FC = () => {
     switch (activeTab) {
       case 'overview':
         return renderOverviewTab();
+      case 'jobs':
+        return renderJobsTab();
       case 'applications':
         return renderApplicationsTab();
       default:
@@ -824,6 +846,24 @@ const EmployerDashboard: React.FC = () => {
       <div className="max-w-full m-0 p-4 min-h-full bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
           {/* Main Content */}
           <div className="bg-white rounded-2xl shadow-[0_4px_6px_rgba(0,0,0,0.05)] border border-gray-200 p-4 sm:p-6 md:p-8 overflow-hidden">
+            <div className="mb-6 -mx-2">
+              <div className="flex flex-wrap md:flex-nowrap gap-3 overflow-x-auto px-2 py-1">
+                {dashboardTabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => handleTabChange(tab.id)}
+                    className={`px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                      activeTab === tab.id
+                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            </div>
             {renderTabContent()}
           </div>
         </div>

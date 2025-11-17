@@ -369,10 +369,10 @@ const PostJob: React.FC = () => {
   return (
     <EmployerLayout>
         <div className="flex flex-col w-full max-w-6xl mx-auto border border-slate-200 rounded-2xl bg-white/95 p-3 sm:p-4 md:p-6 shadow-[0_2px_10px_rgba(0,0,0,0.04)]">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-5 relative pb-3 sm:pb-4 border-b border-slate-200/60">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center mb-4 sm:mb-6 gap-3 sm:gap-5 pb-3 sm:pb-4 border-b border-slate-200/60 w-full">
             <button 
               onClick={() => navigate('/employer/dashboard')} 
-              className="flex items-center gap-2 sm:gap-2.5 bg-slate-50/80 border border-slate-200/80 text-slate-600 text-xs sm:text-sm font-semibold cursor-pointer transition-all duration-300 z-10 py-2.5 sm:py-3 px-3 sm:px-5 rounded-xl backdrop-blur-sm hover:bg-blue-500 hover:border-blue-500 hover:text-white hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/30 sm:absolute sm:left-0 sm:top-0"
+              className="flex items-center gap-2 sm:gap-2.5 bg-slate-50/80 border border-slate-200/80 text-slate-600 text-xs sm:text-sm font-semibold cursor-pointer transition-all duration-300 py-2.5 sm:py-3 px-3 sm:px-5 rounded-xl backdrop-blur-sm hover:bg-blue-500 hover:border-blue-500 hover:text-white hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/30 w-full sm:w-auto justify-center"
             >
               <ArrowLeft className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-0.5" />
               <span className="hidden sm:inline">Back to Dashboard</span>

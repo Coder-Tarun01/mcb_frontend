@@ -134,7 +134,7 @@ const Contact: React.FC = () => {
       <div className="absolute inset-0 opacity-50 pointer-events-none" style={{backgroundImage: "url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><defs><pattern id=\"dots\" width=\"20\" height=\"20\" patternUnits=\"userSpaceOnUse\"><circle cx=\"10\" cy=\"10\" r=\"1\" fill=\"rgba(59, 130, 246, 0.1)\"/></pattern></defs><rect width=\"100\" height=\"100\" fill=\"url(%23dots)\"/></svg>')"}}></div>
       
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-800 via-blue-500 to-blue-400 py-16 relative overflow-hidden">
+      <section className="bg-gradient-to-br from-blue-800 via-blue-500 to-blue-400 py-14 sm:py-16 relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-30" style={{backgroundImage: "url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><defs><pattern id=\"grain\" width=\"100\" height=\"100\" patternUnits=\"userSpaceOnUse\"><circle cx=\"25\" cy=\"25\" r=\"1\" fill=\"rgba(255,255,255,0.1)\"/><circle cx=\"75\" cy=\"75\" r=\"1\" fill=\"rgba(255,255,255,0.1)\"/><circle cx=\"50\" cy=\"10\" r=\"0.5\" fill=\"rgba(255,255,255,0.05)\"/><circle cx=\"10\" cy=\"60\" r=\"0.5\" fill=\"rgba(255,255,255,0.05)\"/><circle cx=\"90\" cy=\"40\" r=\"0.5\" fill=\"rgba(255,255,255,0.05)\"/></pattern></defs><rect width=\"100\" height=\"100\" fill=\"url(%23grain)\"/></svg>')"}}></div>
         
@@ -145,7 +145,7 @@ const Contact: React.FC = () => {
             transition={{ duration: 0.8 }}
             className="text-center text-white"
           >
-            <h1 className="text-6xl font-extrabold mb-6 leading-tight text-shadow-lg bg-gradient-to-br from-white to-blue-100 bg-clip-text text-transparent text-white">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight text-shadow-lg bg-gradient-to-br from-white to-blue-100 bg-clip-text text-transparent text-white">
               Get in <span className="bg-gradient-to-r from-yellow-400 to-yellow-500 bg-clip-text text-transparent">Touch</span>
             </h1>
             <p className="text-xl opacity-95 max-w-3xl mx-auto leading-relaxed font-normal text-white text-shadow-md">
@@ -156,15 +156,15 @@ const Contact: React.FC = () => {
       </section>
 
       {/* Contact Content */}
-      <section className="py-24">
+      <section className="py-16 sm:py-24">
         <div className="max-w-6xl mx-auto px-5">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-10 xl:gap-16 items-start">
             {/* Contact Information */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="bg-gradient-to-br from-white to-slate-50 rounded-3xl p-14 shadow-2xl shadow-black/8 border border-white/30 relative overflow-hidden"
+              className="bg-gradient-to-br from-white to-slate-50 rounded-3xl p-6 sm:p-10 lg:p-14 shadow-2xl shadow-black/8 border border-white/30 relative overflow-hidden order-2 xl:order-1"
             >
               {/* Top border */}
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-700"></div>
@@ -259,7 +259,7 @@ const Contact: React.FC = () => {
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="bg-gradient-to-br from-white to-slate-50 rounded-3xl p-14 shadow-2xl shadow-black/8 border border-white/30 relative overflow-hidden"
+              className="bg-gradient-to-br from-white to-slate-50 rounded-3xl p-6 sm:p-10 lg:p-14 shadow-2xl shadow-black/8 border border-white/30 relative overflow-hidden order-1 xl:order-2"
             >
               {/* Top border */}
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-700"></div>

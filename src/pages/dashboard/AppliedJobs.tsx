@@ -237,7 +237,7 @@ const AppliedJobs: React.FC = () => {
 
       {/* Modern Controls */}
       <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-200 mb-8">
-        <div className="flex flex-col lg:flex-row gap-4">
+        <div className="flex flex-col lg:flex-row gap-3 md:gap-2 items-start md:items-center">
           <div className="flex-1">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />

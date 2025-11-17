@@ -344,7 +344,7 @@ const EditJob: React.FC = () => {
 
   return (
     <EmployerLayout>
-      <div className="min-h-screen bg-slate-50 py-8">
+      <div className="min-h-screen bg-slate-50 py-6 sm:py-8 px-4 sm:px-6">
         {/* Success Message */}
         {success && (
           <motion.div
@@ -379,16 +379,16 @@ const EditJob: React.FC = () => {
           className="max-w-6xl mx-auto px-4"
         >
           <div className="bg-white rounded-xl p-4 sm:p-6 md:p-8 mb-8 shadow-[0_2px_8px_rgba(0,0,0,0.1)] border border-gray-200">
-            <div className="flex items-center gap-8 flex-wrap">
-              <button onClick={handleCancel} className="flex items-center gap-2 py-3 px-6 bg-slate-50 border border-gray-300 rounded-lg text-gray-700 no-underline font-medium text-sm transition-all duration-200 hover:bg-slate-100 hover:border-gray-400 hover:text-slate-800">
+            <div className="flex flex-col xl:flex-row items-start xl:items-center gap-4 xl:gap-8 w-full">
+              <button onClick={handleCancel} className="flex items-center gap-2 py-3 px-6 bg-slate-50 border border-gray-300 rounded-lg text-gray-700 no-underline font-medium text-sm transition-all duration-200 hover:bg-slate-100 hover:border-gray-400 hover:text-slate-800 w-full sm:w-auto justify-center">
                 <ArrowLeft className="w-5 h-5" />
                 <span>Back to Manage Jobs</span>
               </button>
-              <div className="flex-1 flex flex-col gap-1">
-                <h1 className="text-4xl font-bold text-gray-800 m-0 leading-tight">Edit Job</h1>
+              <div className="flex-1 flex flex-col gap-1 text-center sm:text-left w-full">
+                <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 m-0 leading-tight">Edit Job</h1>
                 <p className="text-base text-gray-500 m-0 font-normal">Update your job posting details and requirements</p>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 w-full xl:w-auto justify-center">
                 <div className="flex items-center gap-2 py-2 px-4 bg-blue-50 border border-blue-200 rounded-lg text-blue-700 font-medium text-sm">
                   <div className="w-1.5 h-1.5 bg-blue-700 rounded-full"></div>
                   <span>Editing Mode</span>
@@ -583,7 +583,7 @@ const EditJob: React.FC = () => {
                 <div className="flex flex-col col-span-full">
                   <label className="font-semibold text-gray-700 mb-2 text-sm">Required Skills</label>
                   <div className="flex flex-col gap-4">
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2">
                       <input
                         type="text"
                         value={jobData.currentTag}
@@ -781,19 +781,19 @@ const EditJob: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 }}
-              className="flex justify-end gap-4 pt-8 border-t border-gray-200"
+              className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 sm:gap-4 pt-8 border-t border-gray-200"
             >
               <button
                 type="button"
                 onClick={handleCancel}
-                className="py-3 px-8 bg-gray-100 border-2 border-gray-300 rounded-lg text-gray-700 font-semibold cursor-pointer transition-all duration-300 hover:bg-gray-200 hover:border-gray-400"
+                className="py-3 px-8 bg-gray-100 border-2 border-gray-300 rounded-lg text-gray-700 font-semibold cursor-pointer transition-all duration-300 hover:bg-gray-200 hover:border-gray-400 w-full sm:w-auto"
                 disabled={saving}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="flex items-center gap-2 py-3 px-8 bg-gradient-to-r from-blue-500 to-blue-700 border-none rounded-lg !text-white font-semibold cursor-pointer transition-all duration-300 shadow-[0_4px_6px_rgba(59,130,246,0.3)] hover:from-blue-600 hover:to-blue-800 hover:-translate-y-0.5 hover:shadow-[0_6px_12px_rgba(59,130,246,0.4)] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
+                className="flex items-center gap-2 py-3 px-8 bg-gradient-to-r from-blue-500 to-blue-700 border-none rounded-lg !text-white font-semibold cursor-pointer transition-all duration-300 shadow-[0_4px_6px_rgba(59,130,246,0.3)] hover:from-blue-600 hover:to-blue-800 hover:-translate-y-0.5 hover:shadow-[0_6px_12px_rgba(59,130,246,0.4)] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none w-full sm:w-auto justify-center"
                 disabled={saving}
               >
                 {saving ? (
