@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   Building2, 
@@ -52,10 +52,8 @@ interface RecentApplication {
 }
 
 const EmployerDashboard: React.FC = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, isEmployer, isLoading: authLoading } = useAuth();
-  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'overview');
   const [postedJobs, setPostedJobs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [companyProfile, setCompanyProfile] = useState<any>(null);
@@ -74,20 +72,6 @@ const EmployerDashboard: React.FC = () => {
       loadDashboardData();
     }
   }, [user, navigate, isEmployer, authLoading]);
-
-  useEffect(() => {
-    const tabParam = searchParams.get('tab');
-    if (tabParam && tabParam !== activeTab) {
-      setActiveTab(tabParam);
-    }
-  }, [searchParams, activeTab]);
-
-  const handleTabChange = (tabId: string) => {
-    setActiveTab(tabId);
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set('tab', tabId);
-    setSearchParams(newParams, { replace: true });
-  };
 
   const loadDashboardData = async () => {
     setIsLoading(true);
@@ -168,11 +152,6 @@ const EmployerDashboard: React.FC = () => {
     }
   ];
 
-  const dashboardTabs = [
-    { id: 'overview', label: 'Overview' },
-    { id: 'jobs', label: 'Jobs' },
-    { id: 'applications', label: 'Applications' }
-  ];
 
   const renderOverviewTab = () => (
     <motion.div
@@ -799,18 +778,6 @@ const EmployerDashboard: React.FC = () => {
 
 
 
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'overview':
-        return renderOverviewTab();
-      case 'jobs':
-        return renderJobsTab();
-      case 'applications':
-        return renderApplicationsTab();
-      default:
-        return renderOverviewTab();
-    }
-  };
 
 
   // Show loading while auth is loading
@@ -846,25 +813,7 @@ const EmployerDashboard: React.FC = () => {
       <div className="max-w-full m-0 p-4 min-h-full bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
           {/* Main Content */}
           <div className="bg-white rounded-2xl shadow-[0_4px_6px_rgba(0,0,0,0.05)] border border-gray-200 p-4 sm:p-6 md:p-8 overflow-hidden">
-            <div className="mb-6 -mx-2">
-              <div className="flex flex-wrap md:flex-nowrap gap-3 overflow-x-auto px-2 py-1">
-                {dashboardTabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => handleTabChange(tab.id)}
-                    className={`px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
-                      activeTab === tab.id
-                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-            {renderTabContent()}
+            {renderOverviewTab()}
           </div>
         </div>
       </div>

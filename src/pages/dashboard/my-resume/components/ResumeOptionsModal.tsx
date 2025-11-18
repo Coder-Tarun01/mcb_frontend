@@ -93,7 +93,7 @@ const ResumeOptionsModal: React.FC<ResumeOptionsModalProps> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/50 backdrop-blur-[1px] flex items-start justify-center z-[100] p-3 sm:p-4 pt-20 sm:pt-24 md:pt-28 lg:pt-32 overflow-y-auto"
+        className="fixed inset-0 bg-black/50 backdrop-blur-[1px] flex items-start justify-center z-[100] p-3 sm:p-4 md:p-6 pt-20 sm:pt-24 md:pt-28 lg:pt-32 overflow-y-auto"
         onClick={onClose}
       >
         <motion.div
@@ -101,7 +101,7 @@ const ResumeOptionsModal: React.FC<ResumeOptionsModalProps> = ({
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.95, opacity: 0, y: -10 }}
           transition={{ duration: 0.2, ease: 'easeOut' }}
-          className="bg-white rounded-xl shadow-2xl max-w-sm sm:max-w-md w-full max-h-[calc(100vh-8rem)] sm:max-h-[75vh] mb-4 sm:mb-6 overflow-y-auto border border-gray-100"
+          className="bg-white rounded-xl shadow-2xl max-w-sm sm:max-w-md md:max-w-lg w-full max-h-[calc(100vh-6rem)] sm:max-h-[75vh] mb-4 sm:mb-6 overflow-y-auto border border-gray-100"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}

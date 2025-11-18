@@ -222,31 +222,31 @@ const Profile: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen pt-0 pb-6 px-6 bg-gray-50">
-      <div className="w-full max-w-7xl mx-auto border-2 border-gray-300 rounded-2xl p-6">
+    <div className="min-h-screen pt-0 pb-6 px-4 sm:px-6 bg-gray-50">
+      <div className="w-full max-w-7xl mx-auto border-2 border-gray-300 rounded-2xl p-4 sm:p-6">
       {/* Header with Edit/Save/Cancel buttons */}
-      <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-200 mb-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-800">Profile Settings</h1>
-          <div className="flex items-center gap-3">
+      <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-md border border-gray-200 mb-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <h1 className="text-2xl font-bold text-gray-800 text-center md:text-left">Profile Settings</h1>
+          <div className="flex flex-col sm:flex-row items-center gap-3">
             {!isEditing ? (
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleEdit}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors w-full sm:w-auto justify-center"
               >
                 <Edit size={16} />
                 Edit Profile
               </motion.button>
             ) : (
-              <div className="flex items-center gap-3">
+              <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={handleSave}
                   disabled={isSaving}
-                  className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                  className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors w-full sm:w-auto justify-center"
                 >
                   <Save size={16} />
                   {isSaving ? 'Saving...' : 'Save'}
@@ -256,7 +256,7 @@ const Profile: React.FC = () => {
                   whileTap={{ scale: 0.95 }}
                   onClick={handleCancel}
                   disabled={isSaving}
-                  className="bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                  className="bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors w-full sm:w-auto justify-center"
                 >
                   <X size={16} />
                   Cancel
@@ -275,7 +275,7 @@ const Profile: React.FC = () => {
       )}
 
       {/* Profile Photo Section */}
-      <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-200 mb-6">
+      <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-md border border-gray-200 mb-6">
         <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-6">
           <User size={20} className="text-blue-600" />
           PROFILE PHOTO
@@ -298,12 +298,12 @@ const Profile: React.FC = () => {
       </div>
 
       {/* Basic Information Section */}
-      <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-200 mb-6">
+      <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-md border border-gray-200 mb-6">
         <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-6">
           <User size={20} className="text-blue-600" />
           BASIC INFORMATION
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Your Name *</label>
             <input
@@ -400,7 +400,7 @@ const Profile: React.FC = () => {
           <Mail size={20} className="text-blue-600" />
           CONTACT INFORMATION
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
             <input

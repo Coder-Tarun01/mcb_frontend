@@ -112,10 +112,10 @@ const Analytics: React.FC = () => {
   const reviewedCount = calculateStatusCount('reviewed');
 
   return (
-    <div className="min-h-screen pt-0 pb-6 px-6 bg-gray-50">
-      <div className="w-full max-w-7xl mx-auto border-2 border-gray-300 rounded-xl p-6 bg-transparent">
+    <div className="min-h-screen pt-0 pb-6 px-4 sm:px-6 bg-gray-50">
+      <div className="w-full max-w-7xl mx-auto border-2 border-gray-300 rounded-xl p-4 sm:p-6 bg-transparent">
       {/* Page Header */}
-      <div className="mb-8">
+      <div className="mb-8 text-center sm:text-left">
         <h1 className="text-2xl font-bold text-blue-700 mb-4">Analytics Overview</h1>
         <p className="text-gray-500 mb-6">Track your job search performance and profile engagement</p>
         </div>
@@ -238,7 +238,7 @@ const Analytics: React.FC = () => {
               <>
                 <div className="flex flex-col gap-5 mb-7">
                   {acceptedCount > 0 && (
-                    <div className="grid grid-cols-[100px_1fr_60px] gap-3 items-center">
+                    <div className="grid grid-cols-1 sm:grid-cols-[100px_1fr_60px] gap-3 items-center">
                       <div className="text-sm font-semibold text-gray-700">Accepted</div>
                       <div className="bg-gray-100 rounded-lg h-8 relative overflow-hidden">
                         <div 
@@ -253,7 +253,7 @@ const Analytics: React.FC = () => {
                   )}
 
                   {reviewedCount > 0 && (
-                    <div className="grid grid-cols-[100px_1fr_60px] gap-3 items-center">
+                    <div className="grid grid-cols-1 sm:grid-cols-[100px_1fr_60px] gap-3 items-center">
                       <div className="text-sm font-semibold text-gray-700">Reviewed</div>
                       <div className="bg-gray-100 rounded-lg h-8 relative overflow-hidden">
                         <div 
@@ -268,7 +268,7 @@ const Analytics: React.FC = () => {
                   )}
 
                   {pendingCount > 0 && (
-                    <div className="grid grid-cols-[100px_1fr_60px] gap-3 items-center">
+                    <div className="grid grid-cols-1 sm:grid-cols-[100px_1fr_60px] gap-3 items-center">
                       <div className="text-sm font-semibold text-gray-700">Pending</div>
                       <div className="bg-gray-100 rounded-lg h-8 relative overflow-hidden">
                         <div 
@@ -283,7 +283,7 @@ const Analytics: React.FC = () => {
                   )}
 
                   {rejectedCount > 0 && (
-                    <div className="grid grid-cols-[100px_1fr_60px] gap-3 items-center">
+                    <div className="grid grid-cols-1 sm:grid-cols-[100px_1fr_60px] gap-3 items-center">
                       <div className="text-sm font-semibold text-gray-700">Rejected</div>
                       <div className="bg-gray-100 rounded-lg h-8 relative overflow-hidden">
                         <div 

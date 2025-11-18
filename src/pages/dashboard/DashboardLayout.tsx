@@ -19,7 +19,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { usersAPI } from '../../services/api';
 import ProfilePhotoUpload from '../../components/dashboard/ProfilePhotoUpload';
-
+import { useDashboardSidebar } from '../../context/DashboardSidebarContext';
 
 const DashboardLayout: React.FC = () => {
   const { user, logout } = useAuth();
@@ -27,7 +27,7 @@ const DashboardLayout: React.FC = () => {
   const navigate = useNavigate();
   const [userProfile, setUserProfile] = useState<any>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const { isSidebarOpen, toggleSidebar, closeSidebar, isMobileOrTablet } = useDashboardSidebar();
   const [searchQuery, setSearchQuery] = useState('');
   const [showUserMenu, setShowUserMenu] = useState(false);
 
@@ -88,6 +88,17 @@ const DashboardLayout: React.FC = () => {
   // Check if we're on a resume page
   const isResumePage = location.pathname.startsWith('/dashboard/my-resume');
 
+  // Close sidebar on route change (mobile/tablet only)
+  useEffect(() => {
+    if (isMobileOrTablet && isSidebarOpen) {
+      const mediaQuery = window.matchMedia('(max-width: 1023px)');
+      if (mediaQuery.matches) {
+        closeSidebar();
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]); // Only run when pathname changes
+
   // (removed unused resume upload handlers)
 
   // (removed duplicate loadUserProfile; using the scoped version inside useEffect)
@@ -119,20 +130,22 @@ const DashboardLayout: React.FC = () => {
     return location.pathname === path || location.pathname.startsWith(path + '/');
   };
 
-      return (
+  return (
     <div className="min-h-screen bg-gray-50">
-      {/* Top Navbar */}
-      <header className="fixed top-0 left-0 w-full bg-blue-600 text-white shadow-md z-50">
+      {/* Top Navbar (dashboard-specific, hidden on mobile where global navbar already provides controls) */}
+      <header className="hidden md:block fixed top-0 left-0 w-full bg-blue-600 text-white shadow-md z-50">
         <div className="flex items-center justify-between px-6 py-3">
           {/* Left side - Logo and Mobile Menu */}
-          <div className="flex items-center gap-4">
-            <button
-              className="lg:hidden p-2 hover:bg-blue-700 rounded-lg transition-colors"
-              onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
-            >
-              <Menu size={20} />
+          <div className="flex items-center gap-3 sm:gap-4">
+            {isMobileOrTablet && (
+              <button
+                className="p-2 hover:bg-blue-700 rounded-lg transition-colors"
+                onClick={toggleSidebar}
+              >
+                <Menu size={20} />
               </button>
-            <h1 className="text-xl font-semibold">mycareerbuild Dashboard</h1>
+            )}
+            <h1 className="text-lg sm:text-xl font-semibold">mycareerbuild Dashboard</h1>
           </div>
 
           {/* Center - Search Bar */}
@@ -150,7 +163,7 @@ const DashboardLayout: React.FC = () => {
               </div>
               
           {/* Right side - User Menu */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <button className="p-2 hover:bg-blue-700 rounded-lg transition-colors">
               <Bell size={20} />
             </button>
@@ -217,8 +230,8 @@ const DashboardLayout: React.FC = () => {
       </header>
 
       {/* Main Layout */}
-      <div className="flex pt-16 w-full max-w-7xl mx-auto gap-6">
-        {/* Desktop Sidebar */}
+      <div className="flex w-full max-w-7xl mx-auto gap-4 sm:gap-6 px-4 lg:px-6 relative overflow-x-hidden pt-6 md:pt-16">
+        {/* Desktop Sidebar - Fixed on desktop */}
         <AnimatePresence mode="wait">
           {!isResumePage && (
             <motion.aside 
@@ -285,29 +298,33 @@ const DashboardLayout: React.FC = () => {
           )}
         </AnimatePresence>
 
-        {/* Mobile Sidebar Overlay */}
+        {/* Mobile/Tablet Sidebar - Drawer */}
+        {!isResumePage && (
         <AnimatePresence>
-          {isMobileSidebarOpen && (
+            {isSidebarOpen && isMobileOrTablet && (
             <>
+                {/* Backdrop */}
                         <motion.div
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-                onClick={() => setIsMobileSidebarOpen(false)}
+                  transition={{ duration: 0.2 }}
+                  className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+                  onClick={closeSidebar}
               />
+                {/* Sidebar */}
               <motion.aside
-                initial={{ x: -300 }}
+                  initial={{ x: '-100%' }}
                 animate={{ x: 0 }}
-                exit={{ x: -300 }}
-                transition={{ duration: 0.3 }}
-                className="fixed left-0 top-0 w-64 h-full bg-white shadow-xl z-50 lg:hidden border-r border-gray-200 flex flex-col overflow-hidden"
+                  exit={{ x: '-100%' }}
+                  transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                  className="fixed left-0 top-0 w-72 lg:w-64 h-screen bg-white shadow-xl z-50 lg:hidden border-r border-gray-200 flex flex-col overflow-hidden"
               >
                 {/* Mobile Sidebar Header */}
-                <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50/80 to-blue-100/40">
+                  <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50/80 to-blue-100/40 flex-shrink-0">
                   <h2 className="text-lg font-semibold text-gray-800">Menu</h2>
                   <button
-                    onClick={() => setIsMobileSidebarOpen(false)}
+                      onClick={closeSidebar}
                     className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                   >
                     <X className="h-5 w-5 text-gray-600" />
@@ -328,7 +345,8 @@ const DashboardLayout: React.FC = () => {
                 </div>
 
                 {/* Mobile Navigation */}
-                <nav className="flex flex-col gap-2 p-4 flex-1">
+                  <nav className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden min-h-0 px-4 pt-4 pb-24 md:pb-32">
+                    <div className="flex flex-col gap-2 pb-2">
                   {mainSidebarItems.map((item) => (
                     <motion.button
                       key={item.id}
@@ -341,7 +359,7 @@ const DashboardLayout: React.FC = () => {
                       }`}
                       onClick={() => {
                         handleNavigation(item.path || '', item.action);
-                        setIsMobileSidebarOpen(false);
+                            closeSidebar();
                       }}
                     >
                       <div className={`p-1.5 rounded-md ${isActive(item.path || '') ? 'bg-white/20' : 'bg-gray-100'}`}>
@@ -353,16 +371,16 @@ const DashboardLayout: React.FC = () => {
                       )}
                     </motion.button>
                   ))}
-              </nav>
+                    </div>
 
               {/* Mobile Logout Button */}
-              <div className="p-4 border-t border-gray-200 flex-shrink-0">
+                    <div className="flex-shrink-0 mt-auto pt-3 pb-8 md:pb-12 border-t border-gray-200">
                 <motion.button
                   whileHover={{ x: 2 }}
                   transition={{ duration: 0.2 }}
                   onClick={() => {
                     handleLogout();
-                    setIsMobileSidebarOpen(false);
+                          closeSidebar();
                   }}
                   className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
                 >
@@ -372,20 +390,22 @@ const DashboardLayout: React.FC = () => {
                   <span className="flex-1 text-left">Logout</span>
                 </motion.button>
               </div>
+                  </nav>
               </motion.aside>
             </>
           )}
         </AnimatePresence>
+        )}
 
-        {/* Main Content */}
-        <div className="flex-1 min-h-screen min-w-0 max-w-full pt-0">
+        {/* Main Content - Full width on mobile/tablet */}
+        <div className="flex-1 min-h-screen min-w-0 max-w-full pt-0 w-full lg:w-auto">
           <motion.main
           key={location.pathname}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3 }}
-            className="container max-w-7xl mx-auto w-full"
+            className="container max-w-7xl mx-auto w-full px-4 sm:px-6"
         >
             <Outlet />
           </motion.main>

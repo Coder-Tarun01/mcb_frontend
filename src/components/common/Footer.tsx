@@ -14,8 +14,8 @@ const Footer: React.FC = () => {
 
   return (
     <footer className="bg-slate-800 text-white mt-20">
-      <div className="container max-w-7xl mx-auto px-5 sm:px-5 lg:px-10 xl:px-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 py-10 items-start">
+      <div className="container max-w-7xl mx-auto px-4 sm:px-5 lg:px-10 xl:px-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6 lg:gap-8 py-10 items-start">
           {/* Company Info */}
           <div className="bg-[#0f2236] border border-slate-700 rounded-2xl p-4 md:p-5 flex flex-col items-center text-center shadow-[0_10px_30px_rgba(0,0,0,0.25)] w-full mx-auto lg:mx-0 justify-start gap-3 min-h-[260px]">
             <div className="flex flex-col items-center gap-1.5 w-full">
@@ -44,11 +44,11 @@ const Footer: React.FC = () => {
           </div>
 
           {/* Quick Links */}
-          <div className="flex flex-col gap-2 items-center lg:items-start text-center lg:text-left">
+          <div className="flex flex-col gap-2 items-center text-center lg:items-start lg:text-left">
             <h3 className="text-base md:text-lg font-semibold text-white mb-2">
               Quick Links
             </h3>
-            <ul className="list-none p-0 m-0 flex flex-col gap-2.5">
+            <ul className="list-none p-0 m-0 flex flex-col gap-2.5 w-full">
               <li><Link to="/jobs" className="text-white text-decoration-none text-sm transition-colors duration-300 hover:text-blue-500">Browse Jobs</Link></li>
               <li><Link to="/jobs?type=remote" className="text-white text-decoration-none text-sm transition-colors duration-300 hover:text-blue-500">Remote Jobs</Link></li>
               <li><Link to="/jobs?type=full-time" className="text-white text-decoration-none text-sm transition-colors duration-300 hover:text-blue-500">Full-time Jobs</Link></li>
@@ -58,11 +58,11 @@ const Footer: React.FC = () => {
           </div>
 
           {/* For Job Seekers */}
-          <div className="flex flex-col gap-2 items-center lg:items-start text-center lg:text-left">
+          <div className="flex flex-col gap-2 items-center text-center lg:items-start lg:text-left">
             <h3 className="text-base md:text-lg font-semibold text-white mb-2">
               For Job Seekers
             </h3>
-            <ul className="list-none p-0 m-0 flex flex-col gap-2.5">
+            <ul className="list-none p-0 m-0 flex flex-col gap-2.5 w-full">
               <li><Link to="/dashboard" className="text-white text-decoration-none text-sm transition-colors duration-300 hover:text-blue-500">My Dashboard</Link></li>
               <li><Link to="/dashboard/profile" className="text-white text-decoration-none text-sm transition-colors duration-300 hover:text-blue-500">Profile</Link></li>
               <li><Link to="/dashboard/applied" className="text-white text-decoration-none text-sm transition-colors duration-300 hover:text-blue-500">My Applications</Link></li>
@@ -72,11 +72,11 @@ const Footer: React.FC = () => {
           </div>
 
           {/* For Employers */}
-          <div className="flex flex-col gap-2 items-center lg:items-start text-center lg:text-left">
+          <div className="flex flex-col gap-2 items-center text-center lg:items-start lg:text-left">
             <h3 className="text-base md:text-lg font-semibold text-white mb-2">
               For Employers
             </h3>
-            <ul className="list-none p-0 m-0 flex flex-col gap-2.5">
+            <ul className="list-none p-0 m-0 flex flex-col gap-2.5 w-full">
               <li><Link to="/employer/post-job" className="text-white text-decoration-none text-sm transition-colors duration-300 hover:text-blue-500">Post a Job</Link></li>
               <li><Link to="/employer/candidates" className="text-white text-decoration-none text-sm transition-colors duration-300 hover:text-blue-500">Browse Candidates</Link></li>
               <li><Link to="/employer/dashboard" className="text-white text-decoration-none text-sm transition-colors duration-300 hover:text-blue-500">Employer Dashboard</Link></li>
@@ -86,11 +86,11 @@ const Footer: React.FC = () => {
           </div>
 
           {/* Contact Info */}
-          <div className="flex flex-col gap-2 items-center lg:items-start text-center lg:text-left">
+          <div className="flex flex-col gap-2 items-center text-center lg:items-start lg:text-left">
             <h3 className="text-base md:text-lg font-semibold text-white mb-2">
               Contact Us
             </h3>
-            <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col gap-2.5 w-full">
               <div className="flex items-center gap-3 text-white text-sm">
                 <Mail className="w-4.5 h-4.5 text-blue-500 flex-shrink-0" />
                 <span className="text-white">info@mycareerbuild.com</span>
@@ -115,11 +115,11 @@ const Footer: React.FC = () => {
 
         {/* Footer Bottom */}
         <div className="border-t border-slate-600 py-4">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 md:gap-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 md:gap-6 text-center md:text-left">
             <p className="text-white text-sm m-0 text-center md:text-left">
               © {currentYear} MyCareerbuild JOBS. All rights reserved.
             </p>
-            <div className="flex flex-col sm:flex-row gap-5 sm:gap-8 justify-center items-center">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-6 justify-center items-center w-full md:w-auto">
               <Link to="/contact" className="text-white text-decoration-none text-sm transition-colors duration-300 hover:text-blue-500">Privacy Policy</Link>
               <Link to="/contact" className="text-white text-decoration-none text-sm transition-colors duration-300 hover:text-blue-500">Terms of Service</Link>
               <Link to="/contact" className="text-white text-decoration-none text-sm transition-colors duration-300 hover:text-blue-500">Cookie Policy</Link>

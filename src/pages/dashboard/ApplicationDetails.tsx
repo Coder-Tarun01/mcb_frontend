@@ -206,7 +206,7 @@ const ApplicationDetails: React.FC = () => {
   const StatusIcon = statusInfo.icon;
 
   return (
-    <div className="min-h-screen pt-0 pb-6 px-6 bg-gray-50">
+    <div className="min-h-screen pt-0 pb-6 px-4 sm:px-6 bg-gray-50">
       <div className="w-full max-w-7xl mx-auto border-2 border-gray-200 rounded-2xl p-4 sm:p-6">
       {/* Back Button */}
       <motion.button
@@ -227,7 +227,7 @@ const ApplicationDetails: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <div className="flex flex-col lg:flex-row justify-between items-start gap-4 sm:gap-6">
+        <div className="flex flex-col lg:flex-row justify-between items-start gap-4 sm:gap-6 text-center lg:text-left">
           {/* Job Info */}
           <div className="flex-1 min-w-0">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4 break-words">
@@ -488,7 +488,7 @@ const ApplicationDetails: React.FC = () => {
         <div className="space-y-6">
           {/* Quick Actions */}
           <motion.div
-            className="bg-white rounded-2xl p-6 shadow-md border border-gray-200"
+            className="bg-white rounded-2xl p-5 sm:p-6 shadow-md border border-gray-200"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4, delay: 0.2 }}
@@ -537,7 +537,7 @@ const ApplicationDetails: React.FC = () => {
 
           {/* Application Stats */}
           <motion.div
-            className="bg-white rounded-2xl p-6 shadow-md border border-gray-200"
+            className="bg-white rounded-2xl p-5 sm:p-6 shadow-md border border-gray-200"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4, delay: 0.3 }}

@@ -279,26 +279,26 @@ const SkillsManagement: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen p-6 bg-gray-50">
+      <div className="min-h-screen p-4 sm:p-6 bg-gray-50">
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
           <div className="w-12 h-12 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin" />
-          <p className="text-gray-600">Loading your skills...</p>
+          <p className="text-gray-600 text-center px-4">Loading your skills...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen p-6 bg-gray-50">
+    <div className="min-h-screen p-4 sm:p-6 bg-gray-50">
       {/* Header */}
       <motion.div
-        className="bg-gradient-to-br from-blue-600 to-blue-500 text-white p-8 rounded-2xl mb-8 shadow-lg shadow-blue-500/20"
+        className="bg-gradient-to-br from-blue-600 to-blue-500 text-white p-6 sm:p-8 rounded-2xl mb-8 shadow-lg shadow-blue-500/20"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <div className="flex justify-between items-start gap-6 lg:flex-row md:flex-col">
-          <div className="flex-1">
-            <h1 className="flex items-center gap-3 text-3xl font-bold mb-2 text-white">
+        <div className="flex flex-col lg:flex-row justify-between items-start gap-6">
+          <div className="flex-1 w-full">
+            <h1 className="flex flex-col sm:flex-row sm:items-center gap-3 text-3xl font-bold mb-2 text-white">
               <Layers size={32} />
               Skills Management
             </h1>
@@ -307,7 +307,7 @@ const SkillsManagement: React.FC = () => {
             </p>
           </div>
           <button 
-            className="bg-white/15 hover:bg-white/25 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors backdrop-blur-sm disabled:opacity-50"
+            className="bg-white/15 hover:bg-white/25 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors backdrop-blur-sm disabled:opacity-50 w-full sm:w-auto justify-center"
             onClick={handleSaveSkills}
             disabled={saving}
           >
@@ -333,9 +333,9 @@ const SkillsManagement: React.FC = () => {
       </AnimatePresence>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-8">
         <motion.div
-          className="bg-white rounded-2xl p-6 shadow-md border border-gray-200 flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+          className="bg-white rounded-2xl p-5 sm:p-6 shadow-md border border-gray-200 flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -350,7 +350,7 @@ const SkillsManagement: React.FC = () => {
         </motion.div>
 
         <motion.div
-          className="bg-white rounded-2xl p-6 shadow-md border border-gray-200 flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+          className="bg-white rounded-2xl p-5 sm:p-6 shadow-md border border-gray-200 flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -365,7 +365,7 @@ const SkillsManagement: React.FC = () => {
         </motion.div>
 
         <motion.div
-          className="bg-white rounded-2xl p-6 shadow-md border border-gray-200 flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+          className="bg-white rounded-2xl p-5 sm:p-6 shadow-md border border-gray-200 flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
@@ -380,11 +380,11 @@ const SkillsManagement: React.FC = () => {
         </motion.div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         {/* Add Skill Section */}
         <div className="lg:col-span-2">
           <motion.div
-            className="bg-white rounded-2xl p-6 shadow-md border border-gray-200 mb-6"
+            className="bg-white rounded-2xl p-5 sm:p-6 shadow-md border border-gray-200 mb-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
@@ -435,7 +435,7 @@ const SkillsManagement: React.FC = () => {
 
           {/* My Skills */}
           <motion.div
-            className="bg-white rounded-2xl p-6 shadow-md border border-gray-200"
+            className="bg-white rounded-2xl p-5 sm:p-6 shadow-md border border-gray-200"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
@@ -519,7 +519,7 @@ const SkillsManagement: React.FC = () => {
         {/* Suggestions Sidebar */}
         <div className="lg:col-span-1">
           <motion.div
-            className="bg-white rounded-2xl p-6 shadow-md border border-gray-200 mb-6"
+            className="bg-white rounded-2xl p-5 sm:p-6 shadow-md border border-gray-200 mb-6"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.6 }}
@@ -540,7 +540,7 @@ const SkillsManagement: React.FC = () => {
               />
             </div>
 
-            <div className="space-y-6 max-h-96 overflow-y-auto">
+            <div className="space-y-6 max-h-96 overflow-y-auto pr-1">
               {Object.entries(groupedSuggestions).map(([category, categorySkills]) => (
                 <div key={category}>
                   <h4 className="text-sm font-medium text-gray-700 mb-3">{category}</h4>
@@ -574,7 +574,7 @@ const SkillsManagement: React.FC = () => {
 
           {/* Tips Card */}
           <motion.div
-            className="bg-white rounded-2xl p-6 shadow-md border border-gray-200"
+            className="bg-white rounded-2xl p-5 sm:p-6 shadow-md border border-gray-200"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.7 }}

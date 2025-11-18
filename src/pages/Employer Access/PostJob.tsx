@@ -369,7 +369,7 @@ const PostJob: React.FC = () => {
   return (
     <EmployerLayout>
         <div className="flex flex-col w-full max-w-6xl mx-auto border border-slate-200 rounded-2xl bg-white/95 p-3 sm:p-4 md:p-6 shadow-[0_2px_10px_rgba(0,0,0,0.04)]">
-          <div className="flex flex-col lg:flex-row items-start lg:items-center mb-4 sm:mb-6 gap-3 sm:gap-5 pb-3 sm:pb-4 border-b border-slate-200/60 w-full">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center mb-4 sm:mb-6 gap-3 sm:gap-5 pb-3 sm:pb-4 border-b border-slate-200/60 w-full relative">
             <button 
               onClick={() => navigate('/employer/dashboard')} 
               className="flex items-center gap-2 sm:gap-2.5 bg-slate-50/80 border border-slate-200/80 text-slate-600 text-xs sm:text-sm font-semibold cursor-pointer transition-all duration-300 py-2.5 sm:py-3 px-3 sm:px-5 rounded-xl backdrop-blur-sm hover:bg-blue-500 hover:border-blue-500 hover:text-white hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/30 w-full sm:w-auto justify-center"
@@ -378,7 +378,7 @@ const PostJob: React.FC = () => {
               <span className="hidden sm:inline">Back to Dashboard</span>
               <span className="sm:hidden">Back</span>
             </button>
-            <div className="flex-1 text-center w-full flex justify-center items-center">
+            <div className="flex-1 text-center w-full flex justify-center items-center md:absolute md:left-1/2 md:transform md:-translate-x-1/2">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-slate-800 to-blue-500 bg-clip-text text-transparent m-0 leading-tight tracking-tight">
                 Post a New Job
               </h1>

@@ -160,9 +160,9 @@ const SavedJobs: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.3 }}
-        className="min-h-screen pt-0 pb-6 px-6 bg-gray-50"
+        className="min-h-screen pt-0 pb-6 px-4 sm:px-6 bg-gray-50"
       >
-        <div className="w-full max-w-7xl mx-auto border-2 border-gray-300 rounded-xl p-6">
+        <div className="w-full max-w-7xl mx-auto border-2 border-gray-300 rounded-xl p-4 sm:p-6">
           <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
           <div className="w-12 h-12 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin" />
           <p className="text-gray-600">Loading saved jobs...</p>
@@ -179,9 +179,9 @@ const SavedJobs: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.3 }}
-        className="min-h-screen pt-0 pb-6 px-6 bg-gray-50 flex items-center justify-center"
+        className="min-h-screen pt-0 pb-6 px-4 sm:px-6 bg-gray-50 flex items-center justify-center"
       >
-        <div className="w-full max-w-7xl mx-auto border-2 border-gray-300 rounded-xl p-6">
+        <div className="w-full max-w-7xl mx-auto border-2 border-gray-300 rounded-xl p-4 sm:p-6">
           <div className="text-center">
             <AlertCircle size={48} className="text-red-500 mx-auto mb-4" />
             <p className="text-gray-600 mb-4">{error}</p>
@@ -204,14 +204,14 @@ const SavedJobs: React.FC = () => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
-      className="min-h-screen pt-0 pb-6 px-6 bg-gray-50"
+      className="min-h-screen pt-0 pb-6 px-4 sm:px-6 bg-gray-50"
     >
-      <div className="w-full max-w-7xl mx-auto border-2 border-gray-300 rounded-xl p-6">
+      <div className="w-full max-w-7xl mx-auto border-2 border-gray-300 rounded-xl p-4 sm:p-6">
       {/* Header */}
       <div className="mb-8">
-        <div className="flex flex-col md:flex-row items-center justify-between mb-6">
-          <h2 className="text-2xl font-semibold text-blue-700">Saved Jobs</h2>
-          <div className="flex items-center gap-3 mt-3 md:mt-0">
+        <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
+          <h2 className="text-2xl font-semibold text-blue-700 text-center md:text-left w-full">Saved Jobs</h2>
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
             <input
               type="text"
               placeholder="Search saved jobs..."
@@ -227,7 +227,7 @@ const SavedJobs: React.FC = () => {
               <option>Design</option>
             </select>
             <button 
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors w-full sm:w-auto justify-center"
               onClick={handleRefresh}
               disabled={isLoading}
             >
@@ -240,8 +240,8 @@ const SavedJobs: React.FC = () => {
 
       {/* Statistics Bar */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 flex items-center gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-8">
+          <div className="bg-white rounded-xl p-5 sm:p-6 shadow-sm border border-gray-200 flex items-center gap-4">
             <div className="w-12 h-12 rounded-lg flex items-center justify-center text-white bg-blue-600">
               <Heart size={20} />
             </div>
@@ -250,7 +250,7 @@ const SavedJobs: React.FC = () => {
               <div className="text-sm text-gray-600">Total Saved</div>
             </div>
           </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 flex items-center gap-4">
+          <div className="bg-white rounded-xl p-5 sm:p-6 shadow-sm border border-gray-200 flex items-center gap-4">
             <div className="w-12 h-12 rounded-lg flex items-center justify-center text-white bg-blue-500">
               <Clock size={20} />
             </div>
@@ -277,14 +277,14 @@ const SavedJobs: React.FC = () => {
       )}
 
       {/* Controls */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-6">
+      <div className="bg-white rounded-xl p-5 sm:p-6 shadow-sm border border-gray-200 mb-6">
         <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-6">
-          <div className="flex-1">
+          <div className="flex-1 w-full">
             <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
                 <label className="text-sm font-medium text-gray-700">Status:</label>
                 <select 
-                  className="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto"
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
                 >
@@ -293,10 +293,10 @@ const SavedJobs: React.FC = () => {
                   <option value="expired">Expired</option>
                 </select>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
                 <label className="text-sm font-medium text-gray-700">Sort by:</label>
                 <select 
-                  className="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto"
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                 >
@@ -308,7 +308,7 @@ const SavedJobs: React.FC = () => {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex bg-gray-100 rounded-lg p-1">
+            <div className="flex bg-gray-100 rounded-lg p-1 w-full sm:w-auto justify-center">
               <button 
                 className={`p-2 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-800'}`}
                 onClick={() => setViewMode('grid')}

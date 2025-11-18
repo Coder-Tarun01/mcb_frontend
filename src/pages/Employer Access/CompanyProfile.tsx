@@ -265,7 +265,7 @@ const CompanyProfile: React.FC = () => {
               <span>Back to Dashboard</span>
             </button>
           </div>
-          <div className="flex-1 text-center w-full flex justify-center items-center">
+          <div className="flex-1 text-center w-full flex justify-center items-center md:absolute md:left-1/2 md:transform md:-translate-x-1/2">
             <h1 className="text-2xl sm:text-3xl font-extrabold bg-gradient-to-br from-slate-800 to-blue-600 bg-clip-text text-transparent m-0 leading-tight tracking-tight">Company Profile</h1>
           </div>
         </div>

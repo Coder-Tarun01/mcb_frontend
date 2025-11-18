@@ -208,30 +208,30 @@ const JobAlerts: React.FC = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="min-h-screen pt-0 pb-6 px-6 bg-gray-50"
+      className="min-h-screen pt-0 pb-6 px-4 sm:px-6 bg-gray-50"
     >
-      <div className="w-full max-w-7xl mx-auto border-2 border-gray-300 rounded-xl p-6">
+      <div className="w-full max-w-7xl mx-auto border-2 border-gray-300 rounded-xl p-4 sm:p-6">
       {/* Header Section */}
       <div className="mb-8">
-        <div className="bg-white rounded-2xl p-8 shadow-md border border-gray-200">
-          <h2 className="text-3xl font-bold text-gray-800 mb-2">Job Alerts</h2>
-          <p className="text-gray-600 mb-6">Manage your job search notifications and stay updated with new opportunities.</p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+        <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-md border border-gray-200">
+          <h2 className="text-3xl font-bold text-gray-800 mb-2 text-center sm:text-left">Job Alerts</h2>
+          <p className="text-gray-600 mb-6 text-center sm:text-left">Manage your job search notifications and stay updated with new opportunities.</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-5 sm:p-6 border border-blue-200">
               <div className="flex items-center gap-3 mb-3">
                 <Bell className="w-8 h-8 text-blue-600" />
                 <span className="text-2xl font-bold text-gray-800">{totalAlerts}</span>
               </div>
               <span className="text-sm font-medium text-gray-600">Total Alerts</span>
             </div>
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
+            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-5 sm:p-6 border border-green-200">
               <div className="flex items-center gap-3 mb-3">
                 <Settings className="w-8 h-8 text-green-600" />
                 <span className="text-2xl font-bold text-gray-800">{activeAlerts}</span>
               </div>
               <span className="text-sm font-medium text-gray-600">Active</span>
             </div>
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200">
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-5 sm:p-6 border border-purple-200">
               <div className="flex items-center gap-3 mb-3">
                 <Eye className="w-8 h-8 text-purple-600" />
                 <span className="text-2xl font-bold text-gray-800">{totalMatches}</span>
@@ -243,9 +243,9 @@ const JobAlerts: React.FC = () => {
       </div>
 
       {/* Controls Section */}
-      <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-200 mb-8">
+      <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-md border border-gray-200 mb-8">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-          <div className="relative flex-1 max-w-md">
+          <div className="relative flex-1 w-full lg:max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
@@ -255,8 +255,8 @@ const JobAlerts: React.FC = () => {
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
-          <div className="flex flex-wrap gap-4 items-center">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-wrap gap-3 items-center w-full lg:w-auto">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
               <label htmlFor="status-filter" className="text-sm font-medium text-gray-700">Status:</label>
               <select
                 id="status-filter"
@@ -269,7 +269,7 @@ const JobAlerts: React.FC = () => {
                 <option value="inactive">Inactive</option>
               </select>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
               <label htmlFor="frequency-filter" className="text-sm font-medium text-gray-700">Frequency:</label>
               <select
                 id="frequency-filter"
@@ -326,6 +326,7 @@ const JobAlerts: React.FC = () => {
         </div>
       ) : viewMode === 'list' ? (
         <div className="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden">
+          <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
@@ -425,6 +426,7 @@ const JobAlerts: React.FC = () => {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

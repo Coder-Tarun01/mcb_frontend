@@ -17,6 +17,8 @@ import { useAuth } from '../../context/AuthContext';
 import JobsDropdown from '../jobs/JobsDropdown';
 import NotificationBell from '../notifications/NotificationBell';
 import { suggestAPI } from '../../services/api';
+import { useEmployerSidebarSafe } from '../../context/EmployerSidebarContext';
+import { useDashboardSidebarSafe } from '../../context/DashboardSidebarContext';
 
 const Navbar: React.FC = () => {
   const { user, logout, isEmployee, isEmployer } = useAuth();
@@ -35,6 +37,19 @@ const Navbar: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Employer sidebar context (only available on employer routes)
+  // Always call hook unconditionally - it returns null if context not available
+  const employerSidebar = useEmployerSidebarSafe();
+  const dashboardSidebar = useDashboardSidebarSafe();
+
+  // Check if we're on an employer route
+  const isEmployerRoute = location.pathname.startsWith('/employer');
+  const isDashboardRoute = location.pathname.startsWith('/dashboard');
+  
+  // Check if hamburger should be shown (only on mobile/tablet)
+  const shouldShowEmployerHamburger = employerSidebar && employerSidebar.isMobileOrTablet;
+  const shouldShowDashboardHamburger = dashboardSidebar && dashboardSidebar.isMobileOrTablet;
 
   // Click outside to close dropdown
   useEffect(() => {
@@ -407,6 +422,26 @@ const Navbar: React.FC = () => {
             <>
               <NotificationBell className="mr-0.5" />
               <div className="flex items-center gap-1">
+              {/* Employer Sidebar Hamburger (only on employer routes and mobile/tablet) */}
+              {isEmployerRoute && shouldShowEmployerHamburger && employerSidebar && (
+                <button
+                  onClick={() => employerSidebar.toggleSidebar()}
+                  className="flex items-center gap-1 py-1.5 px-2 text-gray-600 text-decoration-none font-medium text-sm rounded-lg transition-all duration-200 ease-in-out bg-none border-none shadow-none hover:bg-slate-50 hover:text-gray-800 whitespace-nowrap"
+                  aria-label="Toggle sidebar"
+                >
+                  <Menu className="w-4 h-4" />
+                </button>
+              )}
+              {/* Employee Sidebar Hamburger (only on dashboard routes and mobile/tablet) */}
+              {isDashboardRoute && shouldShowDashboardHamburger && dashboardSidebar && (
+                <button
+                  onClick={() => dashboardSidebar.toggleSidebar()}
+                  className="flex items-center gap-1 py-1.5 px-2 text-gray-600 text-decoration-none font-medium text-sm rounded-lg transition-all duration-200 ease-in-out bg-none border-none shadow-none hover:bg-slate-50 hover:text-gray-800 whitespace-nowrap"
+                  aria-label="Toggle sidebar"
+                >
+                  <Menu className="w-4 h-4" />
+                </button>
+              )}
               {isEmployee() && (
                 <Link 
                   to="/dashboard" 
@@ -525,6 +560,38 @@ const Navbar: React.FC = () => {
                   
                   {user ? (
                     <>
+                      {/* Employer Sidebar Hamburger (mobile menu, only on employer routes and mobile/tablet) */}
+                      {isEmployerRoute && shouldShowEmployerHamburger && (
+                        <li className="m-0">
+                          <button
+                            onClick={() => {
+                              employerSidebar?.toggleSidebar();
+                              setIsMobileMenuOpen(false);
+                            }}
+                            className="flex items-center gap-3 py-4 px-5 md:py-3.5 md:px-4 sm:py-3.5 sm:px-4 text-gray-600 text-decoration-none font-medium text-base md:text-base sm:text-sm rounded-xl transition-all duration-200 ease-in-out bg-none border-none shadow-none m-0 w-full text-left hover:bg-slate-50 hover:text-gray-800"
+                            aria-label="Toggle sidebar"
+                          >
+                            <Menu className="w-5 h-5 flex-shrink-0" />
+                            <span>Menu</span>
+                          </button>
+                        </li>
+                      )}
+                      {/* Employee Sidebar Hamburger (mobile menu, only on dashboard routes and mobile/tablet) */}
+                      {isDashboardRoute && shouldShowDashboardHamburger && (
+                        <li className="m-0">
+                          <button
+                            onClick={() => {
+                              dashboardSidebar?.toggleSidebar();
+                              setIsMobileMenuOpen(false);
+                            }}
+                            className="flex items-center gap-3 py-4 px-5 md:py-3.5 md:px-4 sm:py-3.5 sm:px-4 text-gray-600 text-decoration-none font-medium text-base md:text-base sm:text-sm rounded-xl transition-all duration-200 ease-in-out bg-none border-none shadow-none m-0 w-full text-left hover:bg-slate-50 hover:text-gray-800"
+                            aria-label="Toggle sidebar"
+                          >
+                            <Menu className="w-5 h-5 flex-shrink-0" />
+                            <span>Menu</span>
+                          </button>
+                        </li>
+                      )}
                       {isEmployee() && (
                         <li className="m-0">
                           <Link 
