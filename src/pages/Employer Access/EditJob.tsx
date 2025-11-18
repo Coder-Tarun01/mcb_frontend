@@ -344,47 +344,48 @@ const EditJob: React.FC = () => {
 
   return (
     <EmployerLayout>
-      <div className="min-h-screen bg-slate-50 py-6 sm:py-8 px-4 sm:px-6">
-        {/* Success Message */}
-        {success && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-3 py-4 px-6 rounded-lg mb-6 font-medium animate-slideIn bg-green-100 border border-green-500 text-green-800"
-          >
-            <CheckCircle className="w-5 h-5 text-green-500" />
-            <span>{success}</span>
-          </motion.div>
-        )}
+      <div className="w-full">
+        <div className="flex flex-col w-full max-w-6xl mx-auto border border-slate-200 rounded-2xl bg-white/95 p-4 sm:p-6 md:p-8 shadow-[0_2px_12px_rgba(15,23,42,0.08)]">
+          {/* Success Message */}
+          {success && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center gap-3 py-4 px-6 rounded-lg mb-6 font-medium animate-slideIn bg-green-100 border border-green-500 text-green-800"
+            >
+              <CheckCircle className="w-5 h-5 text-green-500" />
+              <span>{success}</span>
+            </motion.div>
+          )}
 
-        {/* Error Message */}
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-3 py-4 px-6 rounded-lg mb-6 font-medium animate-slideIn bg-red-100 border border-red-500 text-red-800"
-          >
-            <AlertCircle className="w-5 h-5 text-red-500" />
-            <span>{error}</span>
-            <button onClick={() => setError(null)} className="ml-auto bg-none border-none text-xl text-red-800 cursor-pointer p-0 w-6 h-6 flex items-center justify-center rounded-full transition-all duration-300 hover:bg-red-200">
-              ×
-            </button>
-          </motion.div>
-        )}
+          {/* Error Message */}
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center gap-3 py-4 px-6 rounded-lg mb-6 font-medium animate-slideIn bg-red-100 border border-red-500 text-red-800"
+            >
+              <AlertCircle className="w-5 h-5 text-red-500" />
+              <span>{error}</span>
+              <button onClick={() => setError(null)} className="ml-auto bg-none border-none text-xl text-red-800 cursor-pointer p-0 w-6 h-6 flex items-center justify-center rounded-full transition-all duration-300 hover:bg-red-200">
+                ×
+              </button>
+            </motion.div>
+          )}
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="max-w-6xl mx-auto px-4"
-        >
-          <div className="bg-white rounded-xl p-4 sm:p-6 md:p-8 mb-8 shadow-[0_2px_8px_rgba(0,0,0,0.1)] border border-gray-200">
-            <div className="flex flex-col xl:flex-row items-start xl:items-center gap-4 xl:gap-8 w-full">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="w-full space-y-6"
+          >
+          <div className="bg-white rounded-xl p-4 sm:p-6 md:p-8 shadow-[0_2px_8px_rgba(0,0,0,0.1)] border border-gray-200">
+            <div className="flex flex-col xl:flex-row items-start xl:items-center gap-4 xl:gap-8 w-full relative">
               <button onClick={handleCancel} className="flex items-center gap-2 py-3 px-6 bg-slate-50 border border-gray-300 rounded-lg text-gray-700 no-underline font-medium text-sm transition-all duration-200 hover:bg-slate-100 hover:border-gray-400 hover:text-slate-800 w-full sm:w-auto justify-center">
                 <ArrowLeft className="w-5 h-5" />
                 <span>Back to Manage Jobs</span>
               </button>
-              <div className="flex-1 flex flex-col gap-1 text-center sm:text-left w-full">
+              <div className="flex-1 flex flex-col gap-1 text-center md:text-left w-full justify-center md:absolute md:left-1/2 md:-translate-x-1/2">
                 <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 m-0 leading-tight">Edit Job</h1>
                 <p className="text-base text-gray-500 m-0 font-normal">Update your job posting details and requirements</p>
               </div>
@@ -406,8 +407,8 @@ const EditJob: React.FC = () => {
               className="mb-12 pb-8 border-b border-gray-200"
             >
               <h2 className="text-2xl font-semibold text-gray-800 m-0 mb-6 pb-2 border-b-2 border-blue-500 inline-block">Job Basics</h2>
-              <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-6">
-                <div className="flex flex-col col-span-full">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex flex-col md:col-span-2">
                   <label className="font-semibold text-gray-700 mb-2 text-sm">Job Title *</label>
                   <input
                     type="text"
@@ -462,7 +463,7 @@ const EditJob: React.FC = () => {
                   </select>
                 </div>
                 
-                <div className="flex flex-col col-span-full">
+                <div className="flex flex-col md:col-span-2">
                   <label className="font-semibold text-gray-700 mb-2 text-sm">Job Description *</label>
                   <textarea
                     value={jobData.job_description}
@@ -484,7 +485,7 @@ const EditJob: React.FC = () => {
               className="mb-12 pb-8 border-b border-gray-200"
             >
               <h2 className="text-2xl font-semibold text-gray-800 m-0 mb-6 pb-2 border-b-2 border-blue-500 inline-block">Compensation</h2>
-              <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col">
                   <label className="font-semibold text-gray-700 mb-2 text-sm">Minimum Salary</label>
                   <input
@@ -555,7 +556,7 @@ const EditJob: React.FC = () => {
               className="mb-12 pb-8 border-b border-gray-200"
             >
               <h2 className="text-2xl font-semibold text-gray-800 m-0 mb-6 pb-2 border-b-2 border-blue-500 inline-block">Requirements</h2>
-              <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col">
                   <label className="font-semibold text-gray-700 mb-2 text-sm">Education Required</label>
                   <input
@@ -580,7 +581,7 @@ const EditJob: React.FC = () => {
                   </select>
                 </div>
                 
-                <div className="flex flex-col col-span-full">
+                <div className="flex flex-col md:col-span-2">
                   <label className="font-semibold text-gray-700 mb-2 text-sm">Required Skills</label>
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-col sm:flex-row gap-2">
@@ -627,7 +628,7 @@ const EditJob: React.FC = () => {
               className="mb-12 pb-8 border-b border-gray-200"
             >
               <h2 className="text-2xl font-semibold text-gray-800 m-0 mb-6 pb-2 border-b-2 border-blue-500 inline-block">Location Details</h2>
-              <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col">
                   <label className="font-semibold text-gray-700 mb-2 text-sm">Location Type</label>
                   <select
@@ -674,7 +675,7 @@ const EditJob: React.FC = () => {
                   />
                 </div>
                 
-                <div className="flex flex-col col-span-full">
+                <div className="flex flex-col md:col-span-2">
                   <label className="font-semibold text-gray-700 mb-2 text-sm">Full Address</label>
                   <textarea
                     value={jobData.full_address}
@@ -695,7 +696,7 @@ const EditJob: React.FC = () => {
               className="mb-12 pb-8 border-b border-gray-200"
             >
               <h2 className="text-2xl font-semibold text-gray-800 m-0 mb-6 pb-2 border-b-2 border-blue-500 inline-block">Company Details</h2>
-              <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col">
                   <label className="font-semibold text-gray-700 mb-2 text-sm">Company Name</label>
                   <input
@@ -750,7 +751,7 @@ const EditJob: React.FC = () => {
               className="mb-8 pb-8 border-b border-gray-200"
             >
               <h2 className="text-2xl font-semibold text-gray-800 m-0 mb-6 pb-2 border-b-2 border-blue-500 inline-block">Status & Dates</h2>
-              <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col">
                   <label className="font-semibold text-gray-700 mb-2 text-sm">Job Status</label>
                   <select
@@ -810,7 +811,8 @@ const EditJob: React.FC = () => {
               </button>
             </motion.div>
           </form>
-        </motion.div>
+          </motion.div>
+        </div>
       </div>
     </EmployerLayout>
   );
