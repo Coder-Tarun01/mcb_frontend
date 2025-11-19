@@ -516,7 +516,7 @@ const JobApplications: React.FC = () => {
                     <h3 className="flex items-center gap-2 text-lg font-bold text-gray-800 m-0 mb-4">Resume</h3>
                     <div className="flex gap-3 flex-wrap">
                       <a
-                        href={`${process.env.REACT_APP_API_URL || 'http://localhost:4000'}${selectedApplication.resumeUrl || selectedApplication.candidate?.resumeUrl}`}
+                        href={`${process.env.REACT_APP_API_URL || 'https://mcb.instatripplan.com'}${selectedApplication.resumeUrl || selectedApplication.candidate?.resumeUrl}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 py-3 px-6 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-lg no-underline font-semibold transition-all duration-300 flex-1 min-w-[140px] justify-center hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(59,130,246,0.3)]"
@@ -525,7 +525,7 @@ const JobApplications: React.FC = () => {
                         View Resume
                       </a>
                       <a 
-                        href={`${process.env.REACT_APP_API_URL || 'http://localhost:4000'}${selectedApplication.resumeUrl || selectedApplication.candidate?.resumeUrl}`}
+                        href={`${process.env.REACT_APP_API_URL || 'https://mcb.instatripplan.com'}${selectedApplication.resumeUrl || selectedApplication.candidate?.resumeUrl}`}
                         download={`resume-${selectedApplication.candidate?.name || 'candidate'}.pdf`}
                         target="_self"
                         className="inline-flex items-center gap-2 py-3 px-6 bg-gradient-to-r from-green-500 to-green-700 text-white rounded-lg no-underline font-semibold transition-all duration-300 flex-1 min-w-[140px] justify-center hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(16,185,129,0.3)]"

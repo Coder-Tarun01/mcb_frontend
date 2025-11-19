@@ -1,7 +1,7 @@
 import { Job, JobFilter } from '../types/job';
 import { User } from '../types/user';
 
-const DEFAULT_BACKEND_URL = 'http://localhost:4000';
+const DEFAULT_BACKEND_URL = 'https://mcb.instatripplan.com';
 
 function resolveBackendBaseUrl(): string {
   const envUrl = (process.env.REACT_APP_API_URL || '').trim();

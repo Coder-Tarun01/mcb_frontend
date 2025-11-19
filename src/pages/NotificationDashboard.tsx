@@ -236,6 +236,26 @@ const NotificationDashboard: React.FC = () => {
     [adminKey]
   );
 
+  const loadLastRunSummary = useCallback(
+    async (overrideKey?: string) => {
+      const keyToUse = (overrideKey ?? adminKey)?.trim();
+      if (!keyToUse) {
+        setMarketingRunSummary(null);
+        return;
+      }
+
+      try {
+        const response = await notificationService.fetchLastRunSummary(keyToUse);
+        if (response.success) {
+          setMarketingRunSummary(response.data || null);
+        }
+      } catch (error) {
+        console.error('Failed to load last run summary', error);
+      }
+    },
+    [adminKey]
+  );
+
   const loadMarketingContacts = useCallback(
     async (overrideKey?: string, overrides: { page?: number; search?: string } = {}) => {
     const keyToUse = (overrideKey ?? adminKey)?.trim();
@@ -376,6 +396,7 @@ const NotificationDashboard: React.FC = () => {
         loadJobs(trimmedKey),
         loadLogs(trimmedKey),
         loadMarketingHealth(trimmedKey),
+        loadLastRunSummary(trimmedKey),
         loadMarketingContacts(trimmedKey, { page: 1, search: '' }),
         loadSubscribers(trimmedKey, { page: 1, search: '' }),
       ]);
@@ -386,6 +407,7 @@ const NotificationDashboard: React.FC = () => {
       loadJobs,
       loadLogs,
       loadMarketingHealth,
+      loadLastRunSummary,
       loadMarketingContacts,
       loadSubscribers,
       resetMessages,
@@ -810,17 +832,31 @@ const NotificationDashboard: React.FC = () => {
                   setIsSending(true);
                   resetMessages();
                   try {
-                    const response = await notificationService.triggerMarketingDigest({
+                  const response = await notificationService.triggerMarketingDigest({
                       adminKey,
                       force: true,
+                      bulkMode: 'fresher',
+                      dryRun: false,
                     });
 
                     if (response.success) {
-                      setMarketingRunSummary(response.data || null);
-                      setStatusMessage(response.message || 'Marketing digest triggered successfully.');
+                      // Check if response contains queued flag (async trigger) or summary (sync trigger)
+                      const isQueued = response.data?.queued === true;
+                      
+                      if (isQueued) {
+                        // Digest is running asynchronously, show message and load last summary
+                        setStatusMessage(response.message || 'Marketing digest run started. Summary will update when complete.');
+                      } else {
+                        // Legacy: if summary is returned directly, use it
+                        const summary = response.data || null;
+                        if (summary && summary.batchId) {
+                          setMarketingRunSummary(summary);
+                        }
+                        setStatusMessage(response.message || 'Marketing digest triggered successfully.');
+                      }
                     }
 
-                    await Promise.all([loadMarketingHealth(adminKey), loadLogs(adminKey), loadJobs(adminKey)]);
+                    await Promise.all([loadMarketingHealth(adminKey), loadLastRunSummary(adminKey), loadLogs(adminKey), loadJobs(adminKey)]);
                   } catch (error: any) {
                     handleAdminError(error?.message || 'Failed to trigger marketing digest');
                   } finally {
@@ -834,31 +870,45 @@ const NotificationDashboard: React.FC = () => {
               </button>
             </div>
 
-            {marketingRunSummary && (
-              <div className={styles.list}>
-                <h3>Last Run Summary</h3>
-                <div>Status: {marketingRunSummary.ok ? 'Success' : marketingRunSummary.skipped ? 'Skipped' : 'Completed with issues'}</div>
-                <div>Batch ID: {marketingRunSummary.batchId}</div>
-                <div>Jobs queried: {marketingRunSummary.jobsQueried}</div>
-                <div>Jobs included: {marketingRunSummary.jobsIncluded}</div>
-                <div>Contacts attempted: {marketingRunSummary.contactsAttempted}</div>
-                <div>Contacts succeeded: {marketingRunSummary.contactsSucceeded}</div>
-                <div>Contacts failed: {marketingRunSummary.contactsFailed}</div>
-                <div>Started: {formatDateTime(marketingRunSummary.startedAt)}</div>
-                <div>Finished: {formatDateTime(marketingRunSummary.finishedAt)}</div>
-                {marketingRunSummary.reason && <div>Reason: {marketingRunSummary.reason}</div>}
-                {marketingRunSummary.errors && marketingRunSummary.errors.length > 0 && (
-                  <details>
-                    <summary>View errors ({marketingRunSummary.errors.length})</summary>
-                    <div className={styles.codeBlock}>
-                      {marketingRunSummary.errors
-                        .map((entry, index) => `${index + 1}. ${typeof entry === 'string' ? entry : JSON.stringify(entry)}`)
-                        .join('\n')}
-                    </div>
-                  </details>
-                )}
-              </div>
-            )}
+            <div className={styles.list}>
+              <h3>Last Run Summary</h3>
+              {marketingRunSummary ? (
+                <>
+                  <div>Status: {marketingRunSummary.ok ? 'Success' : marketingRunSummary.skipped ? 'Skipped' : 'Completed with issues'}</div>
+                  <div>Batch ID: {marketingRunSummary.batchId || '—'}</div>
+                  <div>Jobs queried: {marketingRunSummary.jobsQueried ?? '—'}</div>
+                  <div>Jobs included: {marketingRunSummary.jobsIncluded ?? '—'}</div>
+                  <div>Contacts attempted: {marketingRunSummary.contactsAttempted ?? '—'}</div>
+                  <div>Contacts succeeded: {marketingRunSummary.contactsSucceeded ?? '—'}</div>
+                  <div>Contacts failed: {marketingRunSummary.contactsFailed ?? '—'}</div>
+                  <div>Started: {formatDateTime(marketingRunSummary.startedAt)}</div>
+                  <div>Finished: {formatDateTime(marketingRunSummary.finishedAt)}</div>
+                  {marketingRunSummary.reason && <div>Reason: {marketingRunSummary.reason}</div>}
+                  {marketingRunSummary.errors && marketingRunSummary.errors.length > 0 && (
+                    <details>
+                      <summary>View errors ({marketingRunSummary.errors.length})</summary>
+                      <div className={styles.codeBlock}>
+                        {marketingRunSummary.errors
+                          .map((entry, index) => `${index + 1}. ${typeof entry === 'string' ? entry : JSON.stringify(entry)}`)
+                          .join('\n')}
+                      </div>
+                    </details>
+                  )}
+                </>
+              ) : (
+                <>
+                  <div>Status: —</div>
+                  <div>Batch ID: —</div>
+                  <div>Jobs queried: —</div>
+                  <div>Jobs included: —</div>
+                  <div>Contacts attempted: —</div>
+                  <div>Contacts succeeded: —</div>
+                  <div>Contacts failed: —</div>
+                  <div>Started: —</div>
+                  <div>Finished: —</div>
+                </>
+              )}
+            </div>
           </div>
 
           <div className={styles.section}>
@@ -1064,6 +1114,7 @@ const NotificationDashboard: React.FC = () => {
                           <th className={styles.tableHeader}>Mobile</th>
                           <th className={styles.tableHeader}>Branch</th>
                           <th className={styles.tableHeader}>Experience</th>
+                          <th className={styles.tableHeader}>Chat ID</th>
                           <th className={styles.tableHeader}>Created</th>
                           <th className={styles.tableHeader}>Actions</th>
                     </tr>
@@ -1076,6 +1127,7 @@ const NotificationDashboard: React.FC = () => {
                             <td className={styles.tableCell}>{contact.mobileNo || '—'}</td>
                             <td className={styles.tableCell}>{contact.branch || '—'}</td>
                             <td className={styles.tableCell}>{contact.experience || '—'}</td>
+                            <td className={styles.tableCell}>{contact.telegramChatId || '—'}</td>
                             <td className={styles.tableCell}>{formatDateTime(contact.createdAt)}</td>
                         <td className={styles.tableCell}>
                               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -1180,63 +1232,6 @@ const NotificationDashboard: React.FC = () => {
                     ))}
                   </tbody>
                 </table>
-              </div>
-            )}
-          </div>
-
-          <div className={styles.section}>
-            <div className={styles.actionsRow}>
-              <h2 className={styles.sectionTitle}>Recent Notification Logs</h2>
-              <button
-                onClick={() => loadLogs()}
-                className={styles.buttonGhost}
-                disabled={!hasAdminKey || isLoadingLogs}
-              >
-                {isLoadingLogs ? 'Refreshing…' : 'Refresh logs'}
-              </button>
-            </div>
-
-            {!hasAdminKey ? (
-              <p>Please enter the admin key to view logs.</p>
-            ) : (
-              <div className={styles.logColumns}>
-                <div>
-                  <h3 className={styles.logTitle}>Successful deliveries</h3>
-                  {logs.success?.length ? (
-                    <div className={styles.logList}>
-                      {logs.success.map((entry, index) => (
-                        <div key={`success-${index}`} className={styles.logSuccess}>
-                          <div className={styles.logTimestamp}>{entry.timestamp || 'Unknown time'}</div>
-                          <div className={styles.logStatus}>{entry.status}</div>
-                          {entry.meta && (
-                            <div className={styles.logMeta}>{typeof entry.meta === 'string' ? entry.meta : JSON.stringify(entry.meta)}</div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className={styles.mutedText}>No success logs yet.</p>
-                  )}
-                </div>
-
-                <div>
-                  <h3 className={styles.logTitle}>Failures & warnings</h3>
-                  {logs.failed?.length ? (
-                    <div className={styles.logList}>
-                      {logs.failed.map((entry, index) => (
-                        <div key={`failed-${index}`} className={styles.logFailure}>
-                          <div className={styles.logTimestamp}>{entry.timestamp || 'Unknown time'}</div>
-                          <div className={styles.logStatus}>{entry.status}</div>
-                          {entry.meta && (
-                            <div className={styles.logMeta}>{typeof entry.meta === 'string' ? entry.meta : JSON.stringify(entry.meta)}</div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className={styles.mutedText}>No failure logs captured.</p>
-                  )}
-                </div>
               </div>
             )}
           </div>

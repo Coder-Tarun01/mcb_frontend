@@ -297,7 +297,7 @@ const Apply: React.FC = () => {
         formDataToSend.append('resumeId', selectedResumeFromCV.id.toString());
       }
 
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:4000'}/api/applications`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://mcb.instatripplan.com'}/api/applications`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`

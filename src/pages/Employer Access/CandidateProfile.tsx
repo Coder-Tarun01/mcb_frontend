@@ -125,7 +125,7 @@ const CandidateProfile: React.FC = () => {
     if (/^https?:\/\//i.test(url)) {
       return url;
     }
-    const base = BACKEND_BASE_URL || (process.env.REACT_APP_API_URL || 'http://localhost:4000').replace(/\/api\/?$/, '');
+    const base = BACKEND_BASE_URL || (process.env.REACT_APP_API_URL || 'https://mcb.instatripplan.com').replace(/\/api\/?$/, '');
     return `${base.replace(/\/+$/, '')}/${String(url).replace(/^\/+/, '')}`;
   };
 
@@ -303,7 +303,7 @@ const CandidateProfile: React.FC = () => {
                   (() => {
                     const raw = candidate.profileImage as string;
                     const isAbsolute = /^https?:\/\//i.test(raw);
-                    const src = isAbsolute ? raw : `${process.env.REACT_APP_API_URL || 'http://localhost:4000'}${raw.startsWith('/') ? '' : '/'}${raw}`;
+                    const src = isAbsolute ? raw : `${process.env.REACT_APP_API_URL || 'https://mcb.instatripplan.com'}${raw.startsWith('/') ? '' : '/'}${raw}`;
                     return <img src={src} alt={candidate.name} className="w-full h-full object-cover rounded-full" />
                   })()
                 ) : (

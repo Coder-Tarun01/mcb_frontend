@@ -101,7 +101,7 @@ const SearchResults: React.FC = () => {
   const performSearch = async () => {
     setLoading(true);
     try {
-      // Build API filters for jobsAPI.fetchJobs (fetches from both jobs and aijobs tables)
+      // Build API filters for jobsAPI.fetchJobs (fetches from both jobs and accounts_jobdata tables)
       const apiFilters: any = {
         limit: 500 // Get more jobs for client-side filtering
       };
@@ -127,7 +127,7 @@ const SearchResults: React.FC = () => {
         apiFilters.isRemote = true;
       }
 
-      // Fetch jobs from both jobs and aijobs tables
+      // Fetch jobs from both jobs and accounts_jobdata tables
       const response = await jobsAPI.fetchJobs(apiFilters);
       const allJobs = response.jobs || response || [];
       let results = Array.isArray(allJobs) ? allJobs : [];

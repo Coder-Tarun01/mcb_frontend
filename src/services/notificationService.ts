@@ -61,6 +61,7 @@ export interface MarketingContact {
   mobileNo: string | null;
   branch: string | null;
   experience: string | null;
+  telegramChatId: string | null;
   createdAt: string;
 }
 
@@ -311,6 +312,9 @@ class NotificationService {
   async triggerMarketingDigest(params: {
     adminKey: string;
     force?: boolean;
+    bulkMode?: 'default' | 'fresher' | string;
+    dryRun?: boolean;
+    contactLimit?: number;
   }): Promise<{
     success: boolean;
     data: MarketingRunSummary;
@@ -319,7 +323,23 @@ class NotificationService {
     return this.request('/marketing/trigger', {
       method: 'POST',
       adminKey: params.adminKey,
-      data: { force: params.force },
+      data: {
+        force: params.force,
+        bulkMode: params.bulkMode,
+        dryRun: params.dryRun,
+        contactLimit: params.contactLimit,
+      },
+    });
+  }
+
+  // Get Last Run Summary
+  async fetchLastRunSummary(adminKey: string): Promise<{
+    success: boolean;
+    data: MarketingRunSummary | null;
+    message?: string;
+  }> {
+    return this.request('/marketing/summary', {
+      adminKey,
     });
   }
 }
