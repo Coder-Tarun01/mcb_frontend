@@ -213,21 +213,25 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-[1000] transition-all duration-300 ease-out backdrop-blur-[20px] min-h-[80px] shadow-sm shadow-black/10">
-      <div className="font-['Plus_Jakarta_Sans',sans-serif] container max-w-7xl mx-auto px-5 py-3 md:px-4 md:py-2.5 sm:px-3 sm:py-2 flex items-center justify-between min-h-[30px] md:min-h-[50px] sm:min-h-[45px] gap-3 flex-wrap lg:flex-nowrap">
+    <nav className="bg-white border-b border-gray-200 sticky top-0 z-[1000] transition-all duration-300 ease-out backdrop-blur-[20px] min-h-[56px] md:min-h-[80px] shadow-sm shadow-black/10">
+      <div className="font-['Plus_Jakarta_Sans',sans-serif] container max-w-7xl mx-auto px-3 py-1.5 md:px-4 md:py-2.5 sm:px-3 sm:py-2 flex items-center justify-between min-h-[30px] md:min-h-[50px] sm:min-h-[45px] gap-1.5 sm:gap-3 md:gap-x-3 md:gap-y-2 flex-nowrap md:flex-wrap lg:flex-nowrap">
         {/* Logo */}
         <Link to="/" className="flex items-center text-decoration-none text-gray-800 text-3xl md:text-2xl sm:text-xl font-extrabold whitespace-nowrap gap-2 transition-all duration-300 ease-in-out hover:scale-[1.02] flex-shrink-0 focus:outline-none focus-visible:outline-none">
-          <img src="/logo.png" alt="MyCareerbuild JOBS" className="h-10 sm:h-12 md:h-14 lg:h-16 transition-all duration-300 ease-in-out object-contain" />
+          <img src="/logo.png" alt="MyCareerbuild JOBS" className="h-12 sm:h-12 md:h-14 lg:h-16 transition-all duration-300 ease-in-out object-contain" />
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center flex-shrink-0 order-3 lg:order-none" role="navigation" aria-label="Main navigation">
-          <ul className="flex items-center list-none m-0 p-0 gap-1 whitespace-nowrap">
+        <nav
+          className="hidden md:flex items-center md:flex-wrap md:justify-center lg:justify-start md:flex-1 lg:flex-initial order-3 md:order-2 lg:order-none"
+          role="navigation"
+          aria-label="Main navigation"
+        >
+          <ul className="flex items-center list-none m-0 p-0 gap-1 whitespace-nowrap md:flex-wrap md:justify-center md:gap-0.5">
             {/* Home */}
             <li className="relative">
               <Link 
                 to="/" 
-                className={`w-auto flex items-center text-decoration-none text-gray-600 text-sm transition-all duration-200 ease-in-out whitespace-nowrap border-none bg-none rounded-lg cursor-pointer py-2 px-2.5 hover:bg-slate-50 hover:text-gray-800 ${isActive('/') ? 'bg-blue-50 text-blue-600' : ''}`}
+                className={`w-auto flex items-center text-decoration-none text-gray-600 text-sm md:text-xs transition-all duration-200 ease-in-out whitespace-nowrap border-none bg-none rounded-lg cursor-pointer py-2 px-2.5 md:py-1.5 md:px-2 hover:bg-slate-50 hover:text-gray-800 ${isActive('/') ? 'bg-blue-50 text-blue-600' : ''}`}
               >
                 Home
               </Link>
@@ -241,7 +245,7 @@ const Navbar: React.FC = () => {
               onMouseLeave={() => setIsJobsDropdownOpen(false)}
             >
               <button 
-                className={`flex items-center gap-1 text-gray-600 text-sm transition-all duration-200 ease-in-out relative bg-none border-none shadow-none m-0 py-2 px-2.5 rounded-lg cursor-pointer hover:bg-slate-50 hover:text-gray-800 ${isActive('/jobs') ? 'bg-blue-50 text-blue-600' : ''}`}
+                className={`flex items-center gap-1 text-gray-600 text-sm md:text-xs transition-all duration-200 ease-in-out relative bg-none border-none shadow-none m-0 py-2 px-2.5 md:py-1.5 md:px-2 rounded-lg cursor-pointer hover:bg-slate-50 hover:text-gray-800 ${isActive('/jobs') ? 'bg-blue-50 text-blue-600' : ''}`}
                 onClick={() => navigate('/jobs')}
               >
                 Job Provider
@@ -257,7 +261,7 @@ const Navbar: React.FC = () => {
             <li className="relative">
               <Link 
                 to="/job-categories" 
-                className={`w-auto flex items-center text-decoration-none text-gray-600 text-sm transition-all duration-200 ease-in-out whitespace-nowrap border-none bg-none rounded-lg cursor-pointer py-2 px-2.5 hover:bg-slate-50 hover:text-gray-800 ${isActive('/job-categories') ? 'bg-blue-50 text-blue-600' : ''}`}
+                className={`w-auto flex items-center text-decoration-none text-gray-600 text-sm md:text-xs transition-all duration-200 ease-in-out whitespace-nowrap border-none bg-none rounded-lg cursor-pointer py-2 px-2.5 md:py-1.5 md:px-2 hover:bg-slate-50 hover:text-gray-800 ${isActive('/job-categories') ? 'bg-blue-50 text-blue-600' : ''}`}
               >
                 Job Category
               </Link>
@@ -267,7 +271,7 @@ const Navbar: React.FC = () => {
             <li className="relative">
               <Link 
                 to="/blogs" 
-                className={`w-auto flex items-center text-decoration-none text-gray-600 text-sm transition-all duration-200 ease-in-out whitespace-nowrap border-none bg-none rounded-lg cursor-pointer py-2 px-2.5 hover:bg-slate-50 hover:text-gray-800 ${isActive('/blogs') ? 'bg-blue-50 text-blue-600' : ''}`}
+                className={`w-auto flex items-center text-decoration-none text-gray-600 text-sm md:text-xs transition-all duration-200 ease-in-out whitespace-nowrap border-none bg-none rounded-lg cursor-pointer py-2 px-2.5 md:py-1.5 md:px-2 hover:bg-slate-50 hover:text-gray-800 ${isActive('/blogs') ? 'bg-blue-50 text-blue-600' : ''}`}
               >
                 Blogs
               </Link>
@@ -277,7 +281,7 @@ const Navbar: React.FC = () => {
             <li className="relative">
               <Link 
                 to="/contact" 
-                className={`w-auto flex items-center text-decoration-none text-gray-600 text-sm transition-all duration-200 ease-in-out whitespace-nowrap border-none bg-none rounded-lg cursor-pointer py-2 px-2.5 hover:bg-slate-50 hover:text-gray-800 ${isActive('/contact') ? 'bg-blue-50 text-blue-600' : ''}`}
+                className={`w-auto flex items-center text-decoration-none text-gray-600 text-sm md:text-xs transition-all duration-200 ease-in-out whitespace-nowrap border-none bg-none rounded-lg cursor-pointer py-2 px-2.5 md:py-1.5 md:px-2 hover:bg-slate-50 hover:text-gray-800 ${isActive('/contact') ? 'bg-blue-50 text-blue-600' : ''}`}
               >
                 Contact Us
               </Link>
@@ -286,7 +290,10 @@ const Navbar: React.FC = () => {
         </nav>
 
         {/* Search Bar with Autocomplete */}
-        <form onSubmit={handleSearch} className={`order-4 lg:order-none flex-1 w-full max-w-full md:max-w-sm md:min-w-[220px] sm:max-w-full sm:min-w-[180px] mx-0 md:mx-2 relative transition-all duration-300 ease-in-out flex-shrink lg:max-w-sm xl:max-w-md lg:mx-2 xl:mx-3 ${isSearchFocused ? 'focused' : ''}`}>
+        <form
+          onSubmit={handleSearch}
+          className={`order-2 md:order-4 lg:order-none flex-1 md:flex-none w-full max-w-full md:max-w-full md:basis-full lg:basis-auto md:mt-2 lg:mt-0 md:mx-0 lg:mx-2 xl:mx-3 relative transition-all duration-300 ease-in-out flex-shrink lg:flex-1 lg:max-w-sm xl:max-w-md ${isSearchFocused ? 'focused' : ''}`}
+        >
           <div className="relative w-full">
             <Search className="absolute left-4 md:left-3 sm:left-3 top-1/2 -translate-y-1/2 w-5 h-5 md:w-4 md:h-4 sm:w-4 sm:h-4 text-gray-400 transition-colors duration-200 ease-in-out pointer-events-none" />
             <input
@@ -417,7 +424,7 @@ const Navbar: React.FC = () => {
         </form>
 
         {/* User Actions */}
-        <div className="hidden md:flex items-center gap-1 flex-shrink-0 whitespace-nowrap order-5 lg:order-none">
+        <div className="hidden md:flex items-center gap-1 flex-shrink-0 whitespace-nowrap order-5 md:order-3 lg:order-none md:ml-auto">
           {user ? (
             <>
               <NotificationBell className="mr-0.5" />
@@ -487,7 +494,7 @@ const Navbar: React.FC = () => {
 
         {/* Mobile Menu Button */}
         <button
-          className="md:hidden bg-none border-none text-gray-600 cursor-pointer py-2 px-2 rounded-md transition-all duration-200 ease-in-out hover:bg-slate-50 hover:text-gray-800 flex-shrink-0 order-2"
+          className="md:hidden bg-none border-none text-gray-600 cursor-pointer py-2 px-2 rounded-md transition-all duration-200 ease-in-out hover:bg-slate-50 hover:text-gray-800 flex-shrink-0 order-3"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           aria-label="Toggle mobile menu"
         >
