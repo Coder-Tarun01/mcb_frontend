@@ -231,7 +231,7 @@ const Navbar: React.FC = () => {
             <li className="relative">
               <Link 
                 to="/" 
-                className={`w-auto flex items-center text-decoration-none text-gray-600 text-sm md:text-xs transition-all duration-200 ease-in-out whitespace-nowrap border-none bg-none rounded-lg cursor-pointer py-2 px-2.5 md:py-1.5 md:px-2 hover:bg-slate-50 hover:text-gray-800 ${isActive('/') ? 'bg-blue-50 text-blue-600' : ''}`}
+                className={`w-auto flex items-center text-decoration-none text-gray-600 text-sm md:text-xs lg:text-sm transition-all duration-200 ease-in-out whitespace-nowrap border-none bg-none rounded-lg cursor-pointer py-2 px-2.5 md:py-1.5 md:px-2 hover:bg-slate-50 hover:text-gray-800 ${isActive('/') ? 'bg-blue-50 text-blue-600' : ''}`}
               >
                 Home
               </Link>
@@ -245,7 +245,7 @@ const Navbar: React.FC = () => {
               onMouseLeave={() => setIsJobsDropdownOpen(false)}
             >
               <button 
-                className={`flex items-center gap-1 text-gray-600 text-sm md:text-xs transition-all duration-200 ease-in-out relative bg-none border-none shadow-none m-0 py-2 px-2.5 md:py-1.5 md:px-2 rounded-lg cursor-pointer hover:bg-slate-50 hover:text-gray-800 ${isActive('/jobs') ? 'bg-blue-50 text-blue-600' : ''}`}
+                className={`flex items-center gap-1 text-gray-600 text-sm md:text-xs lg:text-sm transition-all duration-200 ease-in-out relative bg-none border-none shadow-none m-0 py-2 px-2.5 md:py-1.5 md:px-2 rounded-lg cursor-pointer hover:bg-slate-50 hover:text-gray-800 ${isActive('/jobs') ? 'bg-blue-50 text-blue-600' : ''}`}
                 onClick={() => navigate('/jobs')}
               >
                 Job Provider
@@ -261,7 +261,7 @@ const Navbar: React.FC = () => {
             <li className="relative">
               <Link 
                 to="/job-categories" 
-                className={`w-auto flex items-center text-decoration-none text-gray-600 text-sm md:text-xs transition-all duration-200 ease-in-out whitespace-nowrap border-none bg-none rounded-lg cursor-pointer py-2 px-2.5 md:py-1.5 md:px-2 hover:bg-slate-50 hover:text-gray-800 ${isActive('/job-categories') ? 'bg-blue-50 text-blue-600' : ''}`}
+                className={`w-auto flex items-center text-decoration-none text-gray-600 text-sm md:text-xs lg:text-sm transition-all duration-200 ease-in-out whitespace-nowrap border-none bg-none rounded-lg cursor-pointer py-2 px-2.5 md:py-1.5 md:px-2 hover:bg-slate-50 hover:text-gray-800 ${isActive('/job-categories') ? 'bg-blue-50 text-blue-600' : ''}`}
               >
                 Job Category
               </Link>
@@ -271,7 +271,7 @@ const Navbar: React.FC = () => {
             <li className="relative">
               <Link 
                 to="/blogs" 
-                className={`w-auto flex items-center text-decoration-none text-gray-600 text-sm md:text-xs transition-all duration-200 ease-in-out whitespace-nowrap border-none bg-none rounded-lg cursor-pointer py-2 px-2.5 md:py-1.5 md:px-2 hover:bg-slate-50 hover:text-gray-800 ${isActive('/blogs') ? 'bg-blue-50 text-blue-600' : ''}`}
+                className={`w-auto flex items-center text-decoration-none text-gray-600 text-sm md:text-xs lg:text-sm transition-all duration-200 ease-in-out whitespace-nowrap border-none bg-none rounded-lg cursor-pointer py-2 px-2.5 md:py-1.5 md:px-2 hover:bg-slate-50 hover:text-gray-800 ${isActive('/blogs') ? 'bg-blue-50 text-blue-600' : ''}`}
               >
                 Blogs
               </Link>
@@ -281,7 +281,7 @@ const Navbar: React.FC = () => {
             <li className="relative">
               <Link 
                 to="/contact" 
-                className={`w-auto flex items-center text-decoration-none text-gray-600 text-sm md:text-xs transition-all duration-200 ease-in-out whitespace-nowrap border-none bg-none rounded-lg cursor-pointer py-2 px-2.5 md:py-1.5 md:px-2 hover:bg-slate-50 hover:text-gray-800 ${isActive('/contact') ? 'bg-blue-50 text-blue-600' : ''}`}
+                className={`w-auto flex items-center text-decoration-none text-gray-600 text-sm md:text-xs lg:text-sm transition-all duration-200 ease-in-out whitespace-nowrap border-none bg-none rounded-lg cursor-pointer py-2 px-2.5 md:py-1.5 md:px-2 hover:bg-slate-50 hover:text-gray-800 ${isActive('/contact') ? 'bg-blue-50 text-blue-600' : ''}`}
               >
                 Contact Us
               </Link>
@@ -292,7 +292,7 @@ const Navbar: React.FC = () => {
         {/* Search Bar with Autocomplete */}
         <form
           onSubmit={handleSearch}
-          className={`order-2 md:order-4 lg:order-none flex-1 md:flex-none w-full max-w-full md:max-w-full md:basis-full lg:basis-auto md:mt-2 lg:mt-0 md:mx-0 lg:mx-2 xl:mx-3 relative transition-all duration-300 ease-in-out flex-shrink lg:flex-1 lg:max-w-sm xl:max-w-md ${isSearchFocused ? 'focused' : ''}`}
+          className={`order-2 md:order-4 lg:order-none flex-1 md:flex-none w-full max-w-full md:max-w-full md:basis-full lg:basis-auto md:mt-2 lg:mt-0 md:mx-0 lg:mx-2 xl:mx-3 relative transition-all duration-300 ease-in-out flex-shrink lg:flex-1 lg:max-w-xs xl:max-w-sm ${isSearchFocused ? 'focused' : ''}`}
         >
           <div className="relative w-full">
             <Search className="absolute left-4 md:left-3 sm:left-3 top-1/2 -translate-y-1/2 w-5 h-5 md:w-4 md:h-4 sm:w-4 sm:h-4 text-gray-400 transition-colors duration-200 ease-in-out pointer-events-none" />
@@ -452,25 +452,30 @@ const Navbar: React.FC = () => {
               {isEmployee() && (
                 <Link 
                   to="/dashboard" 
-                  className={`flex items-center gap-1 py-1.5 px-2 text-gray-600 text-decoration-none font-medium text-sm rounded-lg transition-all duration-200 ease-in-out bg-none border-none shadow-none hover:bg-slate-50 hover:text-gray-800 whitespace-nowrap ${isActive('/dashboard') ? 'bg-blue-50 text-blue-600' : ''}`}
+                  className={`flex items-center justify-center py-1.5 px-2 text-gray-600 text-decoration-none font-medium text-sm rounded-lg transition-all duration-200 ease-in-out bg-none border-none shadow-none hover:bg-slate-50 hover:text-gray-800 whitespace-nowrap ${isActive('/dashboard') ? 'bg-blue-50 text-blue-600' : ''}`}
+                  title="Employee Dashboard"
+                  aria-label="Employee Dashboard"
                 >
                   <User className="w-4 h-4" />
-                  <span className="hidden xl:inline">Dashboard</span>
                 </Link>
               )}
               {isEmployer() && (
                 <Link 
                   to="/employer/dashboard" 
-                  className={`flex items-center gap-1 py-1.5 px-2 text-gray-600 text-decoration-none font-medium text-sm rounded-lg transition-all duration-200 ease-in-out bg-none border-none shadow-none hover:bg-slate-50 hover:text-gray-800 whitespace-nowrap ${isActive('/employer/dashboard') ? 'bg-blue-50 text-blue-600' : ''}`}
+                  className={`flex items-center justify-center py-1.5 px-2 text-gray-600 text-decoration-none font-medium text-sm rounded-lg transition-all duration-200 ease-in-out bg-none border-none shadow-none hover:bg-slate-50 hover:text-gray-800 whitespace-nowrap ${isActive('/employer/dashboard') ? 'bg-blue-50 text-blue-600' : ''}`}
+                  title="Employer Dashboard"
+                  aria-label="Employer Dashboard"
                 >
                   <Building2 className="w-4 h-4" />
-                  <span className="hidden xl:inline">Employer Dashboard</span>
-                  <span className="xl:hidden hidden 2xl:inline">Dashboard</span>
                 </Link>
               )}
-              <button onClick={handleLogout} className="flex items-center gap-1 py-1.5 px-2 text-red-600 bg-none border-none font-medium text-sm rounded-lg cursor-pointer transition-all duration-200 ease-in-out hover:bg-red-50 hover:text-red-700 whitespace-nowrap">
+              <button 
+                onClick={handleLogout} 
+                className="flex items-center justify-center py-1.5 px-2 text-red-600 bg-none border-none font-medium text-sm rounded-lg cursor-pointer transition-all duration-200 ease-in-out hover:bg-red-50 hover:text-red-700 whitespace-nowrap"
+                title="Logout"
+                aria-label="Logout"
+              >
                 <LogOut className="w-4 h-4" />
-                <span className="hidden xl:inline">Logout</span>
               </button>
               </div>
             </>
