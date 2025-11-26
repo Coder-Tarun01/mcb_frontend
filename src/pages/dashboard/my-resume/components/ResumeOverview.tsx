@@ -135,9 +135,9 @@ const ResumeOverview: React.FC<ResumeOverviewProps> = ({ onSectionClick }) => {
 
   if (loading) {
     return (
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+          <div className="h-4 bg-gray-200 rounded w-2/3 sm:w-3/4 mb-4"></div>
           <div className="h-32 bg-gray-200 rounded mb-4"></div>
           <div className="space-y-2">
             {[...Array(8)].map((_, i) => (
@@ -151,7 +151,7 @@ const ResumeOverview: React.FC<ResumeOverviewProps> = ({ onSectionClick }) => {
 
   if (error) {
     return (
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <div className="text-red-600 text-center">
           <p>{error}</p>
           <button 
@@ -166,11 +166,11 @@ const ResumeOverview: React.FC<ResumeOverviewProps> = ({ onSectionClick }) => {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-gray-800 mb-2">Resume Overview</h2>
-        <div className="bg-gray-50 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
+        <h2 className="text-xl font-semibold text-gray-800 mb-2 text-center sm:text-left">Resume Overview</h2>
+        <div className="bg-gray-50 rounded-lg p-4 sm:p-5">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
             <span className="text-sm font-medium text-gray-700">Completion</span>
             <span className="text-sm font-medium text-gray-700">
               {overview?.completedSections || 0}/{overview?.totalSections || 9}
@@ -192,20 +192,23 @@ const ResumeOverview: React.FC<ResumeOverviewProps> = ({ onSectionClick }) => {
       </div>
 
       <div className="space-y-2">
-        <h3 className="text-sm font-medium text-gray-700 mb-3">Sections</h3>
+        <h3 className="text-sm font-medium text-gray-700 mb-3 text-center sm:text-left">Sections</h3>
         {sections.map((section) => {
           const IconComponent = section.icon;
           return (
             <button
               key={section.id}
               onClick={() => onSectionClick(section.id)}
-              className="w-full text-left p-4 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100"
+              className="w-full text-left p-4 sm:p-5 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100"
             >
-              <div className="flex items-start gap-3">
-                <IconComponent className="h-5 w-5 text-blue-600 mt-0.5" />
+              <div className="flex flex-col sm:flex-row sm:items-start gap-3">
+                <div className="flex items-center gap-3">
+                  <IconComponent className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                  <span className="text-sm font-medium text-gray-900">{section.name}</span>
+                </div>
                 <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-900">{section.name}</span>
+                  <div className="flex items-center justify-end sm:justify-between">
+                    <span className="hidden sm:inline text-sm font-medium text-gray-900">{section.name}</span>
                     {section.completed ? (
                       <CheckCircle className="h-4 w-4 text-blue-600" />
                     ) : (
@@ -282,7 +285,7 @@ const ResumeOverview: React.FC<ResumeOverviewProps> = ({ onSectionClick }) => {
         })}
       </div>
 
-      <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+      <div className="mt-6 p-4 sm:p-5 bg-blue-50 rounded-lg">
         <h4 className="text-sm font-medium text-blue-800 mb-2">Quick Tips</h4>
         <ul className="text-xs text-blue-700 space-y-1">
           <li>• Complete all sections for a strong resume</li>

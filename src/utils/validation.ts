@@ -56,6 +56,23 @@ export const signupSchema = yup.object({
       then: schema => schema.optional(),
       otherwise: schema => schema.optional()
     }),
+  phone: yup
+    .string()
+    .trim()
+    .optional()
+    .matches(
+      /^[\d\s\+\-\(\)]{10,15}$/,
+      'Please enter a valid mobile number (10-15 digits)'
+    )
+    .test(
+      'phone-length',
+      'Mobile number must be between 10 and 15 digits',
+      (value) => {
+        if (!value) return true; // Optional field
+        const digitsOnly = value.replace(/\D/g, '');
+        return digitsOnly.length >= 10 && digitsOnly.length <= 15;
+      }
+    ),
   acceptTerms: yup.boolean().oneOf([true], 'You must accept the Terms of Service and Privacy Policy').required()
 });
 

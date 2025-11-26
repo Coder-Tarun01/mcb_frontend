@@ -16,7 +16,6 @@ import {
   Building2,
   Award
 } from 'lucide-react';
-import JobSearchBar from '../components/jobs/JobSearchBar';
 import SEOHead from '../components/seo/SEOHead';
 import OrganizationSchema from '../components/seo/OrganizationSchema';
 import WebsiteSchema from '../components/seo/WebsiteSchema';
@@ -69,119 +68,41 @@ const Home: React.FC = () => {
   };
 
   useEffect(() => {
-    const loadRemoteJobs = async () => {
+    const loadAllHomePageJobs = async () => {
       try {
-        const response = await jobsAPI.fetchJobs({ 
-          isRemote: true, 
-          limit: 3 
-        });
-        // Handle both response structures
-        const jobs = response.jobs || response || [];
-        console.log('📊 Remote jobs processed:', jobs);
-        setRemoteJobs(Array.isArray(jobs) ? jobs : []);
+        setIsLoadingRemote(true);
+        setIsLoadingFresher(true);
+        setIsLoadingGovernment(true);
+        setIsLoadingExperienced(true);
+        
+        // Single API call to get all 4 categories
+        const response = await jobsAPI.fetchHomePageJobs();
+        
+        // Set jobs for each category (each array has max 3 jobs)
+        setRemoteJobs(Array.isArray(response.remote) ? response.remote : []);
+        setFresherJobs(Array.isArray(response.fresher) ? response.fresher : []);
+        setGovernmentJobs(Array.isArray(response.government) ? response.government : []);
+        setExperiencedJobs(Array.isArray(response.experienced) ? response.experienced : []);
+        
         setIsLoadingRemote(false);
+        setIsLoadingFresher(false);
+        setIsLoadingGovernment(false);
+        setIsLoadingExperienced(false);
       } catch (error) {
-        console.error('Error loading remote jobs:', error);
+        console.error('Error loading home page jobs:', error);
         setApiError('Unable to load jobs. Please make sure the backend server is running.');
         setRemoteJobs([]);
-        setIsLoadingRemote(false);
-      }
-    };
-
-    const loadFresherJobs = async () => {
-      try {
-        const response = await jobsAPI.fetchJobs({ 
-          limit: 100 
-        });
-        const allJobs = response.jobs || response || [];
-        const jobsArray = Array.isArray(allJobs) ? allJobs : [];
-        
-        // Filter for fresher jobs: experienceLevel is 'Fresher' or experience min is 0
-        const fresherJobsFiltered = jobsArray.filter(job => {
-          if (job.experienceLevel) {
-            const level = String(job.experienceLevel).toLowerCase();
-            return level.includes('fresher') || level.includes('entry') || level === '0';
-          }
-          if (job.experience && typeof job.experience === 'object') {
-            return (job.experience as any).min === 0 || (job.experience as any).min === null;
-          }
-          return false;
-        }).slice(0, 3);
-        
-        setFresherJobs(fresherJobsFiltered);
-        setIsLoadingFresher(false);
-      } catch (error) {
-        console.error('Error loading fresher jobs:', error);
         setFresherJobs([]);
-        setIsLoadingFresher(false);
-      }
-    };
-
-    const loadGovernmentJobs = async () => {
-      try {
-        const response = await jobsAPI.fetchJobs({ 
-          limit: 100 
-        });
-        const allJobs = response.jobs || response || [];
-        const jobsArray = Array.isArray(allJobs) ? allJobs : [];
-        
-        // Filter for government jobs: company name contains government-related keywords
-        const governmentJobsFiltered = jobsArray.filter(job => {
-          const company = String(job.company || '').toLowerCase();
-          const title = String(job.title || '').toLowerCase();
-          return company.includes('government') || 
-                 company.includes('govt') || 
-                 company.includes('gov') ||
-                 company.includes('public sector') ||
-                 title.includes('government') ||
-                 title.includes('govt') ||
-                 job.category === 'Government' ||
-                 job.category === 'Public Sector';
-        }).slice(0, 3);
-        
-        setGovernmentJobs(governmentJobsFiltered);
-        setIsLoadingGovernment(false);
-      } catch (error) {
-        console.error('Error loading government jobs:', error);
         setGovernmentJobs([]);
-        setIsLoadingGovernment(false);
-      }
-    };
-
-    const loadExperiencedJobs = async () => {
-      try {
-        const response = await jobsAPI.fetchJobs({ 
-          limit: 100 
-        });
-        const allJobs = response.jobs || response || [];
-        const jobsArray = Array.isArray(allJobs) ? allJobs : [];
-        
-        // Filter for experienced jobs: experienceLevel is not 'Fresher' or experience min > 0
-        const experiencedJobsFiltered = jobsArray.filter(job => {
-          if (job.experienceLevel) {
-            const level = String(job.experienceLevel).toLowerCase();
-            return !level.includes('fresher') && !level.includes('entry') && level !== '0';
-          }
-          if (job.experience && typeof job.experience === 'object') {
-            return (job.experience as any).min > 0;
-          }
-          // If no experience data, consider it experienced if it's not explicitly fresher
-          return true;
-        }).slice(0, 3);
-        
-        setExperiencedJobs(experiencedJobsFiltered);
-        setIsLoadingExperienced(false);
-      } catch (error) {
-        console.error('Error loading experienced jobs:', error);
         setExperiencedJobs([]);
+        setIsLoadingRemote(false);
+        setIsLoadingFresher(false);
+        setIsLoadingGovernment(false);
         setIsLoadingExperienced(false);
       }
     };
 
-    loadRemoteJobs();
-    loadFresherJobs();
-    loadGovernmentJobs();
-    loadExperiencedJobs();
+    loadAllHomePageJobs();
   }, []);
 
 
@@ -279,7 +200,7 @@ const Home: React.FC = () => {
       {/* Hero Section */}
       <section className="relative overflow-hidden min-h-[70vh] bg-gradient-to-br from-blue-900 via-blue-500 to-blue-400 before:content-[''] before:absolute before:inset-0 before:opacity-30">
         {/* 3D Background Elements */}
-        <div className="absolute inset-0 pointer-events-none z-10">
+        <div className="absolute inset-0 pointer-events-none z-10 hidden md:block">
           <div className="absolute inset-0">
             <div className="absolute w-20 h-20 top-[20%] left-[10%] rounded-full bg-gradient-to-br from-blue-500/20 to-blue-400/10 backdrop-blur-[10px] animate-floatShape"></div>
             <div className="absolute w-30 h-30 top-[60%] right-[15%] rounded-full bg-gradient-to-br from-blue-300/15 to-blue-500/8 backdrop-blur-[10px] animate-floatShape animation-delay-2000"></div>
@@ -339,12 +260,6 @@ const Home: React.FC = () => {
                 Connect with top companies and discover amazing career opportunities. 
                 Join thousands of professionals who found their perfect match.
               </p>
-              
-              <div className="max-w-full m-0 relative z-30 flex justify-center">
-                <div className="w-full max-w-2xl sm:max-w-md md:max-w-2xl lg:max-w-3xl xl:max-w-4xl">
-                  <JobSearchBar behaveLikeNavbar className="max-w-2xl sm:max-w-md md:max-w-2xl lg:max-w-3xl xl:max-w-4xl" />
-                </div>
-              </div>
             </motion.div>
 
             {/* Right Side - YouTube Video */}
@@ -420,7 +335,7 @@ const Home: React.FC = () => {
                     scale: 1.02,
                     transition: { duration: 0.3 }
                   }}
-                  className="bg-gradient-to-br from-white/90 to-slate-50/80 rounded-2xl p-0 backdrop-blur-[10px] border border-white/20 relative overflow-hidden transition-all duration-300 cursor-pointer flex flex-col h-auto md:h-[320px] transform-gpu"
+                  className="bg-gradient-to-br from-white/90 to-slate-50/80 rounded-2xl p-0 backdrop-blur-[10px] border border-white/20 relative overflow-hidden transition-all duration-300 cursor-pointer flex flex-col min-h-[280px] sm:min-h-[300px] lg:min-h-[320px] transform-gpu"
                   data-force-render={forceRender}
                   onClick={() => {
                     const slug = (job as any).slug || buildJobSlug({
@@ -546,7 +461,7 @@ const Home: React.FC = () => {
             transition={{ duration: 0.6, delay: 0.8 }}
             className="text-center flex justify-center items-center w-full"
           >
-            <a href="/jobs?location=remote" className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-500 to-blue-700 text-white border-none px-8 py-4 rounded-xl text-base font-bold text-decoration-none transition-all duration-300 relative overflow-hidden tracking-[0.025em] uppercase w-auto max-w-[300px] mx-auto hover:bg-gradient-to-r hover:from-blue-700 hover:to-blue-800 hover:-translate-y-1 hover:scale-[1.02] hover:text-white active:-translate-y-0.5 active:scale-[1.01] focus:outline-2 focus:outline-blue-500/50 focus:outline-offset-2">
+            <a href="/jobs?isRemote=true" className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-500 to-blue-700 text-white border-none px-8 py-4 rounded-xl text-base font-bold text-decoration-none transition-all duration-300 relative overflow-hidden tracking-[0.025em] uppercase w-auto max-w-[300px] mx-auto hover:bg-gradient-to-r hover:from-blue-700 hover:to-blue-800 hover:-translate-y-1 hover:scale-[1.02] hover:text-white active:-translate-y-0.5 active:scale-[1.01] focus:outline-2 focus:outline-blue-500/50 focus:outline-offset-2">
               <span className="text-white">View All Remote Jobs</span>
               <ArrowRight className="w-[18px] h-[18px] text-white transition-transform duration-300 group-hover:translate-x-1" />
             </a>
@@ -598,7 +513,7 @@ const Home: React.FC = () => {
                     scale: 1.02,
                     transition: { duration: 0.3 }
                   }}
-                  className="bg-gradient-to-br from-white/90 to-slate-50/80 rounded-2xl p-0 backdrop-blur-[10px] border border-white/20 relative overflow-hidden transition-all duration-300 cursor-pointer flex flex-col h-auto md:h-[320px] transform-gpu"
+                  className="bg-gradient-to-br from-white/90 to-slate-50/80 rounded-2xl p-0 backdrop-blur-[10px] border border-white/20 relative overflow-hidden transition-all duration-300 cursor-pointer flex flex-col min-h-[280px] sm:min-h-[300px] lg:min-h-[320px] transform-gpu"
                   data-force-render={forceRender}
                   onClick={() => {
                     const slug = (job as any).slug || buildJobSlug({
@@ -723,7 +638,7 @@ const Home: React.FC = () => {
           >
             <a href="/jobs?experience=fresher" className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-500 to-blue-700 text-white border-none px-8 py-4 rounded-xl text-base font-bold text-decoration-none transition-all duration-300 relative overflow-hidden tracking-[0.025em] uppercase w-auto max-w-[300px] mx-auto hover:bg-gradient-to-r hover:from-blue-700 hover:to-blue-800 hover:-translate-y-1 hover:scale-[1.02] hover:text-white active:-translate-y-0.5 active:scale-[1.01] focus:outline-2 focus:outline-blue-500/50 focus:outline-offset-2">
               <span className="text-white">View All Fresher Jobs</span>
-              <ArrowRight className="w-[18px] h-[18px] transition-transform duration-300 group-hover:translate-x-1" />
+              <ArrowRight className="w-[18px] h-[18px] text-white transition-transform duration-300 group-hover:translate-x-1" />
             </a>
           </motion.div>
         </div>
@@ -773,7 +688,7 @@ const Home: React.FC = () => {
                     scale: 1.02,
                     transition: { duration: 0.3 }
                   }}
-                  className="bg-gradient-to-br from-white/90 to-slate-50/80 rounded-2xl p-0 backdrop-blur-[10px] border border-white/20 relative overflow-hidden transition-all duration-300 cursor-pointer flex flex-col h-auto md:h-[320px] transform-gpu"
+                  className="bg-gradient-to-br from-white/90 to-slate-50/80 rounded-2xl p-0 backdrop-blur-[10px] border border-white/20 relative overflow-hidden transition-all duration-300 cursor-pointer flex flex-col min-h-[280px] sm:min-h-[300px] lg:min-h-[320px] transform-gpu"
                   data-force-render={forceRender}
                   onClick={() => {
                     const slug = (job as any).slug || buildJobSlug({
@@ -896,7 +811,7 @@ const Home: React.FC = () => {
             transition={{ duration: 0.6, delay: 0.8 }}
             className="text-center flex justify-center items-center w-full"
           >
-            <a href="/jobs?category=Government" className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-500 to-blue-700 text-white border-none px-8 py-4 rounded-xl text-base font-bold text-decoration-none transition-all duration-300 relative overflow-hidden tracking-[0.025em] uppercase w-auto mx-auto hover:bg-gradient-to-r hover:from-blue-700 hover:to-blue-800 hover:-translate-y-1 hover:scale-[1.02] hover:text-white active:-translate-y-0.5 active:scale-[1.01] focus:outline-2 focus:outline-blue-500/50 focus:outline-offset-2 group">
+            <a href="/jobs?category=government" className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-500 to-blue-700 text-white border-none px-8 py-4 rounded-xl text-base font-bold text-decoration-none transition-all duration-300 relative overflow-hidden tracking-[0.025em] uppercase w-auto mx-auto hover:bg-gradient-to-r hover:from-blue-700 hover:to-blue-800 hover:-translate-y-1 hover:scale-[1.02] hover:text-white active:-translate-y-0.5 active:scale-[1.01] focus:outline-2 focus:outline-blue-500/50 focus:outline-offset-2 group">
               <span className="text-white whitespace-nowrap">View All Government Jobs</span>
               <ArrowRight className="w-[18px] h-[18px] text-white transition-transform duration-300 group-hover:translate-x-1" />
             </a>
@@ -948,7 +863,7 @@ const Home: React.FC = () => {
                     scale: 1.02,
                     transition: { duration: 0.3 }
                   }}
-                  className="bg-gradient-to-br from-white/90 to-slate-50/80 rounded-2xl p-0 backdrop-blur-[10px] border border-white/20 relative overflow-hidden transition-all duration-300 cursor-pointer flex flex-col h-auto md:h-[320px] transform-gpu"
+                  className="bg-gradient-to-br from-white/90 to-slate-50/80 rounded-2xl p-0 backdrop-blur-[10px] border border-white/20 relative overflow-hidden transition-all duration-300 cursor-pointer flex flex-col min-h-[280px] sm:min-h-[300px] lg:min-h-[320px] transform-gpu"
                   data-force-render={forceRender}
                   onClick={() => {
                     const slug = (job as any).slug || buildJobSlug({
@@ -1073,7 +988,7 @@ const Home: React.FC = () => {
           >
             <a href="/jobs?experience=experienced" className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-500 to-blue-700 text-white border-none px-8 py-4 rounded-xl text-base font-bold text-decoration-none transition-all duration-300 relative overflow-hidden tracking-[0.025em] uppercase w-auto mx-auto hover:bg-gradient-to-r hover:from-blue-700 hover:to-blue-800 hover:-translate-y-1 hover:scale-[1.02] hover:text-white active:-translate-y-0.5 active:scale-[1.01] focus:outline-2 focus:outline-blue-500/50 focus:outline-offset-2 group">
               <span className="text-white whitespace-nowrap">View All Experienced Jobs</span>
-              <ArrowRight className="w-[18px] h-[18px] transition-transform duration-300 group-hover:translate-x-1" />
+              <ArrowRight className="w-[18px] h-[18px] text-white transition-transform duration-300 group-hover:translate-x-1" />
             </a>
           </motion.div>
         </div>
@@ -1184,7 +1099,8 @@ const Home: React.FC = () => {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-10 gap-3 mb-2 max-w-[1400px] mx-auto px-4 py-4 relative overflow-x-auto rounded-2xl bg-white/60 border border-white/70 shadow-[0_8px_30px_rgba(0,0,0,0.06)] backdrop-blur-sm">
+          <div className="w-full overflow-x-auto">
+            <div className="flex lg:grid lg:grid-cols-10 gap-3 mb-2 max-w-[1400px] mx-auto px-4 py-4 rounded-2xl bg-white/60 border border-white/70 shadow-[0_8px_30px_rgba(0,0,0,0.06)] backdrop-blur-sm">
             {collaborations.map((collaboration, index) => (
               <motion.div
                 key={collaboration.name}
@@ -1216,7 +1132,7 @@ const Home: React.FC = () => {
                   zIndex: 1000,
                   boxShadow: "0 25px 80px rgba(59, 130, 246, 0.3)"
                 }}
-                className="flex items-center justify-center p-3 bg-transparent rounded-lg transition-all duration-300 cursor-pointer relative overflow-hidden min-h-[80px] transform-gpu cursor-grab select-none touch-none hover:-translate-y-0.5 hover:scale-[1.02] active:cursor-grabbing active:scale-[1.1] active:rotate-[3deg]"
+                className="flex items-center justify-center p-3 bg-transparent rounded-lg transition-all duration-300 cursor-pointer relative overflow-hidden min-h-[80px] min-w-[140px] lg:min-w-0 transform-gpu cursor-grab select-none touch-none hover:-translate-y-0.5 hover:scale-[1.02] active:cursor-grabbing active:scale-[1.1] active:rotate-[3deg]"
                 style={{ animationDelay: `${index * 0.5}s` }}
                 title={`${collaboration.name} - Drag to move`}
               >
@@ -1237,6 +1153,7 @@ const Home: React.FC = () => {
                 </div>
               </motion.div>
             ))}
+            </div>
           </div>
         </div>
       </section>

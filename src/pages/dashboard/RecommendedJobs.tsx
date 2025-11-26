@@ -224,15 +224,15 @@ const RecommendedJobs: React.FC = () => {
     <div className="min-h-screen bg-white">
       {/* Compact Professional Header Section */}
       <motion.div 
-        className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 text-white py-8 px-6 mb-8"
+        className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 text-white py-8 px-4 sm:px-6 mb-8"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
         <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-r from-blue-600/90 to-blue-800/90"></div>
         <div className="relative max-w-7xl mx-auto z-10 text-white">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
-            <div className="flex-1">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-6 text-center lg:text-left">
+            <div className="flex-1 w-full">
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -242,12 +242,12 @@ const RecommendedJobs: React.FC = () => {
                   <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
                     <Sparkles size={20} className="text-white" />
                   </div>
-                  <h1 className="text-2xl lg:text-3xl font-bold text-white !text-white" style={{color: 'white !important'}}>Recommended Jobs</h1>
+                  <h1 className="text-2xl lg:text-3xl font-bold text-white">Recommended Jobs</h1>
                 </div>
                 <p className="text-white text-sm mb-4 font-medium !text-white" style={{color: 'white !important'}}>
                   Discover opportunities tailored to your skills and preferences
                 </p>
-                <div className="flex flex-wrap gap-4">
+                <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
                   <div className="flex items-center gap-2 bg-white/15 rounded-full px-4 py-2 backdrop-blur-sm">
                     <Star size={14} className="text-yellow-300" />
                     <span className="text-white text-sm font-semibold !text-white" style={{color: 'white !important'}}>{jobs.filter(j => j.priority === 'high').length} Top Matches</span>
@@ -261,12 +261,12 @@ const RecommendedJobs: React.FC = () => {
             </div>
             
             <motion.div 
-              className="flex flex-col sm:flex-row gap-3"
+              className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto justify-center"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4 }}
             >
-              <div className="relative">
+              <div className="relative w-full sm:w-64">
                 <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400" />
                 <input
                   type="text"
@@ -274,7 +274,7 @@ const RecommendedJobs: React.FC = () => {
                   className="bg-white border border-blue-200 rounded-lg pl-10 pr-3 py-2.5 text-blue-800 placeholder-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-400 w-full sm:w-64 shadow-sm text-sm"
                 />
               </div>
-              <select className="bg-white border border-blue-200 rounded-lg px-3 py-2.5 text-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-300 shadow-sm text-sm">
+              <select className="bg-white border border-blue-200 rounded-lg px-3 py-2.5 text-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-300 shadow-sm text-sm w-full sm:w-auto">
                 <option className="text-blue-800">All Categories</option>
                 <option className="text-blue-800">IT / Software</option>
                 <option className="text-blue-800">Marketing</option>
@@ -282,7 +282,7 @@ const RecommendedJobs: React.FC = () => {
                 <option className="text-blue-800">Design</option>
               </select>
               <button 
-                className="bg-white text-blue-700 hover:bg-blue-50 px-4 py-2.5 rounded-lg font-semibold flex items-center gap-2 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md text-sm"
+                className="bg-white text-blue-700 hover:bg-blue-50 px-4 py-2.5 rounded-lg font-semibold flex items-center gap-2 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md text-sm w-full sm:w-auto justify-center"
                 onClick={loadRecommendedJobs}
               >
                 <RefreshCw size={16} />
@@ -294,10 +294,10 @@ const RecommendedJobs: React.FC = () => {
       </motion.div>
 
       {/* Professional Stats Cards */}
-      <div className="max-w-7xl mx-auto px-6 mb-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           <motion.div
-            className="bg-white rounded-2xl p-8 shadow-lg border border-blue-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 relative overflow-hidden"
+            className="bg-white rounded-2xl p-6 sm:p-8 shadow-lg border border-blue-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 relative overflow-hidden"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
@@ -319,7 +319,7 @@ const RecommendedJobs: React.FC = () => {
           </motion.div>
 
           <motion.div
-            className="bg-white rounded-2xl p-8 shadow-lg border border-blue-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 relative overflow-hidden"
+            className="bg-white rounded-2xl p-6 sm:p-8 shadow-lg border border-blue-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 relative overflow-hidden"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
@@ -341,7 +341,7 @@ const RecommendedJobs: React.FC = () => {
           </motion.div>
 
           <motion.div
-            className="bg-white rounded-2xl p-8 shadow-lg border border-blue-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 relative overflow-hidden"
+            className="bg-white rounded-2xl p-6 sm:p-8 shadow-lg border border-blue-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 relative overflow-hidden"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
@@ -365,15 +365,15 @@ const RecommendedJobs: React.FC = () => {
       </div>
 
       {/* Professional Filter Controls */}
-      <div className="max-w-7xl mx-auto px-6 mb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-12">
         <motion.div
-          className="bg-white rounded-2xl p-8 shadow-lg border border-blue-100"
+          className="bg-white rounded-2xl p-6 sm:p-8 shadow-lg border border-blue-100"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <div className="flex flex-col lg:flex-row gap-8 items-start lg:items-center justify-between">
-            <div className="flex items-center gap-6">
+          <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start md:items-center justify-between w-full">
+            <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6 w-full">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center">
                   <Filter size={20} className="text-white" />
@@ -381,7 +381,7 @@ const RecommendedJobs: React.FC = () => {
                 <span className="font-bold text-blue-800 text-lg">Filter Jobs</span>
               </div>
               <select
-                className="px-6 py-3 bg-white border-2 border-blue-200 rounded-xl text-blue-800 font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md"
+                className="px-4 sm:px-6 py-3 bg-white border-2 border-blue-200 rounded-xl text-blue-800 font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md w-full md:w-auto text-center md:text-left"
                 value={filterPriority}
                 onChange={(e) => setFilterPriority(e.target.value)}
               >
@@ -392,9 +392,9 @@ const RecommendedJobs: React.FC = () => {
               </select>
             </div>
 
-            <div className="flex items-center gap-2 bg-blue-50 rounded-xl p-2">
+            <div className="flex flex-col sm:flex-row items-center gap-2 bg-blue-50 rounded-xl p-2 w-full md:w-auto">
               <button
-                className={`px-6 py-3 rounded-lg transition-all duration-200 font-semibold flex items-center gap-2 ${
+                className={`px-5 sm:px-6 py-3 rounded-lg transition-all duration-200 font-semibold flex items-center justify-center gap-2 w-full sm:w-auto ${
                   viewMode === 'grid' 
                     ? 'bg-blue-600 text-white shadow-md' 
                     : 'text-blue-600 hover:bg-blue-100'
@@ -405,7 +405,7 @@ const RecommendedJobs: React.FC = () => {
                 Grid
               </button>
               <button
-                className={`px-6 py-3 rounded-lg transition-all duration-200 font-semibold flex items-center gap-2 ${
+                className={`px-5 sm:px-6 py-3 rounded-lg transition-all duration-200 font-semibold flex items-center justify-center gap-2 w-full sm:w-auto ${
                   viewMode === 'list' 
                     ? 'bg-blue-600 text-white shadow-md' 
                     : 'text-blue-600 hover:bg-blue-100'
@@ -421,10 +421,10 @@ const RecommendedJobs: React.FC = () => {
       </div>
 
       {/* Jobs Grid/List */}
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {filteredJobs.length === 0 ? (
           <motion.div 
-            className="bg-white rounded-2xl p-16 shadow-lg border border-blue-100 text-center"
+            className="bg-white rounded-2xl p-8 sm:p-12 shadow-lg border border-blue-100 text-center"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.5 }}
@@ -432,10 +432,10 @@ const RecommendedJobs: React.FC = () => {
             <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center mx-auto mb-8">
               <Sparkles size={48} className="text-blue-600" />
             </div>
-            <h3 className="text-3xl font-bold text-blue-800 mb-4">No Matches Found</h3>
-            <p className="text-blue-600 mb-8 text-lg">Try adjusting your filter or refresh recommendations</p>
+            <h3 className="text-2xl sm:text-3xl font-bold text-blue-800 mb-4">No Matches Found</h3>
+            <p className="text-blue-600 mb-8 text-base sm:text-lg px-2">Try adjusting your filter or refresh recommendations</p>
             <button 
-              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-3 mx-auto"
+              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl font-semibold transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-3 mx-auto w-full sm:w-auto"
               onClick={loadRecommendedJobs}
             >
               <RefreshCw size={20} />
@@ -443,7 +443,7 @@ const RecommendedJobs: React.FC = () => {
             </button>
           </motion.div>
         ) : (
-          <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8' : 'space-y-6'}>
+          <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8' : 'space-y-6'}>
             {filteredJobs.map((job, index) => {
               const priorityBadge = getPriorityBadge(job.priority);
               const PriorityIcon = priorityBadge.icon;
@@ -479,7 +479,7 @@ const RecommendedJobs: React.FC = () => {
                     <span>{priorityBadge.label}</span>
                   </div>
 
-                  <div className={`p-8 pt-20 ${viewMode === 'list' ? 'flex-1' : ''}`}>
+                  <div className={`p-6 sm:p-8 pt-20 ${viewMode === 'list' ? 'flex-1' : ''}`}>
                     {/* Company Logo and Save Button */}
                     <div className="flex items-start justify-between mb-6">
                       <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center shadow-lg">
@@ -592,8 +592,8 @@ const RecommendedJobs: React.FC = () => {
                   </div>
 
                   {/* Actions */}
-                  <div className="px-8 py-6 bg-gradient-to-r from-blue-50 to-blue-100 border-t border-blue-200">
-                    <div className="flex gap-4">
+                  <div className="px-6 sm:px-8 py-5 sm:py-6 bg-gradient-to-r from-blue-50 to-blue-100 border-t border-blue-200">
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                       {isApplied ? (
                         <button className="flex-1 bg-gray-400 text-white px-6 py-3 rounded-xl flex items-center justify-center gap-3 text-sm font-bold" disabled>
                           <CheckCircle size={18} />

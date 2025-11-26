@@ -18,6 +18,8 @@ const NotFound = React.lazy(() => import('../pages/NotFound'));
 const SearchResults = React.lazy(() => import('../pages/jobs/SearchResults'));
 const JobCategories = React.lazy(() => import('../pages/jobs/JobCategories'));
 const FreeJobAlerts = React.lazy(() => import('../pages/jobs/FreeJobAlerts'));
+const GovtJobs = React.lazy(() => import('../pages/jobs/GovtJobs'));
+const Internships = React.lazy(() => import('../pages/jobs/Internships'));
 
 // Employee Dashboard Components
 const DashboardLayout = React.lazy(() => import('../pages/dashboard/DashboardLayout'));
@@ -38,7 +40,6 @@ const EmployerAnalytics = React.lazy(() => import('../pages/Employer Access/Empl
 const PostJob = React.lazy(() => import('../pages/Employer Access/PostJob'));
 const CompanyProfile = React.lazy(() => import('../pages/Employer Access/CompanyProfile'));
 const Company = React.lazy(() => import('../pages/Company'));
-const CompanyOverview = React.lazy(() => import('../pages/Employer Access/CompanyOverview'));
 const ManageJobs = React.lazy(() => import('../pages/Employer Access/ManageJobs'));
 const EditJob = React.lazy(() => import('../pages/Employer Access/EditJob'));
 const JobApplications = React.lazy(() => import('../pages/Employer Access/JobApplications'));
@@ -90,6 +91,8 @@ const AppRoutes: React.FC = () => {
         <Route path="/search" element={<SearchResults />} />
         <Route path="/job-categories" element={<JobCategories />} />
         <Route path="/free-job-alerts" element={<FreeJobAlerts />} />
+        <Route path="/govt-jobs" element={<GovtJobs />} />
+        <Route path="/internships" element={<Internships />} />
         {/* Public Company Route */}
         <Route path="/companies/:slug" element={<Company />} />
 
@@ -150,18 +153,9 @@ const AppRoutes: React.FC = () => {
               <CompanyProfile />
             </ProtectedRoute>
           } 
-        />
+        /> 
         
-        <Route 
-          path="/employer/overview" 
-          element={
-            <ProtectedRoute requiredRole="employer">
-              <CompanyOverview />
-            </ProtectedRoute>
-          } 
-        />
-        
-        <Route 
+        <Route
           path="/employer/jobs" 
           element={
             <ProtectedRoute requiredRole="employer">

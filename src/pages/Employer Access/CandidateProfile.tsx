@@ -295,10 +295,10 @@ const CandidateProfile: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200"
+            className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-200"
           >
-            <div className="flex items-center gap-6 mb-8">
-              <div className="w-30 h-30 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-4xl flex-shrink-0 overflow-hidden">
+            <div className="flex flex-col md:flex-row items-center gap-6 mb-8">
+              <div className="w-24 h-24 md:w-30 md:h-30 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-4xl flex-shrink-0 overflow-hidden">
                 {candidate.profileImage ? (
                   (() => {
                     const raw = candidate.profileImage as string;
@@ -311,8 +311,8 @@ const CandidateProfile: React.FC = () => {
                 )}
               </div>
               
-              <div className="flex-1">
-                <h1 className="text-3xl font-bold text-gray-900 m-0 mb-2 leading-tight">{candidate.name}</h1>
+              <div className="flex-1 text-center md:text-left">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 m-0 mb-2 leading-tight">{candidate.name}</h1>
                 {candidate.professionalTitle && (
                   <p className="text-base text-gray-600 m-0 mb-3 font-medium">{candidate.professionalTitle}</p>
                 )}
@@ -323,7 +323,7 @@ const CandidateProfile: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex gap-3 flex-wrap">
+            <div className="flex gap-3 flex-wrap justify-center md:justify-start">
               <button onClick={handleContactCandidate} className="flex items-center gap-2 py-3 px-5 rounded-lg font-semibold cursor-pointer transition-all duration-300 border-none text-sm bg-blue-500 text-white hover:bg-blue-600 hover:-translate-y-0.5">
                 <MessageCircle className="w-4 h-4 text-white" />
                 <span className="text-white">Contact</span>
@@ -345,7 +345,7 @@ const CandidateProfile: React.FC = () => {
           </motion.div>
 
           {/* Profile Details */}
-          <div className="grid grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(400px,1fr))] gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(360px,1fr))] gap-6">
             {/* Basic Information */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}

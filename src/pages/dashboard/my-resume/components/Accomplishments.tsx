@@ -131,9 +131,9 @@ const Accomplishments: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/3 sm:w-1/4 mb-4"></div>
           <div className="space-y-4">
             {[1, 2].map(i => (
               <div key={i} className="h-24 bg-gray-200 rounded"></div>
@@ -145,23 +145,23 @@ const Accomplishments: React.FC = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 w-full">
+        <div className="flex items-start sm:items-center gap-3 w-full">
           <div className="p-2 bg-blue-100 rounded-lg">
             <Award className="w-5 h-5 text-blue-600" />
           </div>
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">Accomplishments</h2>
-            <p className="text-sm text-gray-600">Showcase your awards, certifications, and achievements</p>
+          <div className="flex-1 min-w-0 text-left">
+            <h2 className="text-xl font-semibold text-gray-900 leading-tight">Accomplishments</h2>
+            <p className="text-sm text-gray-600 mt-1">Showcase your awards, certifications, and achievements</p>
           </div>
         </div>
         
         {!isEditing && (
           <motion.button
             onClick={addAccomplishment}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-full sm:w-auto justify-center"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -204,7 +204,7 @@ const Accomplishments: React.FC = () => {
                   {editingId === accomplishment.id ? (
                     // Edit Mode
                     <div className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
                           <input
@@ -262,9 +262,9 @@ const Accomplishments: React.FC = () => {
                   ) : (
                     // Display Mode
                     <div className="space-y-3">
-                      <div className="flex items-start justify-between">
+                      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
+                          <div className="flex flex-wrap items-center gap-2 mb-1">
                             <span className="text-lg">{getTypeIcon(accomplishment.type)}</span>
                             <h3 className="text-lg font-semibold text-gray-900">{accomplishment.title}</h3>
                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(accomplishment.type)}`}>
@@ -282,7 +282,7 @@ const Accomplishments: React.FC = () => {
                             <p className="mt-2 text-gray-700 text-sm">{accomplishment.description}</p>
                           )}
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 w-full md:w-auto justify-end">
                           <motion.button
                             onClick={() => setEditingId(accomplishment.id)}
                             className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -308,11 +308,11 @@ const Accomplishments: React.FC = () => {
             </AnimatePresence>
             
             {isEditing && (
-              <div className="flex gap-3 pt-4 border-t border-gray-200">
+              <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200">
                 <motion.button
                   onClick={handleSave}
                   disabled={isSaving}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors w-full sm:w-auto justify-center"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -322,7 +322,7 @@ const Accomplishments: React.FC = () => {
                 
                 <motion.button
                   onClick={handleCancel}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors w-full sm:w-auto justify-center"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >

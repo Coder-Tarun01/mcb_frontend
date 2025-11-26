@@ -413,16 +413,16 @@ const ManageJobs: React.FC = () => {
           transition={{ duration: 0.6 }}
           className="bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.1)] p-3 sm:p-4 md:p-6 max-w-7xl w-full mx-auto border border-gray-200"
         >
-        <div className="flex flex-col sm:grid sm:grid-cols-[1fr_auto_1fr] items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-5 relative min-h-[60px]">
-          <button onClick={() => navigate('/employer/dashboard')} className="flex items-center gap-2 bg-none border-none text-gray-500 text-xs sm:text-sm font-medium cursor-pointer transition-all duration-300 justify-self-start py-2 hover:text-blue-500 hover:-translate-x-1 sm:col-start-1 sm:row-start-1">
+        <div className="flex flex-col lg:grid lg:grid-cols-[1fr_auto_1fr] items-start lg:items-center mb-4 sm:mb-6 gap-3 sm:gap-5 relative min-h-[60px]">
+          <button onClick={() => navigate('/employer/dashboard')} className="flex items-center gap-2 bg-none border-none text-gray-500 text-xs sm:text-sm font-medium cursor-pointer transition-all duration-300 justify-self-start py-2 hover:text-blue-500 hover:-translate-x-1 lg:col-start-1 lg:row-start-1">
             <ArrowLeft className="w-4 h-4" />
             <span className="hidden sm:inline">Back to Dashboard</span>
             <span className="sm:hidden">Back</span>
           </button>
-          <div className="flex justify-center items-center text-center sm:col-start-2 sm:row-start-1 w-full sm:w-auto">
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 m-0 leading-tight tracking-tight text-center w-full">Manage Jobs</h1>
+          <div className="flex justify-center items-center text-center lg:col-start-2 lg:row-start-1 w-full lg:w-auto">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 m-0 leading-tight tracking-tight text-center lg:text-left w-full">Manage Jobs</h1>
           </div>
-          <div className="flex items-center gap-2 sm:gap-3 sm:col-start-3 sm:row-start-1 sm:justify-self-end w-full sm:w-auto">
+          <div className="flex items-center gap-2 sm:gap-3 lg:col-start-3 lg:row-start-1 lg:justify-self-end w-full lg:w-auto">
             <button 
               onClick={handleRefresh} 
               className="flex items-center gap-1.5 sm:gap-2 bg-gray-100 text-gray-700 border border-gray-300 rounded-lg py-2 sm:py-3 px-3 sm:px-5 font-semibold text-xs sm:text-sm cursor-pointer transition-all duration-300 flex-shrink-0 hover:bg-gray-200 hover:border-gray-400 hover:text-gray-700 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] disabled:opacity-60 disabled:cursor-not-allowed"
@@ -446,8 +446,8 @@ const ManageJobs: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             className="bg-white rounded-xl p-3 sm:p-4 md:p-5 shadow-[0_2px_4px_rgba(0,0,0,0.05)] border border-gray-200"
           >
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-4">
-              <div className="relative flex-1 w-full sm:max-w-md">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 flex-wrap mb-4">
+              <div className="relative flex-1 w-full min-w-[200px]">
                 <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 z-10 pointer-events-none" />
                 <input
                   type="text"
@@ -457,7 +457,7 @@ const ManageJobs: React.FC = () => {
                   className="w-full py-2.5 sm:py-3 px-3 sm:px-4 pl-9 sm:pl-12 border border-gray-300 rounded-lg text-xs sm:text-sm text-gray-800 bg-white transition-all duration-300 focus:outline-none focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1)]"
                 />
               </div>
-              <div className="relative w-full sm:w-auto sm:min-w-[180px]">
+              <div className="relative w-full sm:w-auto sm:min-w-[200px]">
                 <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 z-10 pointer-events-none" />
                 <select
                   value={sortBy}
@@ -514,7 +514,7 @@ const ManageJobs: React.FC = () => {
             className="bg-white rounded-xl p-3 sm:p-4 md:p-5 shadow-[0_2px_4px_rgba(0,0,0,0.05)] border border-gray-200"
           >
             <div className="rounded-lg border border-gray-200 overflow-hidden">
-              <div className="w-full overflow-x-auto">
+              <div className="w-full overflow-x-auto hidden sm:block">
                 <div className="grid grid-cols-[2.5fr_140px_120px_120px_140px] gap-2 sm:gap-3 py-3 sm:py-4 px-3 sm:px-4 md:px-5 bg-slate-50 border-b-2 border-slate-200 rounded-t-lg min-w-[700px]">
                   <div 
                     className="flex items-center justify-center font-bold text-xs text-slate-800 uppercase tracking-wide text-center p-1 cursor-pointer transition-colors duration-200 select-none gap-0.5 sm:gap-1 flex-row hover:text-blue-500"
@@ -663,9 +663,88 @@ const ManageJobs: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                  ))
+                    ))
                   )}
                 </div>
+              </div>
+              {/* Mobile Card View */}
+              <div className="sm:hidden">
+                {loading ? (
+                  <div className="flex flex-col items-center justify-center py-10 px-4 text-gray-500 gap-3">
+                    <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
+                    <span className="text-sm">Loading jobs...</span>
+                  </div>
+                ) : paginatedJobs.length === 0 ? (
+                  <div className="text-center py-10 px-4 text-gray-500">
+                    <Briefcase className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+                    <h3 className="text-base font-semibold text-gray-700 m-0 mb-2">No jobs found</h3>
+                    <p className="text-xs m-0">Try adjusting your search criteria or filters.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {paginatedJobs.map((job) => (
+                      <div key={job.id} className={`border border-gray-200 rounded-xl p-4 space-y-3 shadow-sm ${!job.isRead ? 'border-blue-400 bg-blue-50/60' : 'bg-white'}`}>
+                        <div>
+                          <h3 className="text-sm font-semibold text-gray-800">{job.title}</h3>
+                          <div className="text-xs text-gray-500 flex flex-wrap gap-2 mt-1">
+                            <span className="flex items-center gap-1">
+                              <MapPin className="w-3 h-3 text-gray-400" />
+                              {job.location}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3 h-3 text-gray-400" />
+                              {job.jobType}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between text-xs text-gray-600">
+                          <span>{job.date}</span>
+                          <div className={`inline-flex items-center gap-1 py-1 px-2 rounded-lg text-[11px] font-semibold border ${
+                            job.status === 'active'
+                              ? 'bg-green-50 text-green-700 border-green-500'
+                              : job.status === 'pending'
+                              ? 'bg-amber-50 text-amber-700 border-amber-500'
+                              : 'bg-red-50 text-red-700 border-red-500'
+                          }`}>
+                            <span>{getStatusLabel(job.status)}</span>
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <button
+                            onClick={() => handleApplicationsClick(job.id, job.applications)}
+                            className="flex items-center justify-center gap-1 py-2 border border-blue-200 text-blue-600 rounded-lg text-xs font-semibold"
+                          >
+                            <Users className="w-3.5 h-3.5" />
+                            {job.applications} Applications
+                          </button>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleEditJob(job.id)}
+                              className="flex-1 flex items-center justify-center gap-1 py-2 border border-green-200 text-green-600 rounded-lg text-xs font-semibold"
+                            >
+                              <Edit className="w-3 h-3" />
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteJob(job.id)}
+                              disabled={deleteLoading === job.id}
+                              className="flex-1 flex items-center justify-center gap-1 py-2 border border-red-200 text-red-600 rounded-lg text-xs font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {deleteLoading === job.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                              Delete
+                            </button>
+                          </div>
+                          <button
+                            onClick={() => navigate(`/employer/jobs/${job.id}/applications`)}
+                            className="w-full py-2 border border-gray-200 rounded-lg text-xs font-semibold text-gray-700"
+                          >
+                            View Applications ({job.applications})
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>

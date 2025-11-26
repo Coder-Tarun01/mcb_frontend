@@ -9,8 +9,6 @@ import {
   DollarSign,
   Users,
   Calendar,
-  Mail,
-  Phone,
   Star,
   Bookmark,
   Share2,
@@ -351,7 +349,7 @@ const JobDetails: React.FC = () => {
               </div>
             </div>
             
-            <div className="flex gap-3 flex-shrink-0">
+            <div className="flex gap-3 flex-shrink-0 flex-wrap w-full md:w-auto">
               <button 
                 onClick={handleBookmark} 
                 disabled={bookmarkLoading}
@@ -360,11 +358,11 @@ const JobDetails: React.FC = () => {
                 <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-white' : ''}`} />
                 {bookmarkLoading ? 'Saving...' : (isBookmarked ? 'Saved' : 'Save')}
               </button>
-              <button onClick={handleShare} className="flex items-center gap-1.5 py-2.5 px-4 bg-slate-50 border border-gray-200 rounded-lg text-gray-700 text-sm font-medium cursor-pointer transition-all duration-300 hover:bg-gray-200 hover:border-gray-300">
+              <button onClick={handleShare} className="flex items-center gap-1.5 py-2.5 px-4 bg-slate-50 border border-gray-200 rounded-lg text-gray-700 text-sm font-medium cursor-pointer transition-all duration-300 hover:bg-gray-200 hover:border-gray-300 flex-1 md:flex-none justify-center">
                 <Share2 className="w-4 h-4" />
                 Share
               </button>
-              <button onClick={handleApply} className="bg-gradient-to-r from-blue-500 to-blue-700 text-white border-none rounded-lg py-3 px-6 text-base font-semibold cursor-pointer transition-all duration-300 shadow-lg shadow-blue-500/30 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/40">
+              <button onClick={handleApply} className="bg-gradient-to-r from-blue-500 to-blue-700 text-white border-none rounded-lg py-3 px-6 text-base font-semibold cursor-pointer transition-all duration-300 shadow-lg shadow-blue-500/30 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/40 flex-1 md:flex-none justify-center">
                 Apply Now
               </button>
             </div>
@@ -478,8 +476,8 @@ const JobDetails: React.FC = () => {
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 bg-white rounded-2xl p-4 sm:p-6 md:p-8 shadow-sm border border-gray-200">
+        <div className={`grid grid-cols-1 ${job.applicationDeadline ? 'xl:grid-cols-3' : ''} gap-8`}>
+          <div className={`${job.applicationDeadline ? 'xl:col-span-2' : ''} bg-white rounded-2xl p-4 sm:p-6 md:p-8 shadow-sm border border-gray-200`}>
             {/* Job Description */}
             <section className="mb-10">
               <h2 className="text-2xl font-bold text-gray-900 m-0 mb-5 pb-3 border-b-2 border-gray-200 relative">
@@ -605,55 +603,9 @@ const JobDetails: React.FC = () => {
           </div>
 
           {/* Sidebar */}
-          <div className="flex flex-col gap-6">
-            {/* Contact Information */}
-            <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 m-0 mb-4">
-                Contact Information
-              </h3>
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-3">
-                  <Users className="w-5 h-5 text-gray-500 flex-shrink-0" />
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      HR Contact
-                    </span>
-                    <span className="text-sm font-medium text-gray-700">
-                      {job.contact.hrContact}
-                    </span>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-3">
-                  <Mail className="w-5 h-5 text-gray-500 flex-shrink-0" />
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Email
-                    </span>
-                    <a href={`mailto:${job.contact.email}`} className="text-sm font-medium text-blue-500 text-decoration-none hover:underline">
-                      {job.contact.email}
-                    </a>
-                  </div>
-                </div>
-                
-                {job.contact.phone && (
-                  <div className="flex items-center gap-3">
-                    <Phone className="w-5 h-5 text-gray-500 flex-shrink-0" />
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Phone
-                      </span>
-                      <a href={`tel:${job.contact.phone}`} className="text-sm font-medium text-blue-500 text-decoration-none hover:underline">
-                        {job.contact.phone}
-                      </a>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Application Deadline */}
-            {job.applicationDeadline && (
+          {job.applicationDeadline && (
+            <div className="flex flex-col gap-6">
+              {/* Application Deadline */}
               <div className="bg-gradient-to-r from-amber-100 to-amber-200 rounded-xl p-4 sm:p-6 shadow-sm border border-amber-300">
                 <h3 className="text-lg font-semibold text-gray-900 m-0 mb-4">
                   Application Deadline
@@ -665,21 +617,8 @@ const JobDetails: React.FC = () => {
                   </span>
                 </div>
               </div>
-            )}
-
-            {/* Quick Apply */}
-            <div className="bg-gradient-to-r from-blue-500 to-blue-700 rounded-xl p-4 sm:p-6 shadow-sm border-none">
-              <h3 className="text-lg font-semibold text-white m-0 mb-4">
-                Ready to Apply?
-              </h3>
-              <p className="text-white text-sm m-0 mb-5 leading-relaxed">
-                Join our team and make a difference in the tech industry.
-              </p>
-              <button onClick={handleApply} className="bg-white text-blue-500 border-none rounded-lg py-3 px-6 text-base font-semibold cursor-pointer transition-all duration-300 w-full hover:bg-slate-50 hover:-translate-y-0.5">
-                Apply Now
-              </button>
             </div>
-          </div>
+          )}
         </div>
       </motion.main>
     </div>

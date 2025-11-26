@@ -43,4 +43,6 @@ export interface JobFilter {
   experience?: string;
   jobType?: string;
   company?: string;
+  category?: string;
+  isRemote?: boolean;
 }

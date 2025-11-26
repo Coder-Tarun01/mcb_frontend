@@ -22,7 +22,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { applicationsAPI, jobsAPI, usersAPI } from '../../services/api';
+import { applicationsAPI, jobsAPI, usersAPI, candidatesAPI } from '../../services/api';
 import { Application } from '../../types/application.d';
 import { Job } from '../../types/job';
 import EmployerLayout from '../../components/employer/EmployerLayout';
@@ -52,6 +52,65 @@ const JobApplications: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedApplication, setSelectedApplication] = useState<ApplicationWithCandidate | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
+  const [resumeLoading, setResumeLoading] = useState(false);
+  const resolveResumeUrl = (url?: string | null) => {
+    if (!url) return null;
+    if (/^https?:\/\//i.test(url)) return url;
+    return `${process.env.REACT_APP_API_URL || 'https://mcb.instatripplan.com'}${url}`;
+  };
+
+  const handleResumeAction = async (
+    application: ApplicationWithCandidate,
+    action: 'view' | 'download'
+  ) => {
+    if (resumeLoading) return;
+    const candidateId =
+      application.candidate?.id ||
+      (application as any).userId ||
+      (application as any).candidateId;
+    const fallbackUrl = resolveResumeUrl(application.resumeUrl || application.candidate?.resumeUrl);
+
+    if (!candidateId && !fallbackUrl) {
+      alert('Resume not available for this candidate.');
+      return;
+    }
+
+    try {
+      setResumeLoading(true);
+      let finalUrl = fallbackUrl;
+
+      if (candidateId) {
+        try {
+          const { downloadUrl } = await candidatesAPI.downloadResume(candidateId);
+          finalUrl = downloadUrl || finalUrl;
+        } catch (error) {
+          console.error('Error fetching signed resume URL:', error);
+          if (!fallbackUrl) throw error;
+        }
+      }
+
+      if (!finalUrl) {
+        alert('Resume not available for this candidate.');
+        return;
+      }
+
+      if (action === 'view') {
+        window.open(finalUrl, '_blank', 'noopener,noreferrer');
+      } else {
+        const link = document.createElement('a');
+        link.href = finalUrl;
+        link.download = `resume-${application.candidate?.name || 'candidate'}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (error) {
+      console.error('Error handling resume action:', error);
+      alert('Unable to access the resume. Please try again later.');
+    } finally {
+      setResumeLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (jobId) {
@@ -404,14 +463,14 @@ const JobApplications: React.FC = () => {
 
         {/* Application Details Modal */}
         {selectedApplication && (
-          <div className="fixed top-0 left-0 right-0 bottom-0 bg-black/50 flex items-center justify-center z-[1000] p-5 overflow-y-auto" onClick={() => setSelectedApplication(null)}>
+          <div className="fixed inset-0 bg-black/50 flex items-start sm:items-center justify-center z-[1000] px-3 sm:px-5 py-6 overflow-y-auto" onClick={() => setSelectedApplication(null)}>
             <motion.div
               className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-[0_20px_60px_rgba(0,0,0,0.3)]"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex justify-between items-start py-7 px-8 border-b border-gray-200 bg-gradient-to-br from-gray-50 to-white sticky top-0 z-10">
+              <div className="flex justify-between items-start py-4 sm:py-6 md:py-7 px-4 sm:px-6 md:px-8 border-b border-gray-200 bg-gradient-to-br from-gray-50 to-white sticky top-0 z-10">
                 <div>
                   <h2 className="text-2xl font-bold text-gray-800 m-0 mb-1">Application Details</h2>
                   <p className="text-base text-gray-500 m-0">{selectedApplication.candidate?.name}</p>
@@ -421,7 +480,7 @@ const JobApplications: React.FC = () => {
                 </button>
               </div>
 
-              <div className="p-8">
+              <div className="p-4 sm:p-6 md:p-8">
                 {/* Candidate Info */}
                 <div className="mb-7">
                   <h3 className="flex items-center gap-2 text-lg font-bold text-gray-800 m-0 mb-4">Candidate Information</h3>
@@ -441,7 +500,7 @@ const JobApplications: React.FC = () => {
                       </div>
                     </div>
                     {selectedApplication.candidate?.phone && (
-                      <div className="flex gap-3">
+                    <div className="flex gap-3">
                         <Phone size={16} className="text-blue-500 flex-shrink-0 mt-0.5" />
                         <div>
                           <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Phone</div>
@@ -511,28 +570,26 @@ const JobApplications: React.FC = () => {
                 )}
 
                 {/* Resume */}
-                {(selectedApplication.resumeUrl || selectedApplication.candidate?.resumeUrl) && (
+                {(selectedApplication.resumeUrl || selectedApplication.candidate?.resumeUrl || (selectedApplication as any).userId) && (
                   <div className="mb-7">
                     <h3 className="flex items-center gap-2 text-lg font-bold text-gray-800 m-0 mb-4">Resume</h3>
-                    <div className="flex gap-3 flex-wrap">
-                      <a
-                        href={`${process.env.REACT_APP_API_URL || 'https://mcb.instatripplan.com'}${selectedApplication.resumeUrl || selectedApplication.candidate?.resumeUrl}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 py-3 px-6 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-lg no-underline font-semibold transition-all duration-300 flex-1 min-w-[140px] justify-center hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(59,130,246,0.3)]"
+                    <div className="flex gap-3 flex-col min-[400px]:flex-row">
+                      <button
+                        className="inline-flex items-center gap-2 py-3 px-6 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-lg font-semibold transition-all duration-300 flex-1 min-w-[140px] justify-center hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(59,130,246,0.3)] disabled:opacity-60 disabled:cursor-not-allowed w-full"
+                        onClick={() => handleResumeAction(selectedApplication, 'view')}
+                        disabled={resumeLoading}
                       >
                         <FileText size={16} />
-                        View Resume
-                      </a>
-                      <a 
-                        href={`${process.env.REACT_APP_API_URL || 'https://mcb.instatripplan.com'}${selectedApplication.resumeUrl || selectedApplication.candidate?.resumeUrl}`}
-                        download={`resume-${selectedApplication.candidate?.name || 'candidate'}.pdf`}
-                        target="_self"
-                        className="inline-flex items-center gap-2 py-3 px-6 bg-gradient-to-r from-green-500 to-green-700 text-white rounded-lg no-underline font-semibold transition-all duration-300 flex-1 min-w-[140px] justify-center hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(16,185,129,0.3)]"
+                        {resumeLoading ? 'Loading...' : 'View Resume'}
+                      </button>
+                      <button 
+                        className="inline-flex items-center gap-2 py-3 px-6 bg-gradient-to-r from-green-500 to-green-700 text-white rounded-lg font-semibold transition-all duration-300 flex-1 min-w-[140px] justify-center hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(16,185,129,0.3)] disabled:opacity-60 disabled:cursor-not-allowed w-full"
+                        onClick={() => handleResumeAction(selectedApplication, 'download')}
+                        disabled={resumeLoading}
                       >
                         <Download size={16} />
-                        Download Resume
-                      </a>
+                        {resumeLoading ? 'Preparing...' : 'Download Resume'}
+                      </button>
                     </div>
                   </div>
                 )}

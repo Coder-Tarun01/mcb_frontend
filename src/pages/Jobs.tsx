@@ -54,13 +54,19 @@ const Jobs: React.FC = () => {
     const query = searchParams.get('q');
     const location = searchParams.get('location');
     const type = searchParams.get('type');
+    const experience = searchParams.get('experience');
+    const category = searchParams.get('category');
+    const isRemote = searchParams.get('isRemote');
     
-    if (query || location || type) {
+    if (query || location || type || experience || category || isRemote) {
       setFilters(prev => ({
         ...prev,
         keyword: query || '',
         location: location || '',
-        jobType: type || ''
+        jobType: type || '',
+        experience: experience || '',
+        category: category || '',
+        isRemote: isRemote === 'true' || false
       }));
     }
   }, [searchParams]);
@@ -73,19 +79,35 @@ const Jobs: React.FC = () => {
         const query = searchParams.get('q');
         const location = searchParams.get('location');
         const type = searchParams.get('type');
+        const experience = searchParams.get('experience');
+        const category = searchParams.get('category');
+        const isRemote = searchParams.get('isRemote');
         
-        let apiFilters = {};
+        let apiFilters: any = { limit: 500 };
         
         // Apply server-side filtering based on URL parameters
-        if (location === 'remote') {
-          apiFilters = { isRemote: true, limit: 500 };
-        } else if (type === 'domain') {
-          // For domain jobs, load all jobs and filter client-side for domain-specific categories
-          apiFilters = { limit: 500 };
-        } else if (query) {
-          apiFilters = { search: query, limit: 500 };
-        } else {
-          apiFilters = { limit: 500 };
+        if (isRemote === 'true') {
+          apiFilters.isRemote = true;
+        } else if (location === 'remote') {
+          apiFilters.isRemote = true;
+        } else if (location) {
+          apiFilters.location = location;
+        }
+        
+        if (experience) {
+          apiFilters.experience = experience;
+        }
+        
+        if (category) {
+          apiFilters.category = category;
+        }
+        
+        if (type) {
+          apiFilters.type = type;
+        }
+        
+        if (query) {
+          apiFilters.search = query;
         }
         
         const response = await jobsAPI.fetchJobs(apiFilters);
@@ -102,6 +124,35 @@ const Jobs: React.FC = () => {
             job.category === 'Data Science' ||
             job.category === 'Product Management'
           );
+        }
+        
+        // Apply fresher filter as fallback if experience=fresher is in URL but backend didn't filter
+        // This ensures frontend filtering happens BEFORE rendering and pagination
+        if (experience === 'fresher') {
+          jobsArray = jobsArray.filter(job => {
+            const typeLower = job.type ? String(job.type).toLowerCase() : '';
+            const expLower = job.experienceLevel ? String(job.experienceLevel).toLowerCase() : '';
+            const expMin = job.experience && typeof job.experience === 'object' ? (job.experience as any).min : null;
+            
+            // Strict fresher filter: Only 0-1 year experience
+            // Check if type explicitly mentions fresher
+            if (typeLower.includes('fresher') || typeLower.includes('entry')) {
+              return true;
+            }
+            
+            // Check if experienceLevel explicitly mentions fresher
+            if (expLower.includes('fresher') || expLower.includes('entry')) {
+              return true;
+            }
+            
+            // Check if experience.min === 0 (0 years experience)
+            if (expMin === 0) {
+              return true;
+            }
+            
+            // Exclude all others (too loose if we include null)
+            return false;
+          });
         }
         
         setJobs(jobsArray);
@@ -131,25 +182,107 @@ const Jobs: React.FC = () => {
       );
     }
 
+    // Apply isRemote filter if set
+    if (filters.isRemote === true) {
+      filtered = filtered.filter(job => 
+        job.isRemote === true || 
+        job.locationType === 'Remote' ||
+        (job.location && job.location.toLowerCase().includes('remote')) ||
+        (job.type && job.type.toLowerCase() === 'remote')
+      );
+    }
+
     if (filters.location) {
       const location = filters.location.toLowerCase();
       if (location === 'remote') {
         // Filter for remote jobs specifically
-        console.log('Filtering for remote jobs. Total jobs:', jobs.length);
-        const remoteJobs = filtered.filter(job => 
+        filtered = filtered.filter(job => 
           job.isRemote === true || 
           job.locationType === 'Remote' ||
-          job.location?.toLowerCase().includes('remote')
+          job.location?.toLowerCase().includes('remote') ||
+          (job.type && job.type.toLowerCase() === 'remote')
         );
-        console.log('Remote jobs found:', remoteJobs.length);
-        console.log('Sample remote job data:', remoteJobs[0]);
-        filtered = remoteJobs;
       } else {
         // Filter by location for non-remote jobs
         filtered = filtered.filter(job => 
           job.location?.toLowerCase().includes(location)
         );
       }
+    }
+
+    // Apply experience filter (this is a secondary filter for UI state changes)
+    // Note: Primary filtering for experience=fresher happens in loadJobs above
+    if (filters.experience && !searchParams.get('experience')) {
+      // Only apply if not already filtered by URL parameter
+      const experience = filters.experience.toLowerCase();
+      if (experience === 'fresher') {
+        filtered = filtered.filter(job => {
+          const typeLower = job.type ? String(job.type).toLowerCase() : '';
+          const expLower = job.experienceLevel ? String(job.experienceLevel).toLowerCase() : '';
+          const expMin = job.experience && typeof job.experience === 'object' ? (job.experience as any).min : null;
+          
+          // Strict fresher filter
+          if (typeLower.includes('fresher') || typeLower.includes('entry')) {
+            return true;
+          }
+          if (expLower.includes('fresher') || expLower.includes('entry')) {
+            return true;
+          }
+          if (expMin === 0) {
+            return true;
+          }
+          return false;
+        });
+      } else if (experience === 'experienced') {
+        filtered = filtered.filter(job => {
+          const typeLower = job.type ? String(job.type).toLowerCase() : '';
+          const expLower = job.experienceLevel ? String(job.experienceLevel).toLowerCase() : '';
+          const expMin = job.experience && typeof job.experience === 'object' ? (job.experience as any).min : null;
+          
+          // Exclude fresher/entry level
+          if (
+            typeLower.includes('fresher') ||
+            typeLower.includes('entry') ||
+            expLower.includes('fresher') ||
+            expLower.includes('entry')
+          ) {
+            return false;
+          }
+          
+          // Exclude if experience is 0
+          if (expMin === 0) {
+            return false;
+          }
+          
+          // Include if experience > 0 or type is experienced
+          return (
+            typeLower === 'experienced' ||
+            (expMin !== null && expMin > 0) ||
+            (expMin === null && !typeLower.includes('fresher') && typeLower !== '')
+          );
+        });
+      }
+    }
+
+    // Apply category filter
+    if (filters.category) {
+      const category = filters.category.toLowerCase();
+      filtered = filtered.filter(job => {
+        const categoryLower = job.category ? String(job.category).toLowerCase() : '';
+        const companyLower = job.company ? String(job.company).toLowerCase() : '';
+        const titleLower = job.title ? String(job.title).toLowerCase() : '';
+        
+        return (
+          categoryLower === category ||
+          categoryLower === 'public sector' ||
+          companyLower.includes('government') ||
+          companyLower.includes('govt') ||
+          companyLower.includes('gov') ||
+          companyLower.includes('public sector') ||
+          titleLower.includes('government') ||
+          titleLower.includes('govt')
+        );
+      });
     }
 
     if (filters.salaryMin !== undefined) {
@@ -358,11 +491,11 @@ const Jobs: React.FC = () => {
         </div>
       </header>
 
-      <div className="container max-w-7xl mx-auto py-8 px-6 mt-8">
+      <div className="max-w-7xl mx-auto py-8 px-6 mt-8">
         {/* Main Content Area */}
         <main className="bg-transparent rounded-none shadow-none border-none overflow-visible">
             {/* Results Header */}
-            <div className="px-4 sm:px-6 pt-8 pb-6 border-b border-gray-200 flex justify-between items-center bg-transparent mb-8 max-w-6xl mx-auto">
+            <div className="px-4 sm:px-6 pt-8 pb-6 border-b border-gray-200 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between bg-transparent mb-8 max-w-6xl mx-auto">
               <div className="flex-1">
                 <h2 className="text-2xl font-semibold text-gray-800 m-0 mb-1">
                   {filteredJobs.length} Job{filteredJobs.length !== 1 ? 's' : ''} Available
@@ -382,9 +515,9 @@ const Jobs: React.FC = () => {
                 </p>
               </div>
 
-              <div className="flex items-center gap-4">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 sm:gap-4 w-full lg:w-auto">
                 <button
-                  className={`border-none py-3 px-6 rounded-md font-semibold cursor-pointer transition-all duration-200 mr-4 flex-shrink-0 ${
+                  className={`border-none py-3 px-6 rounded-md font-semibold cursor-pointer transition-all duration-200 w-full sm:w-auto ${
                     getActiveFiltersCount() > 0
                       ? 'bg-blue-500 text-white hover:bg-blue-600 hover:-translate-y-0.5'
                       : 'bg-gray-200 text-gray-600 hover:bg-gray-300 cursor-pointer'
@@ -394,12 +527,12 @@ const Jobs: React.FC = () => {
                   Clear All Filters
                 </button>
                 
-                <div className="flex items-center gap-2 bg-white border border-gray-300 py-2 px-3 rounded-md">
+                <div className="flex items-center gap-2 bg-white border border-gray-300 py-2 px-3 rounded-md w-full sm:w-auto">
                   <SortAsc className="w-4 h-4 text-gray-500" />
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="bg-none border-none text-gray-700 text-sm font-medium cursor-pointer outline-none"
+                    className="bg-none border-none text-gray-700 text-sm font-medium cursor-pointer outline-none w-full"
                   >
                     <option value="newest">Newest First</option>
                     <option value="oldest">Oldest First</option>
@@ -409,16 +542,16 @@ const Jobs: React.FC = () => {
                   </select>
                 </div>
 
-                <div className="flex bg-white border border-gray-300 rounded-md overflow-hidden">
+                <div className="flex bg-white border border-gray-300 rounded-md overflow-hidden w-full sm:w-auto">
                   <button
-                    className={`flex items-center justify-center w-10 h-10 bg-none border-none cursor-pointer transition-all duration-200 ${viewMode === 'grid' ? 'bg-blue-500 text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'}`}
+                    className={`flex items-center justify-center flex-1 sm:w-10 h-10 bg-none border-none cursor-pointer transition-all duration-200 ${viewMode === 'grid' ? 'bg-blue-500 text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'}`}
                     onClick={() => setViewMode('grid')}
                     title="Grid View"
                   >
                     <Grid3X3 className="w-4.5 h-4.5" />
                   </button>
                   <button
-                    className={`flex items-center justify-center w-10 h-10 bg-none border-none cursor-pointer transition-all duration-200 ${viewMode === 'list' ? 'bg-blue-500 text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'}`}
+                    className={`flex items-center justify-center flex-1 sm:w-10 h-10 bg-none border-none cursor-pointer transition-all duration-200 ${viewMode === 'list' ? 'bg-blue-500 text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'}`}
                     onClick={() => setViewMode('list')}
                     title="List View"
                   >
@@ -597,13 +730,13 @@ const Jobs: React.FC = () => {
 
                 {/* Pagination Controls */}
                 {totalPages > 1 && (
-                  <div className="flex flex-col items-center justify-center gap-4 mt-8 mb-12">
-                    <div className="flex items-center gap-2">
+                  <div className="flex flex-col items-center justify-center gap-2 mt-8 mb-12 w-full">
+                    <div className="flex flex-col md:flex-row items-stretch md:items-center justify-center gap-3 md:gap-2 w-full">
                       {/* Previous Button */}
                       <button
                         onClick={handlePreviousPage}
                         disabled={currentPage === 1}
-                        className={`flex items-center justify-center gap-2 px-4 py-2 rounded-md font-medium transition-all duration-200 ${
+                        className={`flex items-center justify-center gap-2 px-4 py-2 rounded-md font-medium transition-all duration-200 w-full md:w-auto ${
                           currentPage === 1
                             ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                             : 'bg-blue-500 text-white hover:bg-blue-600 hover:-translate-y-0.5 cursor-pointer'
@@ -614,7 +747,7 @@ const Jobs: React.FC = () => {
                       </button>
 
                       {/* Page Numbers */}
-                      <div className="flex items-center gap-1">
+                      <div className="flex flex-wrap items-center justify-center gap-1">
                         {getPageNumbers().map((page, idx) => (
                           page === '...' ? (
                             <span key={`ellipsis-${idx}`} className="px-2 text-gray-500">
@@ -624,7 +757,7 @@ const Jobs: React.FC = () => {
                             <button
                               key={page}
                               onClick={() => handlePageChange(page as number)}
-                              className={`min-w-[40px] h-10 px-3 rounded-md font-medium transition-all duration-200 ${
+                              className={`min-w-[36px] h-9 md:min-w-[40px] md:h-10 px-3 rounded-md font-medium transition-all duration-200 ${
                                 currentPage === page
                                   ? 'bg-blue-500 text-white shadow-md'
                                   : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 hover:border-blue-500'
@@ -640,7 +773,7 @@ const Jobs: React.FC = () => {
                       <button
                         onClick={handleNextPage}
                         disabled={currentPage === totalPages}
-                        className={`flex items-center justify-center gap-2 px-4 py-2 rounded-md font-medium transition-all duration-200 ${
+                        className={`flex items-center justify-center gap-2 px-4 py-2 rounded-md font-medium transition-all duration-200 w-full md:w-auto ${
                           currentPage === totalPages
                             ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                             : 'bg-blue-500 text-white hover:bg-blue-600 hover:-translate-y-0.5 cursor-pointer'

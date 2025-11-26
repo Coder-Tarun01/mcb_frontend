@@ -184,8 +184,8 @@ const AppliedJobs: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen pt-0 pb-6 px-6 bg-gray-50">
-      <div className="w-full max-w-7xl mx-auto border-2 border-gray-300 rounded-xl p-6">
+    <div className="min-h-screen pt-0 pb-6 px-4 sm:px-6 bg-gray-50">
+      <div className="w-full max-w-7xl mx-auto border-2 border-gray-300 rounded-xl p-4 sm:p-6">
       {/* Error Banner */}
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 flex items-center gap-3">
@@ -202,13 +202,13 @@ const AppliedJobs: React.FC = () => {
       )}
 
       {/* Modern Header */}
-      <div className="bg-white rounded-2xl p-8 shadow-md border border-gray-200 mb-8">
-        <div className="flex justify-between items-start gap-6 lg:flex-row md:flex-col">
-          <div className="flex-1">
+      <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-md border border-gray-200 mb-8">
+        <div className="flex flex-col md:flex-row justify-between items-start gap-4">
+          <div className="flex-1 text-center md:text-left">
             <h1 className="text-3xl font-bold text-gray-800 mb-2">Applied Jobs</h1>
             <p className="text-gray-600">Track your job applications and their progress</p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 w-full md:w-auto justify-center md:justify-end">
             <button 
               className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200 disabled:opacity-50"
               onClick={handleRefresh}
@@ -219,7 +219,7 @@ const AppliedJobs: React.FC = () => {
             </button>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 text-center">
           <div className="text-center">
             <div className="text-3xl font-bold text-blue-600 mb-1">{appliedJobs.length}</div>
             <div className="text-sm text-gray-600">Total Applied</div>
@@ -236,9 +236,9 @@ const AppliedJobs: React.FC = () => {
       </div>
 
       {/* Modern Controls */}
-      <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-200 mb-8">
-        <div className="flex flex-col lg:flex-row gap-4">
-          <div className="flex-1">
+      <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-md border border-gray-200 mb-8">
+        <div className="flex flex-col lg:flex-row gap-3 md:gap-2 items-start md:items-center w-full">
+          <div className="flex-1 w-full">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
@@ -250,8 +250,8 @@ const AppliedJobs: React.FC = () => {
               />
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex flex-col sm:flex-row gap-2">
+          <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <label className="text-sm font-medium text-gray-700 sm:flex sm:items-center">Status:</label>
               <select 
                 value={filters.status} 
@@ -265,7 +265,7 @@ const AppliedJobs: React.FC = () => {
                 <option value="rejected">Rejected</option>
               </select>
             </div>
-            <div className="flex flex-col sm:flex-row gap-2">
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <label className="text-sm font-medium text-gray-700 sm:flex sm:items-center">Sort by:</label>
               <select 
                 value={filters.sortBy} 
@@ -277,7 +277,7 @@ const AppliedJobs: React.FC = () => {
                 <option value="company">Company</option>
               </select>
             </div>
-            <div className="flex gap-1 border border-gray-300 rounded-lg p-1">
+            <div className="flex gap-1 border border-gray-300 rounded-lg p-1 justify-center">
               <button 
                 className={`p-2 rounded ${viewMode === 'list' ? 'bg-blue-500 text-white' : 'text-gray-500 hover:text-gray-700'}`}
                 onClick={() => setViewMode('list')}
@@ -299,7 +299,7 @@ const AppliedJobs: React.FC = () => {
 
       {/* Loading State */}
       {isLoading ? (
-        <div className="flex flex-col items-center justify-center py-20">
+        <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
           <div className="w-12 h-12 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin mb-4">
             <RefreshCw className="w-6 h-6 text-blue-500" />
           </div>
@@ -308,47 +308,47 @@ const AppliedJobs: React.FC = () => {
       ) : (
         /* Modern Content */
         viewMode === 'list' ? (
-          <div className="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Title</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Salary</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applied Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Title</th>
+                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Salary</th>
+                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applied Date</th>
+                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {filteredJobs.length > 0 ? (
                     filteredJobs.map((job) => (
                       <tr key={job.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900">{job.title}</div>
                           <div className="text-sm text-gray-500">{job.jobType} • {job.experience}</div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">@{job.company}</div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center text-sm text-gray-900">
                             <MapPin className="w-4 h-4 text-gray-400 mr-1" />
                             {job.location}
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center text-sm text-gray-900">
                             <DollarSign className="w-4 h-4 text-gray-400 mr-1" />
                             {job.salary}
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {formatDate(job.appliedDate)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                             job.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                             job.status === 'reviewed' ? 'bg-blue-100 text-blue-800' :
@@ -359,7 +359,7 @@ const AppliedJobs: React.FC = () => {
                             <span className="ml-1">{job.status.charAt(0).toUpperCase() + job.status.slice(1)}</span>
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex space-x-2">
                             <button 
                               className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50" 
@@ -386,9 +386,9 @@ const AppliedJobs: React.FC = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={7} className="px-6 py-12 text-center">
+                      <td colSpan={7} className="px-4 sm:px-6 py-12 text-center">
                         <div className="flex flex-col items-center">
-                          <div className="text-4xl mb-4">📋</div>
+                          <div className="text-4l mb-4">📋</div>
                           <h3 className="text-lg font-medium text-gray-900 mb-2">No applied jobs found</h3>
                           <p className="text-gray-500 mb-4">Start applying to jobs to see them here.</p>
                           <button 

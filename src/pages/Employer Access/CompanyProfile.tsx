@@ -253,18 +253,20 @@ const CompanyProfile: React.FC = () => {
   return (
     <EmployerLayout>
       <div className="w-full">
-        <div className="bg-white rounded-[20px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] p-10 max-w-6xl w-full mx-auto border border-slate-200/80 backdrop-blur-[10px] relative overflow-hidden before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-1 before:bg-gradient-to-r before:from-blue-500 before:via-purple-500 before:to-cyan-500">
+        <div className="bg-white rounded-[20px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] p-4 sm:p-6 md:p-8 lg:p-10 max-w-6xl w-full mx-auto border border-slate-200/80 backdrop-blur-[10px] relative overflow-hidden before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-1 before:bg-gradient-to-r before:from-blue-500 before:via-purple-500 before:to-cyan-500">
         {/* Header */}
-        <div className="flex items-center mb-10 gap-5 relative pb-6 border-b border-slate-200/60">
-          <button 
-            onClick={() => navigate('/employer/dashboard')}
-            className="absolute left-0 top-0 flex items-center gap-2.5 bg-slate-50/80 border border-slate-200/80 text-slate-600 text-sm font-semibold cursor-pointer transition-all duration-300 z-10 py-3 px-5 rounded-xl backdrop-blur-[10px] hover:bg-blue-500 hover:border-blue-500 hover:text-white hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(59,130,246,0.3)]"
-          >
-            <ArrowLeft className="w-4 h-4 transition-transform duration-300 hover:-translate-x-0.5" />
-            <span>Back to Dashboard</span>
-          </button>
-          <div className="flex-1 text-center w-full flex justify-center items-center">
-            <h1 className="text-3xl font-extrabold bg-gradient-to-br from-slate-800 to-blue-600 bg-clip-text text-transparent m-0 leading-tight tracking-tight">Company Profile</h1>
+        <div className="flex flex-col md:flex-row items-start md:items-center mb-8 gap-4 md:gap-5 relative pb-6 border-b border-slate-200/60">
+          <div className="w-full md:w-auto flex justify-start">
+            <button 
+              onClick={() => navigate('/employer/dashboard')}
+              className="flex items-center gap-2.5 bg-slate-50/80 border border-slate-200/80 text-slate-600 text-sm font-semibold cursor-pointer transition-all duration-300 py-3 px-5 rounded-xl backdrop-blur-[10px] hover:bg-blue-500 hover:border-blue-500 hover:text-white hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(59,130,246,0.3)] w-full md:w-auto justify-center"
+            >
+              <ArrowLeft className="w-4 h-4 transition-transform duration-300 hover:-translate-x-0.5" />
+              <span>Back to Dashboard</span>
+            </button>
+          </div>
+          <div className="flex-1 text-center w-full flex justify-center items-center md:absolute md:left-1/2 md:transform md:-translate-x-1/2">
+            <h1 className="text-2xl sm:text-3xl font-extrabold bg-gradient-to-br from-slate-800 to-blue-600 bg-clip-text text-transparent m-0 leading-tight tracking-tight">Company Profile</h1>
           </div>
         </div>
 
@@ -292,14 +294,14 @@ const CompanyProfile: React.FC = () => {
           </motion.div>
         )}
 
-        <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="flex flex-col gap-8">
+        <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="flex flex-col gap-6 sm:gap-8">
           {/* Company Details Section */}
           <div className="bg-gradient-to-br from-slate-50/60 to-slate-100/40 border border-slate-200/60 rounded-[20px] p-4 sm:p-6 md:p-8 backdrop-blur-[10px] transition-all duration-300 relative overflow-hidden hover:bg-gradient-to-br hover:from-slate-50/80 hover:to-slate-100/60 hover:border-blue-500/30 hover:-translate-y-0.5 hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-0.5 before:bg-gradient-to-r before:from-blue-500 before:via-purple-500 before:opacity-0 before:transition-opacity before:duration-300 hover:before:opacity-100">
             <h2 className="flex items-center gap-3 text-xl font-bold text-slate-800 mt-0 mb-6 pb-5 border-b-2 border-slate-200/80 relative after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:w-15 after:h-0.5 after:bg-gradient-to-r after:from-blue-500 after:to-purple-500">
               <Building2 className="w-6 h-6 text-blue-500 bg-blue-500/10 p-1.5 rounded-[10px]" />
               Company Details
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 lg:gap-7">
               <div className="flex flex-col gap-2.5">
                 <label className="flex items-center gap-2.5 text-sm font-semibold text-slate-700 mb-1.5 tracking-tight after:content-['*'] after:text-red-500 after:ml-1 after:text-base">
                   Company Name
@@ -416,7 +418,7 @@ const CompanyProfile: React.FC = () => {
               <Phone className="w-6 h-6 text-blue-500 bg-blue-500/10 p-1.5 rounded-[10px]" />
               Contact Information
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 lg:gap-7">
               <div className="flex flex-col gap-2.5">
                 <label className="flex items-center gap-2.5 text-sm font-semibold text-slate-700 mb-1.5 tracking-tight after:content-['*'] after:text-red-500 after:ml-1 after:text-base">
                   <Phone className="w-4.5 h-4.5 text-slate-600 bg-slate-600/10 p-0.5 rounded-md" />
@@ -517,7 +519,7 @@ const CompanyProfile: React.FC = () => {
               <Globe className="w-6 h-6 text-blue-500 bg-blue-500/10 p-1.5 rounded-[10px]" />
               Social Links
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 lg:gap-7">
               <div className="flex flex-col gap-2.5">
                 <label className="flex items-center gap-2.5 text-sm font-semibold text-slate-700 mb-1.5 tracking-tight">
                   <Facebook className="w-4.5 h-4.5 text-slate-600 bg-slate-600/10 p-0.5 rounded-md" />
@@ -585,18 +587,18 @@ const CompanyProfile: React.FC = () => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex justify-end gap-5 mt-10 pt-8 border-t-2 border-slate-200/60 relative before:content-[''] before:absolute before:-top-0.5 before:left-0 before:w-25 before:h-0.5 before:bg-gradient-to-r before:from-blue-500 before:to-purple-500">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-4 sm:gap-5 mt-8 pt-8 border-t-2 border-slate-200/60 relative before:content-[''] before:absolute before:-top-0.5 before:left-0 before:w-25 before:h-0.5 before:bg-gradient-to-r before:from-blue-500 before:to-purple-500">
             <button
               type="button"
               onClick={() => navigate('/employer/dashboard')}
-              className="flex items-center gap-3 py-4 px-8 rounded-[14px] font-bold text-sm cursor-pointer transition-all duration-300 min-w-[180px] justify-center tracking-tight relative overflow-hidden bg-slate-50/80 text-slate-600 border-2 border-slate-200/80 backdrop-blur-[10px] before:content-[''] before:absolute before:top-0 before:-left-full before:w-full before:h-full before:bg-gradient-to-r before:from-transparent before:via-slate-600/10 before:to-transparent before:transition-[left] before:duration-500 hover:bg-slate-50/95 hover:border-slate-600/40 hover:text-slate-700 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(100,116,139,0.15)] hover:before:left-full"
+              className="flex items-center gap-3 py-4 px-8 rounded-[14px] font-bold text-sm cursor-pointer transition-all duration-300 min-w-[180px] justify-center tracking-tight relative overflow-hidden bg-slate-50/80 text-slate-600 border-2 border-slate-200/80 backdrop-blur-[10px] before:content-[''] before:absolute before:top-0 before:-left-full before:w-full before:h-full before:bg-gradient-to-r before:from-transparent before:via-slate-600/10 before:to-transparent before:transition-[left] before:duration-500 hover:bg-slate-50/95 hover:border-slate-600/40 hover:text-slate-700 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(100,116,139,0.15)] hover:before:left-full w-full sm:w-auto"
             >
               Back
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="flex items-center gap-3 py-4 px-8 rounded-[14px] font-bold text-sm cursor-pointer transition-all duration-300 min-w-[180px] justify-center tracking-tight relative overflow-hidden bg-blue-500 !text-white border-2 border-transparent shadow-[0_8px_25px_rgba(59,130,246,0.3)] before:content-[''] before:absolute before:top-0 before:-left-full before:w-full before:h-full before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:transition-[left] before:duration-500 hover:bg-blue-500 hover:-translate-y-0.5 hover:shadow-[0_12px_35px_rgba(59,130,246,0.4)] hover:before:left-full disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:bg-slate-400 disabled:shadow-none"
+              className="flex items-center gap-3 py-4 px-8 rounded-[14px] font-bold text-sm cursor-pointer transition-all duration-300 min-w-[180px] justify-center tracking-tight relative overflow-hidden bg-blue-500 !text-white border-2 border-transparent shadow-[0_8px_25px_rgba(59,130,246,0.3)] before:content-[''] before:absolute before:top-0 before:-left-full before:w-full before:h-full before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:transition-[left] before:duration-500 hover:bg-blue-500 hover:-translate-y-0.5 hover:shadow-[0_12px_35px_rgba(59,130,246,0.4)] hover:before:left-full disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:bg-slate-400 disabled:shadow-none w-full sm:w-auto"
             >
               {isLoading ? (
                 <div className="w-4.5 h-4.5 border-3 border-white/30 border-t-white rounded-full animate-spin" />

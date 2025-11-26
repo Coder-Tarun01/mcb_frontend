@@ -257,8 +257,8 @@ const CVManager: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen p-6 bg-gray-50">
-        <div className="w-full max-w-7xl mx-auto border-2 border-gray-300 rounded-xl p-6">
+      <div className="min-h-screen p-4 sm:p-6 bg-gray-50">
+        <div className="w-full max-w-7xl mx-auto border-2 border-gray-300 rounded-xl p-4 sm:p-6">
           <div className="flex flex-col items-center justify-center min-h-[60vh] gap-5">
           <div className="w-12 h-12 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin" />
           <p className="text-gray-500 text-base m-0">Loading CV files...</p>
@@ -273,14 +273,14 @@ const CVManager: React.FC = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="min-h-screen pt-0 pb-6 px-6 bg-gray-50"
+      className="min-h-screen pt-0 pb-6 px-4 sm:px-6 bg-gray-50"
     >
-      <div className="w-full max-w-7xl mx-auto border-2 border-gray-300 rounded-xl p-6">
+      <div className="w-full max-w-7xl mx-auto border-2 border-gray-300 rounded-xl p-4 sm:p-6">
       {/* Header */}
       <div className="mb-8">
-        <div className="flex flex-col md:flex-row items-center justify-between mb-6">
-          <h2 className="text-2xl font-semibold text-blue-700">CV Manager</h2>
-          <div className="flex items-center gap-3 mt-3 md:mt-0">
+        <div className="flex flex-col lg:flex-row items-center justify-between mb-6 gap-4">
+          <h2 className="text-2xl font-semibold text-blue-700 text-center lg:text-left w-full">CV Manager</h2>
+          <div className="flex flex-col md:flex-row items-center gap-3 w-full lg:w-auto">
             <input
               type="text"
               placeholder="Search files..."
@@ -307,8 +307,8 @@ const CVManager: React.FC = () => {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 flex items-center gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-8">
+        <div className="bg-white rounded-xl p-5 sm:p-6 shadow-sm border border-gray-200 flex items-center gap-4">
           <div className="w-12 h-12 rounded-lg flex items-center justify-center text-white bg-blue-600">
             <FileText size={20} className="text-white" />
           </div>
@@ -317,7 +317,7 @@ const CVManager: React.FC = () => {
             <div className="text-sm text-gray-600">Total Files</div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 flex items-center gap-4">
+        <div className="bg-white rounded-xl p-5 sm:p-6 shadow-sm border border-gray-200 flex items-center gap-4">
           <div className="w-12 h-12 rounded-lg flex items-center justify-center text-white bg-blue-500">
             <CheckCircle size={20} className="text-white" />
           </div>
@@ -326,7 +326,7 @@ const CVManager: React.FC = () => {
             <div className="text-sm text-gray-600">Primary</div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 flex items-center gap-4">
+        <div className="bg-white rounded-xl p-5 sm:p-6 shadow-sm border border-gray-200 flex items-center gap-4">
           <div className="w-12 h-12 rounded-lg flex items-center justify-center text-white bg-blue-400">
             <Eye size={20} className="text-white" />
           </div>

@@ -315,6 +315,7 @@ class NotificationService {
     bulkMode?: 'default' | 'fresher' | string;
     dryRun?: boolean;
     contactLimit?: number;
+    contactIds?: number[];
   }): Promise<{
     success: boolean;
     data: MarketingRunSummary;
@@ -328,6 +329,7 @@ class NotificationService {
         bulkMode: params.bulkMode,
         dryRun: params.dryRun,
         contactLimit: params.contactLimit,
+        contactIds: params.contactIds,
       },
     });
   }

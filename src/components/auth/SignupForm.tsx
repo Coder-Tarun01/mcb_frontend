@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, User as UserIcon, Eye, EyeOff, Briefcase, Building2, RefreshCw, ArrowRight } from 'lucide-react';
+import { Mail, Lock, User as UserIcon, Eye, EyeOff, Briefcase, Building2, RefreshCw, ArrowRight, Phone } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { UserRole, User } from '../../types/user';
 import { useForm } from 'react-hook-form';
@@ -63,6 +63,11 @@ const SignupForm: React.FC = () => {
           .split(',')
           .map(s => s.trim())
           .filter(Boolean);
+      }
+
+      // Include phone number in additional data if provided
+      if (data.phone && data.phone.trim()) {
+        additionalData.phone = data.phone.trim();
       }
 
       const success = await signup(
@@ -147,6 +152,35 @@ const SignupForm: React.FC = () => {
           {errors.email && (
             <p id="email-error" className="mt-1 text-sm text-red-600">{errors.email.message}</p>
           )}
+        </div>
+
+        {/* Mobile Number Field */}
+        <div>
+          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+            Mobile Number <span className="text-gray-500 font-normal">(Optional)</span>
+          </label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Phone className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              type="tel"
+              id="phone"
+              placeholder="Enter your mobile number (e.g., +91 9876543210)"
+              className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                errors.phone ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+              }`}
+              aria-invalid={!!errors.phone}
+              aria-describedby={errors.phone ? 'phone-error' : undefined}
+              {...register('phone')}
+            />
+          </div>
+          {errors.phone && (
+            <p id="phone-error" className="mt-1 text-sm text-red-600">{errors.phone.message}</p>
+          )}
+          <p className="mt-1 text-xs text-gray-500">
+            Add your mobile number to receive job alerts via Telegram
+          </p>
         </div>
 
         {/* Role Selection */}

@@ -79,6 +79,7 @@ const NotificationDashboard: React.FC = () => {
   const [marketingHealth, setMarketingHealth] = useState<MarketingHealth | null>(null);
   const [marketingRunSummary, setMarketingRunSummary] = useState<MarketingRunSummary | null>(null);
   const [marketingContacts, setMarketingContacts] = useState<MarketingContact[]>([]);
+  const [selectedMarketingContactIds, setSelectedMarketingContactIds] = useState<number[]>([]);
   const [marketingPagination, setMarketingPagination] = useState<MarketingPagination>(createDefaultContactPagination);
   const [marketingPage, setMarketingPage] = useState<number>(1);
   const [marketingSearchInput, setMarketingSearchInput] = useState<string>('');
@@ -103,6 +104,25 @@ const NotificationDashboard: React.FC = () => {
   const [isSending, setIsSending] = useState<boolean>(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const selectAllContactsCheckboxRef = useRef<HTMLInputElement>(null);
+  const prevMarketingSearchRef = useRef<string>('');
+
+  const visibleContactIds = useMemo(() => marketingContacts.map((contact) => contact.id), [marketingContacts]);
+  const allVisibleSelected =
+    visibleContactIds.length > 0 &&
+    visibleContactIds.every((id) => selectedMarketingContactIds.includes(id));
+  const someVisibleSelected =
+    visibleContactIds.some((id) => selectedMarketingContactIds.includes(id)) && !allVisibleSelected;
+  const hasContactSelection = selectedMarketingContactIds.length > 0;
+  const contactSelectionSummary = hasContactSelection
+    ? `${selectedMarketingContactIds.length} contact${selectedMarketingContactIds.length === 1 ? '' : 's'} selected for targeted digest`
+    : 'No contacts selected; digest will target all marketing contacts.';
+
+  useEffect(() => {
+    if (selectAllContactsCheckboxRef.current) {
+      selectAllContactsCheckboxRef.current.indeterminate = someVisibleSelected;
+    }
+  }, [someVisibleSelected]);
 
   useEffect(() => {
     const storedKey = localStorage.getItem(ADMIN_KEY_STORAGE);
@@ -120,6 +140,7 @@ const NotificationDashboard: React.FC = () => {
     setMarketingHealth(null);
     setMarketingRunSummary(null);
     setMarketingContacts([]);
+    setSelectedMarketingContactIds([]);
     setMarketingPagination(createDefaultContactPagination());
     setMarketingPage(1);
     setMarketingSearch('');
@@ -364,6 +385,10 @@ const NotificationDashboard: React.FC = () => {
     if (!adminKey.trim()) {
       return;
     }
+    if (prevMarketingSearchRef.current !== marketingSearch) {
+      setSelectedMarketingContactIds([]);
+      prevMarketingSearchRef.current = marketingSearch;
+    }
     loadMarketingContacts(undefined, { page: marketingPage, search: marketingSearch });
   }, [adminKey, marketingPage, marketingSearch, loadMarketingContacts]);
 
@@ -518,6 +543,34 @@ const NotificationDashboard: React.FC = () => {
     setContactForm(createEmptyContactForm());
   }, [resetMessages]);
 
+  const handleToggleContactSelection = useCallback((contactId: number) => {
+    setSelectedMarketingContactIds((previous) =>
+      previous.includes(contactId)
+        ? previous.filter((id) => id !== contactId)
+        : [...previous, contactId]
+    );
+  }, []);
+
+  const handleToggleAllVisibleContacts = useCallback(() => {
+    setSelectedMarketingContactIds((previous) => {
+      const visibleIds = marketingContacts.map((contact) => contact.id);
+      if (visibleIds.length === 0) {
+        return previous;
+      }
+      const everyVisibleSelected = visibleIds.every((id) => previous.includes(id));
+      if (everyVisibleSelected) {
+        return previous.filter((id) => !visibleIds.includes(id));
+      }
+      const merged = new Set(previous);
+      visibleIds.forEach((id) => merged.add(id));
+      return Array.from(merged);
+    });
+  }, [marketingContacts]);
+
+  const handleClearContactSelection = useCallback(() => {
+    setSelectedMarketingContactIds([]);
+  }, []);
+
   const handleDeleteContact = useCallback(
     async (contactId: number) => {
       const key = adminKey.trim();
@@ -539,6 +592,7 @@ const NotificationDashboard: React.FC = () => {
           contactId,
         });
         setStatusMessage('Marketing contact deleted.');
+        setSelectedMarketingContactIds((previous) => previous.filter((id) => id !== contactId));
 
         if (marketingContacts.length <= 1 && marketingPage > 1) {
           setMarketingPage((prev) => Math.max(prev - 1, 1));
@@ -575,6 +629,7 @@ const NotificationDashboard: React.FC = () => {
       const searchValue = marketingSearchInput.trim();
       setMarketingSearch(searchValue);
       setMarketingPage(1);
+      setSelectedMarketingContactIds([]);
       await loadMarketingContacts(undefined, { page: 1, search: searchValue });
     },
     [adminKey, handleAdminError, loadMarketingContacts, marketingSearchInput, resetMessages]
@@ -588,6 +643,7 @@ const NotificationDashboard: React.FC = () => {
     setMarketingSearchInput('');
     setMarketingSearch('');
     setMarketingPage(1);
+    setSelectedMarketingContactIds([]);
     if (adminKey.trim()) {
       await loadMarketingContacts(undefined, { page: 1, search: '' });
     }
@@ -837,6 +893,7 @@ const NotificationDashboard: React.FC = () => {
                       force: true,
                       bulkMode: 'fresher',
                       dryRun: false,
+                      contactIds: hasContactSelection ? selectedMarketingContactIds : undefined,
                     });
 
                     if (response.success) {
@@ -868,6 +925,11 @@ const NotificationDashboard: React.FC = () => {
               >
                 {isSending ? 'Sending…' : 'Send Digest Now'}
               </button>
+              <span className={styles.helperText} style={{ marginTop: '8px', display: 'block' }}>
+                {hasContactSelection
+                  ? `Digest will target ${selectedMarketingContactIds.length} selected contact${selectedMarketingContactIds.length === 1 ? '' : 's'}.`
+                  : 'Digest will target all marketing contacts.'}
+              </span>
             </div>
 
             <div className={styles.list}>
@@ -1074,6 +1136,12 @@ const NotificationDashboard: React.FC = () => {
                     type="text"
                     value={marketingSearchInput}
                     onChange={(event) => setMarketingSearchInput(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') {
+                        event.preventDefault();
+                        handleContactSearchSubmit(event as any);
+                      }
+                    }}
                     placeholder="Search contacts..."
                     className={styles.textInput}
                   />
@@ -1109,54 +1177,72 @@ const NotificationDashboard: React.FC = () => {
                 <table className={styles.table}>
                   <thead>
                     <tr>
+                      <th className={styles.tableHeader} style={{ width: '48px', textAlign: 'center' }}>
+                        <input
+                          ref={selectAllContactsCheckboxRef}
+                          type="checkbox"
+                          onChange={handleToggleAllVisibleContacts}
+                          checked={allVisibleSelected && marketingContacts.length > 0}
+                          disabled={marketingContacts.length === 0 || isLoadingMarketingContacts}
+                          aria-label="Select all visible contacts"
+                        />
+                      </th>
                       <th className={styles.tableHeader}>Name</th>
                       <th className={styles.tableHeader}>Email</th>
-                          <th className={styles.tableHeader}>Mobile</th>
-                          <th className={styles.tableHeader}>Branch</th>
-                          <th className={styles.tableHeader}>Experience</th>
-                          <th className={styles.tableHeader}>Chat ID</th>
-                          <th className={styles.tableHeader}>Created</th>
-                          <th className={styles.tableHeader}>Actions</th>
+                      <th className={styles.tableHeader}>Mobile</th>
+                      <th className={styles.tableHeader}>Branch</th>
+                      <th className={styles.tableHeader}>Experience</th>
+                      <th className={styles.tableHeader}>Chat ID</th>
+                      <th className={styles.tableHeader}>Created</th>
+                      <th className={styles.tableHeader}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {marketingContacts.map((contact) => (
                       <tr key={contact.id}>
-                            <td className={styles.tableCell}>{contact.fullName}</td>
+                        <td className={styles.tableCell} style={{ textAlign: 'center' }}>
+                          <input
+                            type="checkbox"
+                            checked={selectedMarketingContactIds.includes(contact.id)}
+                            onChange={() => handleToggleContactSelection(contact.id)}
+                            aria-label={`Select ${contact.fullName}`}
+                          />
+                        </td>
+                        <td className={styles.tableCell}>{contact.fullName}</td>
                         <td className={styles.tableCell}>{contact.email}</td>
-                            <td className={styles.tableCell}>{contact.mobileNo || '—'}</td>
-                            <td className={styles.tableCell}>{contact.branch || '—'}</td>
-                            <td className={styles.tableCell}>{contact.experience || '—'}</td>
-                            <td className={styles.tableCell}>{contact.telegramChatId || '—'}</td>
-                            <td className={styles.tableCell}>{formatDateTime(contact.createdAt)}</td>
+                        <td className={styles.tableCell}>{contact.mobileNo || '—'}</td>
+                        <td className={styles.tableCell}>{contact.branch || '—'}</td>
+                        <td className={styles.tableCell}>{contact.experience || '—'}</td>
+                        <td className={styles.tableCell}>{contact.telegramChatId || '—'}</td>
+                        <td className={styles.tableCell}>{formatDateTime(contact.createdAt)}</td>
                         <td className={styles.tableCell}>
-                              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                                <button
-                                  type="button"
-                                  className={styles.buttonGhost}
-                                  onClick={() => handleEditContact(contact)}
-                                  disabled={isSavingContact && editingContactId === contact.id}
-                                >
-                                  Edit
-                                </button>
-                                <button
-                                  type="button"
-                                  style={{
-                                    background: '#ef4444',
-                                    color: '#ffffff',
-                                    border: 'none',
-                                    borderRadius: '8px',
-                                    padding: '8px 14px',
-                                    cursor: 'pointer',
-                                    fontWeight: 600,
-                                    opacity: deletingContactId === contact.id ? 0.7 : 1,
-                                  }}
-                                  onClick={() => handleDeleteContact(contact.id)}
-                                  disabled={deletingContactId === contact.id}
-                                >
-                                  {deletingContactId === contact.id ? 'Deleting…' : 'Delete'}
-                                </button>
-                              </div>
+                          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                            <button
+                              type="button"
+                              className={styles.buttonGhost}
+                              onClick={() => handleEditContact(contact)}
+                              disabled={isSavingContact && editingContactId === contact.id}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              type="button"
+                              style={{
+                                background: '#ef4444',
+                                color: '#ffffff',
+                                border: 'none',
+                                borderRadius: '8px',
+                                padding: '8px 14px',
+                                cursor: 'pointer',
+                                fontWeight: 600,
+                                opacity: deletingContactId === contact.id ? 0.7 : 1,
+                              }}
+                              onClick={() => handleDeleteContact(contact.id)}
+                              disabled={deletingContactId === contact.id}
+                            >
+                              {deletingContactId === contact.id ? 'Deleting…' : 'Delete'}
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -1166,11 +1252,25 @@ const NotificationDashboard: React.FC = () => {
                 )}
 
                 <div className={styles.actionsRow}>
-                  <span className={styles.helperText}>
-                    {marketingPagination.total > 0
-                      ? `Page ${marketingPagination.page} of ${Math.max(marketingPagination.totalPages, 1)} • Total contacts: ${marketingPagination.total}`
-                      : 'No contacts available'}
-                  </span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <span className={styles.helperText}>
+                      {marketingPagination.total > 0
+                        ? `Page ${marketingPagination.page} of ${Math.max(marketingPagination.totalPages, 1)} • Total contacts: ${marketingPagination.total}`
+                        : 'No contacts available'}
+                    </span>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+                      <span className={styles.helperText}>{contactSelectionSummary}</span>
+                      {hasContactSelection && (
+                        <button
+                          type="button"
+                          className={styles.buttonGhost}
+                          onClick={handleClearContactSelection}
+                        >
+                          Clear selection
+                        </button>
+                      )}
+                    </div>
+                  </div>
                   <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                     <button
                       type="button"

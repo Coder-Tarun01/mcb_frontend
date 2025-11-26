@@ -75,14 +75,20 @@ const SearchResults: React.FC = () => {
     isRemote: searchParams.get('remote') === 'true'
   });
 
+  const [searchTerm, setSearchTerm] = useState<string>(searchParams.get('q') || '');
+
   // Initialize once on mount
   const hasInitialized = useRef(false);
   useEffect(() => {
-    if (!hasInitialized.current) {
-      hasInitialized.current = true;
-      performSearch();
-    }
-  }, []);
+    const q = searchParams.get('q') || '';
+    setSearchTerm(q);
+    setFilters(prev => ({
+      ...prev,
+      keyword: q
+    }));
+    performSearch();
+    hasInitialized.current = true;
+  }, [searchParams]);
 
   useEffect(() => {
     loadSavedJobs();

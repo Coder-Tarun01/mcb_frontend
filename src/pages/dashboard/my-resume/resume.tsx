@@ -150,10 +150,10 @@ const Resume: React.FC = () => {
 
       {/* Resume Content - Only show if modal is closed */}
       {!showOptionsModal && isResumeFilled && (
-        <div className="flex">
+        <div className="flex flex-col lg:flex-row px-4 sm:px-6 lg:px-0">
         {/* Sticky Sidebar */}
-        <div className="w-80 bg-white shadow-lg h-screen sticky top-0 overflow-y-auto">
-          <div className="p-6">
+        <div className="w-full lg:w-80 bg-white shadow-lg rounded-2xl lg:rounded-none lg:rounded-r-2xl lg:h-screen lg:sticky lg:top-0 overflow-y-visible lg:overflow-y-auto mb-6 lg:mb-0">
+          <div className="p-5 sm:p-6">
             {/* Back Button */}
             <motion.button
               onClick={handleBackToDashboard}
@@ -230,8 +230,8 @@ const Resume: React.FC = () => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 p-8">
-          <div className="max-w-4xl mx-auto space-y-8">
+        <div className="flex-1 px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 lg:pt-0 pb-6 lg:pb-8">
+          <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
             {selectedSection ? (
               // Show only selected section
               sections

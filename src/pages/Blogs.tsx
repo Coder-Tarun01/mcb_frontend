@@ -190,7 +190,7 @@ const Blogs: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50 font-sans">
       {/* Hero Section */}
-      <section className="relative min-h-[70vh] flex items-center overflow-hidden">
+      <section className="relative min-h-[60vh] flex items-center overflow-hidden py-12 sm:py-16">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-800 via-blue-500 via-blue-400 to-blue-200 z-10">
           <div className="absolute inset-0 opacity-30" style={{backgroundImage: "url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><defs><pattern id=\"grid\" width=\"10\" height=\"10\" patternUnits=\"userSpaceOnUse\"><path d=\"M 10 0 L 0 0 0 10\" fill=\"none\" stroke=\"rgba(255,255,255,0.1)\" stroke-width=\"0.5\"/></pattern></defs><rect width=\"100\" height=\"100\" fill=\"url(%23grid)\"/></svg>')"}}></div>
         </div>
@@ -201,13 +201,13 @@ const Blogs: React.FC = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-center text-white max-w-4xl mx-auto"
+            className="text-center text-white max-w-4xl mx-auto px-2 sm:px-4"
           >
             <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md border border-white/30 text-white py-2 px-4 rounded-full text-sm font-semibold mb-6 uppercase tracking-wider">
               <TrendingUp className="text-white" />
               <span className="text-white">Latest Insights</span>
             </div>
-            <h1 className="text-6xl font-black m-0 mb-3 leading-tight bg-gradient-to-br from-white to-blue-100 bg-clip-text text-transparent">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black m-0 mb-3 leading-tight bg-gradient-to-br from-white to-blue-100 bg-clip-text text-transparent">
               Career Intelligence Hub
             </h1>
             <p className="text-lg m-0 mb-8 opacity-90 leading-relaxed max-w-2xl mx-auto text-white">
@@ -215,17 +215,17 @@ const Blogs: React.FC = () => {
             </p>
             
             {/* Search Bar */}
-            <div className="mb-8 px-3 sm:px-4 md:px-0">
-              <div className="relative max-w-2xl mx-auto flex items-center bg-white/95 backdrop-blur-md rounded-full p-1 shadow-2xl shadow-black/10">
-                <Search className="absolute left-5 text-gray-500 z-10" />
+            <div className="mb-8 px-2 sm:px-4 md:px-0">
+              <div className="relative max-w-2xl mx-auto flex flex-col sm:flex-row items-center bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-full p-2 shadow-2xl shadow-black/10 gap-2">
+                <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 z-10 hidden sm:block" />
                 <input
                   type="text"
                   placeholder="Search articles, topics, or authors..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1 py-4 px-5 pl-12 border-none bg-transparent text-base outline-none text-gray-800 placeholder:text-gray-400"
+                  className="flex-1 w-full py-4 px-5 sm:pl-12 border-none bg-transparent text-base outline-none text-gray-800 placeholder:text-gray-400"
                 />
-                <button className="bg-gradient-to-r from-blue-500 to-blue-700 text-white border-none rounded-full py-3 px-5 cursor-pointer transition-all duration-300 mr-1 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/40">
+                <button className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-blue-700 text-white border-none rounded-xl sm:rounded-full py-3 px-5 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/40">
                   <Search size={20} />
                 </button>
               </div>
@@ -249,7 +249,7 @@ const Blogs: React.FC = () => {
 
       {/* Featured Article */}
       {featuredBlog && (
-        <section className="py-20 bg-white">
+        <section className="py-16 sm:py-20 bg-white">
           <div className="max-w-7xl mx-auto px-6">
             <motion.div
               initial={{ opacity: 0, y: 40 }}
@@ -263,7 +263,7 @@ const Blogs: React.FC = () => {
               </div>
               
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 min-h-[500px]">
-                <div className="p-8 flex flex-col justify-center order-first">
+                <div className="p-6 sm:p-8 flex flex-col justify-center order-2 lg:order-1">
                   <div className="flex gap-2 mb-4 flex-wrap">
                     {featuredBlog.tags.map(tag => (
                       <span key={tag} className="bg-blue-500/10 text-blue-700 py-1.5 px-3 rounded-2xl text-xs font-semibold uppercase tracking-wider">
@@ -338,8 +338,8 @@ const Blogs: React.FC = () => {
                   </div>
                 </div>
                 
-                <div className="relative overflow-hidden min-h-[400px] max-h-[500px] bg-slate-50 flex items-center justify-center order-last">
-                  <img src={featuredBlog.cover} alt={featuredBlog.title} className="w-full h-full object-contain object-center" />
+                <div className="relative overflow-hidden min-h-[240px] sm:min-h-[320px] lg:min-h-[400px] max-h-[500px] bg-slate-50 flex items-center justify-center order-1 lg:order-2">
+                  <img src={featuredBlog.cover} alt={featuredBlog.title} className="w-full h-full object-cover object-center" />
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-blue-700/20"></div>
                 </div>
               </div>
@@ -391,9 +391,9 @@ const Blogs: React.FC = () => {
       </section>
 
       {/* Articles Grid */}
-      <section className="py-20 bg-white">
+      <section className="py-16 sm:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex justify-between items-end mb-10">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-10">
             <div>
               <h2 className="text-4xl font-extrabold text-slate-900 m-0">
                 Latest Articles
@@ -403,7 +403,7 @@ const Blogs: React.FC = () => {
               </p>
             </div>
             
-            <div className="flex bg-slate-100 rounded-xl p-1">
+            <div className="flex bg-slate-100 rounded-xl p-1 self-start md:self-auto">
               <button
                 className={`bg-transparent border-none py-2 px-3 rounded-lg cursor-pointer transition-all duration-300 text-gray-500 ${viewMode === 'grid' ? 'bg-white text-blue-500 shadow-sm shadow-black/10' : ''}`}
                 onClick={() => setViewMode('grid')}
@@ -426,7 +426,7 @@ const Blogs: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
-              className={`grid gap-8 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}
+              className={`grid gap-8 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3' : 'grid-cols-1'}`}
             >
               {regularBlogs.map((blog, index) => (
                 <motion.article
@@ -436,7 +436,7 @@ const Blogs: React.FC = () => {
                   transition={{ duration: 0.4, delay: index * 0.1 }}
                   className="bg-white rounded-2xl overflow-hidden border border-gray-200 transition-all duration-300 shadow-sm shadow-black/5 hover:-translate-y-2 hover:shadow-xl hover:shadow-blue-500/15 hover:border-blue-500"
                 >
-                  <div className="relative h-55 overflow-hidden">
+                  <div className="relative h-48 sm:h-55 overflow-hidden">
                     <img src={blog.cover} alt={blog.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
                     {blog.trending && (
                       <div className="absolute top-4 right-4 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white py-1.5 px-3 rounded-2xl text-xs font-semibold flex items-center gap-1 uppercase tracking-wider">

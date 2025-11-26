@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Briefcase, Building2, MapPin, GraduationCap } from 'lucide-react';
-import { searchAPI } from '../../services/api';
+import { suggestAPI } from '../../services/api';
 
 const HomePageSearchBar: React.FC = () => {
   const navigate = useNavigate();
@@ -16,6 +16,7 @@ const HomePageSearchBar: React.FC = () => {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
 
   // Click outside to close dropdown
@@ -83,15 +84,28 @@ const HomePageSearchBar: React.FC = () => {
   };
 
   const fetchSuggestions = async (query: string) => {
+    // Cancel previous request if exists
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    
+    // Create new AbortController for this request
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+    
     try {
-      const data = await searchAPI.autocomplete(query);
+      const data = await suggestAPI.fetchSuggestions(query, controller.signal);
       setSuggestions({
         jobs: data.jobs || [],
         companies: data.companies || [],
         locations: data.locations || [],
         skills: data.skills || []
       });
-    } catch (error) {
+    } catch (error: any) {
+      // Don't handle AbortError - it's expected when cancelling requests
+      if (error?.name === 'AbortError') {
+        return;
+      }
       console.error('Autocomplete error:', error);
       setSuggestions({ jobs: [], companies: [], locations: [], skills: [] });
     }
@@ -110,10 +124,10 @@ const HomePageSearchBar: React.FC = () => {
   const getAllSuggestions = () => {
     const allSuggestions: Array<{ value: string; type: 'job' | 'company' | 'location' | 'skill' }> = [];
     
-    // Add job suggestions
+    // Add job suggestions (now strings, not objects)
     if (suggestions.jobs && Array.isArray(suggestions.jobs)) {
-      suggestions.jobs.slice(0, 3).forEach((job: any) => {
-        allSuggestions.push({ value: job.title, type: 'job' });
+      suggestions.jobs.slice(0, 3).forEach((jobTitle: string) => {
+        allSuggestions.push({ value: jobTitle, type: 'job' });
       });
     }
     
@@ -220,119 +234,116 @@ const HomePageSearchBar: React.FC = () => {
                 </div>
               ) : (
                 <>
-                  {suggestions.jobs && suggestions.jobs.length > 0 && (
-                    <div className="py-2 border-b border-gray-100 last:border-b-0">
-                      <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                        Jobs
-                      </div>
-                      {suggestions.jobs.slice(0, 3).map((job: any, jobIndex: number) => {
-                        const jobsDisplayed = Math.min(3, suggestions.jobs?.length || 0);
-                        const globalIndex = jobIndex;
-                        const isSelected = selectedIndex === globalIndex;
-                        return (
-                          <div
-                            key={job.id}
-                            className={`flex items-center py-3 px-4 cursor-pointer transition-colors duration-150 ease-in-out ${isSelected ? 'bg-blue-500 text-white' : 'hover:bg-gray-50'}`}
-                            onClick={() => selectSuggestion(job.title)}
-                          >
-                            <Briefcase size={14} className={`mr-3 flex-shrink-0 ${isSelected ? 'text-white' : 'text-gray-500'}`} />
-                            <div className="flex-1 min-w-0">
-                              <div className={`text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis ${isSelected ? 'text-white' : 'text-gray-900'}`}>
-                                {job.title}
-                              </div>
-                              <div className={`text-xs whitespace-nowrap overflow-hidden text-ellipsis mt-0.5 ${isSelected ? 'text-white' : 'text-gray-500'}`}>
-                                {job.company}
-                              </div>
+                  {(() => {
+                    let globalIndex = 0;
+                    return (
+                      <>
+                        {suggestions.jobs && suggestions.jobs.length > 0 && (
+                          <div className="py-2 border-b border-gray-100 last:border-b-0">
+                            <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                              Jobs
                             </div>
+                            {suggestions.jobs.slice(0, 3).map((jobTitle: string, jobIndex: number) => {
+                              const currentIndex = globalIndex++;
+                              const isSelected = selectedIndex === currentIndex;
+                              return (
+                                <div
+                                  key={`job-${jobIndex}`}
+                                  className={`flex items-center py-3 px-4 cursor-pointer transition-colors duration-150 ease-in-out ${isSelected ? 'bg-blue-500 text-white' : 'hover:bg-gray-50'}`}
+                                  onClick={() => selectSuggestion(jobTitle)}
+                                >
+                                  <Briefcase size={14} className={`mr-3 flex-shrink-0 ${isSelected ? 'text-white' : 'text-gray-500'}`} />
+                                  <div className="flex-1 min-w-0">
+                                    <div className={`text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis ${isSelected ? 'text-white' : 'text-gray-900'}`}>
+                                      {jobTitle}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
                           </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                  
-                  {suggestions.companies && suggestions.companies.length > 0 && (
-                    <div className="py-2 border-b border-gray-100 last:border-b-0">
-                      <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                        Companies
-                      </div>
-                      {suggestions.companies.map((company: string, companyIndex: number) => {
-                        const jobsDisplayed = Math.min(3, suggestions.jobs?.length || 0);
-                        const globalIndex = jobsDisplayed + companyIndex;
-                        const isSelected = selectedIndex === globalIndex;
-                        return (
-                          <div
-                            key={companyIndex}
-                            className={`flex items-center py-3 px-4 cursor-pointer transition-colors duration-150 ease-in-out ${isSelected ? 'bg-blue-500 text-white' : 'hover:bg-gray-50'}`}
-                            onClick={() => selectSuggestion(company)}
-                          >
-                            <Building2 size={14} className={`mr-3 flex-shrink-0 ${isSelected ? 'text-white' : 'text-gray-500'}`} />
-                            <div className="flex-1 min-w-0">
-                              <div className={`text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis ${isSelected ? 'text-white' : 'text-gray-900'}`}>
-                                {company}
-                              </div>
+                        )}
+                        
+                        {suggestions.companies && suggestions.companies.length > 0 && (
+                          <div className="py-2 border-b border-gray-100 last:border-b-0">
+                            <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                              Companies
                             </div>
+                            {suggestions.companies.map((company: string, companyIndex: number) => {
+                              const currentIndex = globalIndex++;
+                              const isSelected = selectedIndex === currentIndex;
+                              return (
+                                <div
+                                  key={`company-${companyIndex}`}
+                                  className={`flex items-center py-3 px-4 cursor-pointer transition-colors duration-150 ease-in-out ${isSelected ? 'bg-blue-500 text-white' : 'hover:bg-gray-50'}`}
+                                  onClick={() => selectSuggestion(company)}
+                                >
+                                  <Building2 size={14} className={`mr-3 flex-shrink-0 ${isSelected ? 'text-white' : 'text-gray-500'}`} />
+                                  <div className="flex-1 min-w-0">
+                                    <div className={`text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis ${isSelected ? 'text-white' : 'text-gray-900'}`}>
+                                      {company}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
                           </div>
-                        );
-                      })}
-                    </div>
-                  )}
+                        )}
 
-                  {suggestions.locations && suggestions.locations.length > 0 && (
-                    <div className="py-2 border-b border-gray-100 last:border-b-0">
-                      <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                        Locations
-                      </div>
-                      {suggestions.locations.slice(0, 3).map((location: string, locationIndex: number) => {
-                        const jobsDisplayed = Math.min(3, suggestions.jobs?.length || 0);
-                        const companiesDisplayed = Math.min(3, suggestions.companies?.length || 0);
-                        const globalIndex = jobsDisplayed + companiesDisplayed + locationIndex;
-                        const isSelected = selectedIndex === globalIndex;
-                        return (
-                          <div
-                            key={locationIndex}
-                            className={`flex items-center py-3 px-4 cursor-pointer transition-colors duration-150 ease-in-out ${isSelected ? 'bg-blue-500 text-white' : 'hover:bg-gray-50'}`}
-                            onClick={() => selectSuggestion(location)}
-                          >
-                            <MapPin size={14} className={`mr-3 flex-shrink-0 ${isSelected ? 'text-white' : 'text-gray-500'}`} />
-                            <div className="flex-1 min-w-0">
-                              <div className={`text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis ${isSelected ? 'text-white' : 'text-gray-900'}`}>
-                                {location}
-                              </div>
+                        {suggestions.locations && suggestions.locations.length > 0 && (
+                          <div className="py-2 border-b border-gray-100 last:border-b-0">
+                            <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                              Locations
                             </div>
+                            {suggestions.locations.slice(0, 3).map((location: string, locationIndex: number) => {
+                              const currentIndex = globalIndex++;
+                              const isSelected = selectedIndex === currentIndex;
+                              return (
+                                <div
+                                  key={`location-${locationIndex}`}
+                                  className={`flex items-center py-3 px-4 cursor-pointer transition-colors duration-150 ease-in-out ${isSelected ? 'bg-blue-500 text-white' : 'hover:bg-gray-50'}`}
+                                  onClick={() => selectSuggestion(location)}
+                                >
+                                  <MapPin size={14} className={`mr-3 flex-shrink-0 ${isSelected ? 'text-white' : 'text-gray-500'}`} />
+                                  <div className="flex-1 min-w-0">
+                                    <div className={`text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis ${isSelected ? 'text-white' : 'text-gray-900'}`}>
+                                      {location}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
                           </div>
-                        );
-                      })}
-                    </div>
-                  )}
+                        )}
 
-                  {suggestions.skills && suggestions.skills.length > 0 && (
-                    <div className="py-2 border-b border-gray-100 last:border-b-0">
-                      <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                        Skills
-                      </div>
-                      {suggestions.skills.slice(0, 3).map((skill: string, skillIndex: number) => {
-                        const jobsDisplayed = Math.min(3, suggestions.jobs?.length || 0);
-                        const companiesDisplayed = Math.min(3, suggestions.companies?.length || 0);
-                        const locationsDisplayed = Math.min(3, suggestions.locations?.length || 0);
-                        const globalIndex = jobsDisplayed + companiesDisplayed + locationsDisplayed + skillIndex;
-                        const isSelected = selectedIndex === globalIndex;
-                        return (
-                          <div
-                            key={skillIndex}
-                            className={`flex items-center py-3 px-4 cursor-pointer transition-colors duration-150 ease-in-out ${isSelected ? 'bg-blue-500 text-white' : 'hover:bg-gray-50'}`}
-                            onClick={() => selectSuggestion(skill)}
-                          >
-                            <GraduationCap size={14} className={`mr-3 flex-shrink-0 ${isSelected ? 'text-white' : 'text-gray-500'}`} />
-                            <div className="flex-1 min-w-0">
-                              <div className={`text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis ${isSelected ? 'text-white' : 'text-gray-900'}`}>
-                                {skill}
-                              </div>
+                        {suggestions.skills && suggestions.skills.length > 0 && (
+                          <div className="py-2 border-b border-gray-100 last:border-b-0">
+                            <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                              Skills
                             </div>
+                            {suggestions.skills.slice(0, 3).map((skill: string, skillIndex: number) => {
+                              const currentIndex = globalIndex++;
+                              const isSelected = selectedIndex === currentIndex;
+                              return (
+                                <div
+                                  key={`skill-${skillIndex}`}
+                                  className={`flex items-center py-3 px-4 cursor-pointer transition-colors duration-150 ease-in-out ${isSelected ? 'bg-blue-500 text-white' : 'hover:bg-gray-50'}`}
+                                  onClick={() => selectSuggestion(skill)}
+                                >
+                                  <GraduationCap size={14} className={`mr-3 flex-shrink-0 ${isSelected ? 'text-white' : 'text-gray-500'}`} />
+                                  <div className="flex-1 min-w-0">
+                                    <div className={`text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis ${isSelected ? 'text-white' : 'text-gray-900'}`}>
+                                      {skill}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
                           </div>
-                        );
-                      })}
-                    </div>
-                  )}
+                        )}
+                      </>
+                    );
+                  })()}
                 </>
               )}
             </div>

@@ -138,9 +138,9 @@ const Projects: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/3 sm:w-1/4 mb-4"></div>
           <div className="space-y-4">
             {[1, 2].map(i => (
               <div key={i} className="h-32 bg-gray-200 rounded"></div>
@@ -152,10 +152,10 @@ const Projects: React.FC = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div className="flex items-start sm:items-center gap-3">
           <div className="p-2 bg-blue-100 rounded-lg">
             <FolderOpen className="w-5 h-5 text-blue-600" />
           </div>
@@ -168,7 +168,7 @@ const Projects: React.FC = () => {
         {!isEditing && (
           <motion.button
             onClick={addProject}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-full sm:w-auto justify-center"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -298,7 +298,7 @@ const Projects: React.FC = () => {
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Technologies Used</label>
-                        <div className="flex gap-2 mb-2">
+                        <div className="flex flex-col sm:flex-row gap-2 mb-2">
                           <input
                             type="text"
                             value={newTech}
@@ -339,13 +339,13 @@ const Projects: React.FC = () => {
                   ) : (
                     // Display Mode
                     <div className="space-y-3">
-                      <div className="flex items-start justify-between">
+                      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
                         <div className="flex-1">
                           <h3 className="text-lg font-semibold text-gray-900">{project.title}</h3>
                           {project.role && (
                             <p className="text-blue-600 font-medium">{project.role}</p>
                           )}
-                          <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-2 mt-2 text-sm text-gray-500">
                             <span>
                               {formatDate(project.startDate)} - {project.isCurrent ? 'Present' : formatDate(project.endDate)}
                             </span>
@@ -418,11 +418,11 @@ const Projects: React.FC = () => {
             </AnimatePresence>
             
             {isEditing && (
-              <div className="flex gap-3 pt-4 border-t border-gray-200">
+              <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200">
                 <motion.button
                   onClick={handleSave}
                   disabled={isSaving}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors w-full sm:w-auto justify-center"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -432,7 +432,7 @@ const Projects: React.FC = () => {
                 
                 <motion.button
                   onClick={handleCancel}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors w-full sm:w-auto justify-center"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
