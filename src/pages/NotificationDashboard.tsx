@@ -5,7 +5,6 @@ import notificationService, {
   MarketingRunSummary,
   MarketingContact,
   MarketingPagination,
-  FresherSubscriber,
 } from '../services/notificationService';
 import {
   notificationAdminAPI,
@@ -16,7 +15,6 @@ import {
 
 const ADMIN_KEY_STORAGE = 'mcbAdminKey';
 const MARKETING_PAGE_SIZE = 10;
-const SUBSCRIBER_PAGE_SIZE = 10;
 
 interface ContactFormState {
   fullName: string;
@@ -37,15 +35,6 @@ const createEmptyContactForm = (): ContactFormState => ({
 const createDefaultContactPagination = (): MarketingPagination => ({
   page: 1,
   pageSize: MARKETING_PAGE_SIZE,
-  total: 0,
-  totalPages: 0,
-  hasNextPage: false,
-  hasPrevPage: false,
-});
-
-const createDefaultSubscriberPagination = (): MarketingPagination => ({
-  page: 1,
-  pageSize: SUBSCRIBER_PAGE_SIZE,
   total: 0,
   totalPages: 0,
   hasNextPage: false,
@@ -89,12 +78,6 @@ const NotificationDashboard: React.FC = () => {
   const [editingContactId, setEditingContactId] = useState<number | null>(null);
   const [isSavingContact, setIsSavingContact] = useState<boolean>(false);
   const [deletingContactId, setDeletingContactId] = useState<number | null>(null);
-  const [subscribers, setSubscribers] = useState<FresherSubscriber[]>([]);
-  const [subscriberPagination, setSubscriberPagination] = useState<MarketingPagination>(createDefaultSubscriberPagination);
-  const [subscriberPage, setSubscriberPage] = useState<number>(1);
-  const [subscriberSearchInput, setSubscriberSearchInput] = useState<string>('');
-  const [subscriberSearch, setSubscriberSearch] = useState<string>('');
-  const [isLoadingSubscribers, setIsLoadingSubscribers] = useState<boolean>(false);
 
   const [statusMessage, setStatusMessage] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -102,10 +85,14 @@ const NotificationDashboard: React.FC = () => {
   const [isLoadingLogs, setIsLoadingLogs] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isSending, setIsSending] = useState<boolean>(false);
+  const [isSelectingAllContacts, setIsSelectingAllContacts] = useState<boolean>(false);
+  const [toastMessages, setToastMessages] = useState<Array<{ id: number; text: string }>>([]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const selectAllContactsCheckboxRef = useRef<HTMLInputElement>(null);
-  const prevMarketingSearchRef = useRef<string>('');
+  const contactCacheRef = useRef<Map<number, MarketingContact>>(new Map());
+  const toastIdRef = useRef(0);
+  const toastTimeoutsRef = useRef<Array<ReturnType<typeof setTimeout>>>([]);
 
   const visibleContactIds = useMemo(() => marketingContacts.map((contact) => contact.id), [marketingContacts]);
   const allVisibleSelected =
@@ -117,6 +104,80 @@ const NotificationDashboard: React.FC = () => {
   const contactSelectionSummary = hasContactSelection
     ? `${selectedMarketingContactIds.length} contact${selectedMarketingContactIds.length === 1 ? '' : 's'} selected for targeted digest`
     : 'No contacts selected; digest will target all marketing contacts.';
+
+  const cacheContacts = useCallback((contacts: MarketingContact[] = []) => {
+    const cache = contactCacheRef.current;
+    contacts.forEach((contact) => {
+      cache.set(contact.id, contact);
+    });
+  }, []);
+
+  const getContactsByIds = useCallback(
+    async (ids: number[]): Promise<MarketingContact[]> => {
+      const key = adminKey.trim();
+      if (!key || ids.length === 0) {
+        return [];
+      }
+
+      const cache = contactCacheRef.current;
+      const missing = ids.filter((id) => !cache.has(id));
+
+      if (missing.length > 0) {
+        const response = await notificationService.fetchMarketingContactDetails({
+          adminKey: key,
+          ids: missing,
+        });
+        cacheContacts(response.data?.contacts || []);
+      }
+
+      const updatedCache = contactCacheRef.current;
+      return ids
+        .map((id) => updatedCache.get(id))
+        .filter((contact): contact is MarketingContact => Boolean(contact));
+    },
+    [adminKey, cacheContacts]
+  );
+
+  const pushToast = useCallback((text: string) => {
+    const id = ++toastIdRef.current;
+    setToastMessages((previous) => [...previous, { id, text }]);
+    const timeoutId = setTimeout(() => {
+      setToastMessages((previous) => previous.filter((toast) => toast.id !== id));
+      toastTimeoutsRef.current = toastTimeoutsRef.current.filter((timer) => timer !== timeoutId);
+    }, 6000);
+    toastTimeoutsRef.current.push(timeoutId);
+  }, []);
+
+  const pushMultipleToasts = useCallback(
+    (messages: string[]) => {
+      messages.forEach((message) => pushToast(message));
+    },
+    [pushToast]
+  );
+
+  const showDigestToastSummary = useCallback(
+    async (targetIds: number[]) => {
+      if (targetIds.length === 0) {
+        const total = marketingPagination.total;
+        const label =
+          total > 0 ? `${total} marketing contact${total === 1 ? '' : 's'}` : 'All marketing contacts';
+        pushToast(`${label} - sent`);
+        return;
+      }
+
+      try {
+        const contacts = await getContactsByIds(targetIds);
+        if (contacts.length > 0) {
+          pushMultipleToasts(contacts.map((contact) => `${contact.email} - sent`));
+        } else {
+          pushToast(`${targetIds.length} contact${targetIds.length === 1 ? '' : 's'} - sent`);
+        }
+      } catch (error) {
+        pushToast(`${targetIds.length} contact${targetIds.length === 1 ? '' : 's'} - sent`);
+      }
+    },
+    [getContactsByIds, marketingPagination.total, pushMultipleToasts, pushToast]
+  );
 
   useEffect(() => {
     if (selectAllContactsCheckboxRef.current) {
@@ -130,6 +191,13 @@ const NotificationDashboard: React.FC = () => {
       setAdminKey(storedKey);
       setAdminKeyInput(storedKey);
     }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      toastTimeoutsRef.current.forEach((timeoutId) => clearTimeout(timeoutId));
+      toastTimeoutsRef.current = [];
+    };
   }, []);
 
   const clearState = useCallback(() => {
@@ -150,12 +218,6 @@ const NotificationDashboard: React.FC = () => {
     setIsSavingContact(false);
     setDeletingContactId(null);
     setIsLoadingMarketingContacts(false);
-    setSubscribers([]);
-    setSubscriberPagination(createDefaultSubscriberPagination());
-    setSubscriberPage(1);
-    setSubscriberSearch('');
-    setSubscriberSearchInput('');
-    setIsLoadingSubscribers(false);
   }, []);
 
   const resetMessages = useCallback(() => {
@@ -320,84 +382,23 @@ const NotificationDashboard: React.FC = () => {
           };
           setMarketingPagination(fallbackPagination);
         }
+      cacheContacts(payload.contacts || []);
     } catch (error: any) {
         handleAdminError(error?.message || 'Failed to load marketing contacts');
     } finally {
       setIsLoadingMarketingContacts(false);
     }
     },
-    [adminKey, marketingPage, marketingSearch, handleAdminError]
-  );
-
-  const loadSubscribers = useCallback(
-    async (overrideKey?: string, overrides: { page?: number; search?: string } = {}) => {
-    const keyToUse = (overrideKey ?? adminKey)?.trim();
-    if (!keyToUse) {
-        setSubscribers([]);
-        setSubscriberPagination(createDefaultSubscriberPagination());
-      return;
-    }
-
-      const targetPage = overrides.page ?? subscriberPage;
-      const searchValue = overrides.search ?? subscriberSearch;
-
-      setIsLoadingSubscribers(true);
-      try {
-        const response = await notificationService.fetchFresherSubscribers({
-          adminKey: keyToUse,
-          page: targetPage,
-          pageSize: SUBSCRIBER_PAGE_SIZE,
-          search: searchValue || undefined,
-        });
-
-        const payload = response.data || {
-          subscribers: [],
-          pagination: createDefaultSubscriberPagination(),
-        };
-
-        setSubscribers(payload.subscribers || []);
-        if (payload.pagination) {
-          setSubscriberPagination(payload.pagination);
-          if (payload.pagination.page && payload.pagination.page !== subscriberPage) {
-            setSubscriberPage(payload.pagination.page);
-          }
-        } else {
-          const fallbackPagination: MarketingPagination = {
-            page: targetPage,
-            pageSize: SUBSCRIBER_PAGE_SIZE,
-            total: payload.subscribers?.length ?? 0,
-            totalPages: payload.subscribers && payload.subscribers.length > 0 ? 1 : 0,
-            hasNextPage: false,
-            hasPrevPage: targetPage > 1,
-          };
-          setSubscriberPagination(fallbackPagination);
-        }
-      } catch (error: any) {
-        handleAdminError(error?.message || 'Failed to load subscribers');
-      } finally {
-        setIsLoadingSubscribers(false);
-      }
-    },
-    [adminKey, subscriberPage, subscriberSearch, handleAdminError]
+    [adminKey, marketingPage, marketingSearch, handleAdminError, cacheContacts]
   );
 
   useEffect(() => {
     if (!adminKey.trim()) {
       return;
-    }
-    if (prevMarketingSearchRef.current !== marketingSearch) {
-      setSelectedMarketingContactIds([]);
-      prevMarketingSearchRef.current = marketingSearch;
     }
     loadMarketingContacts(undefined, { page: marketingPage, search: marketingSearch });
   }, [adminKey, marketingPage, marketingSearch, loadMarketingContacts]);
 
-  useEffect(() => {
-    if (!adminKey.trim()) {
-      return;
-    }
-    loadSubscribers(undefined, { page: subscriberPage, search: subscriberSearch });
-  }, [adminKey, subscriberPage, subscriberSearch, loadSubscribers]);
 
   const handleAdminSubmit = useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
@@ -414,16 +415,12 @@ const NotificationDashboard: React.FC = () => {
       setMarketingPage(1);
       setMarketingSearch('');
       setMarketingSearchInput('');
-      setSubscriberPage(1);
-      setSubscriberSearch('');
-      setSubscriberSearchInput('');
       await Promise.all([
         loadJobs(trimmedKey),
         loadLogs(trimmedKey),
         loadMarketingHealth(trimmedKey),
         loadLastRunSummary(trimmedKey),
         loadMarketingContacts(trimmedKey, { page: 1, search: '' }),
-        loadSubscribers(trimmedKey, { page: 1, search: '' }),
       ]);
     },
     [
@@ -434,7 +431,6 @@ const NotificationDashboard: React.FC = () => {
       loadMarketingHealth,
       loadLastRunSummary,
       loadMarketingContacts,
-      loadSubscribers,
       resetMessages,
     ]
   );
@@ -571,6 +567,27 @@ const NotificationDashboard: React.FC = () => {
     setSelectedMarketingContactIds([]);
   }, []);
 
+  const handleSelectAllContacts = useCallback(async () => {
+    const key = adminKey.trim();
+    if (!key) {
+      handleAdminError('Enter the admin key before selecting contacts.');
+      return;
+    }
+
+    resetMessages();
+    setIsSelectingAllContacts(true);
+    try {
+      const response = await notificationService.fetchAllMarketingContactIds(key);
+      const ids = response.data?.ids || [];
+      setSelectedMarketingContactIds(ids);
+      setStatusMessage(`Selected ${ids.length} contact${ids.length === 1 ? '' : 's'} for targeted digest.`);
+    } catch (error: any) {
+      handleAdminError(error?.message || 'Failed to select all contacts');
+    } finally {
+      setIsSelectingAllContacts(false);
+    }
+  }, [adminKey, handleAdminError, resetMessages]);
+
   const handleDeleteContact = useCallback(
     async (contactId: number) => {
       const key = adminKey.trim();
@@ -629,7 +646,6 @@ const NotificationDashboard: React.FC = () => {
       const searchValue = marketingSearchInput.trim();
       setMarketingSearch(searchValue);
       setMarketingPage(1);
-      setSelectedMarketingContactIds([]);
       await loadMarketingContacts(undefined, { page: 1, search: searchValue });
     },
     [adminKey, handleAdminError, loadMarketingContacts, marketingSearchInput, resetMessages]
@@ -643,7 +659,6 @@ const NotificationDashboard: React.FC = () => {
     setMarketingSearchInput('');
     setMarketingSearch('');
     setMarketingPage(1);
-    setSelectedMarketingContactIds([]);
     if (adminKey.trim()) {
       await loadMarketingContacts(undefined, { page: 1, search: '' });
     }
@@ -672,61 +687,6 @@ const NotificationDashboard: React.FC = () => {
     resetMessages();
     await loadMarketingContacts(undefined, { page: marketingPage, search: marketingSearch });
   }, [adminKey, handleAdminError, loadMarketingContacts, marketingPage, marketingSearch, resetMessages]);
-
-  const handleSubscriberSearchSubmit = useCallback(
-    async (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      resetMessages();
-      const key = adminKey.trim();
-      if (!key) {
-        handleAdminError('Enter the admin key before managing subscribers.');
-        return;
-      }
-
-      const searchValue = subscriberSearchInput.trim();
-      setSubscriberSearch(searchValue);
-      setSubscriberPage(1);
-      await loadSubscribers(undefined, { page: 1, search: searchValue });
-    },
-    [adminKey, handleAdminError, loadSubscribers, subscriberSearchInput, resetMessages]
-  );
-
-  const handleClearSubscriberSearch = useCallback(async () => {
-    if (!subscriberSearch && subscriberSearchInput === '') {
-      return;
-    }
-    resetMessages();
-    setSubscriberSearchInput('');
-    setSubscriberSearch('');
-    setSubscriberPage(1);
-    if (adminKey.trim()) {
-      await loadSubscribers(undefined, { page: 1, search: '' });
-    }
-  }, [adminKey, loadSubscribers, subscriberSearch, subscriberSearchInput, resetMessages]);
-
-  const handleNextSubscribersPage = useCallback(() => {
-    if (!subscriberPagination.hasNextPage) {
-      return;
-    }
-    setSubscriberPage((prev) => prev + 1);
-  }, [subscriberPagination.hasNextPage]);
-
-  const handlePrevSubscribersPage = useCallback(() => {
-    if (!subscriberPagination.hasPrevPage) {
-      return;
-    }
-    setSubscriberPage((prev) => Math.max(prev - 1, 1));
-  }, [subscriberPagination.hasPrevPage]);
-
-  const handleRefreshSubscribers = useCallback(async () => {
-    const key = adminKey.trim();
-    if (!key) {
-      handleAdminError('Enter the admin key before managing subscribers.');
-      return;
-    }
-    resetMessages();
-    await loadSubscribers(undefined, { page: subscriberPage, search: subscriberSearch });
-  }, [adminKey, handleAdminError, loadSubscribers, subscriberPage, subscriberSearch, resetMessages]);
 
   const marketingStatsCards = useMemo(() => {
     if (!marketingHealth) {
@@ -769,6 +729,15 @@ const NotificationDashboard: React.FC = () => {
   
   return (
     <div className={styles.container}>
+      {toastMessages.length > 0 && (
+        <div className={styles.toastContainer} aria-live="polite">
+          {toastMessages.map((toast) => (
+            <div key={toast.id} className={styles.toast}>
+              {toast.text}
+            </div>
+          ))}
+        </div>
+      )}
       {showKeyInput ? (
         <div className={styles.section}>
           <h2 className={styles.sectionTitle}>Admin Access</h2>
@@ -888,12 +857,13 @@ const NotificationDashboard: React.FC = () => {
                   setIsSending(true);
                   resetMessages();
                   try {
+                  const targetContactIds = hasContactSelection ? [...selectedMarketingContactIds] : [];
                   const response = await notificationService.triggerMarketingDigest({
                       adminKey,
                       force: true,
                       bulkMode: 'fresher',
                       dryRun: false,
-                      contactIds: hasContactSelection ? selectedMarketingContactIds : undefined,
+                      contactIds: targetContactIds.length > 0 ? targetContactIds : undefined,
                     });
 
                     if (response.success) {
@@ -911,6 +881,8 @@ const NotificationDashboard: React.FC = () => {
                         }
                         setStatusMessage(response.message || 'Marketing digest triggered successfully.');
                       }
+
+                      await showDigestToastSummary(targetContactIds);
                     }
 
                     await Promise.all([loadMarketingHealth(adminKey), loadLastRunSummary(adminKey), loadLogs(adminKey), loadJobs(adminKey)]);
@@ -971,105 +943,6 @@ const NotificationDashboard: React.FC = () => {
                 </>
               )}
             </div>
-          </div>
-
-          <div className={styles.section}>
-            <h2 className={styles.sectionTitle}>Fresher Notification Subscribers</h2>
-            {!hasAdminKey ? (
-              <p>Please enter the admin key to view subscribers.</p>
-            ) : (
-              <>
-                <form className={styles.form} onSubmit={handleSubscriberSearchSubmit}>
-                  <input
-                    type="text"
-                    value={subscriberSearchInput}
-                    onChange={(event) => setSubscriberSearchInput(event.target.value)}
-                    placeholder="Search subscribers by name or email..."
-                    className={styles.textInput}
-                  />
-                  <button type="submit" className={styles.buttonGhost} disabled={isLoadingSubscribers}>
-                    Search
-                  </button>
-                  {(subscriberSearch || subscriberSearchInput) && (
-                    <button
-                      type="button"
-                      className={styles.buttonGhost}
-                      onClick={handleClearSubscriberSearch}
-                      disabled={isLoadingSubscribers}
-                    >
-                      Clear
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    className={styles.buttonGhost}
-                    onClick={handleRefreshSubscribers}
-                    disabled={isLoadingSubscribers}
-                  >
-                    Refresh
-                  </button>
-                </form>
-
-                {isLoadingSubscribers ? (
-                  <p>Loading subscribers…</p>
-                ) : subscribers.length === 0 ? (
-                  <p>No subscribers found.</p>
-                ) : (
-                  <div className={styles.tableContainer}>
-                    <table className={styles.table}>
-                      <thead>
-                        <tr>
-                          <th className={styles.tableHeader}>Full name</th>
-                          <th className={styles.tableHeader}>Email</th>
-                          <th className={styles.tableHeader}>Mobile</th>
-                          <th className={styles.tableHeader}>Branch</th>
-                          <th className={styles.tableHeader}>Experience</th>
-                          <th className={styles.tableHeader}>Subscribed At</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {subscribers.map((subscriber) => (
-                          <tr key={subscriber.id}>
-                            <td className={styles.tableCell}>{subscriber.fullName || 'Subscriber'}</td>
-                            <td className={styles.tableCell}>{subscriber.email}</td>
-                            <td className={styles.tableCell}>{subscriber.mobileNo || '—'}</td>
-                            <td className={styles.tableCell}>{subscriber.branch || '—'}</td>
-                            <td className={styles.tableCell}>{subscriber.experience || '—'}</td>
-                            <td className={styles.tableCell}>{formatDateTime(subscriber.createdAt)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-
-                <div className={styles.actionsRow}>
-                  <span className={styles.helperText}>
-                    {subscriberPagination.total > 0
-                      ? `Page ${subscriberPagination.page} of ${Math.max(subscriberPagination.totalPages, 1)} • Total subscribers: ${subscriberPagination.total}`
-                      : 'No subscribers available'}
-                  </span>
-                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                    <button
-                      type="button"
-                      className={styles.buttonGhost}
-                      onClick={handlePrevSubscribersPage}
-                      disabled={!subscriberPagination.hasPrevPage || isLoadingSubscribers}
-                    >
-                      Previous
-                    </button>
-                    <button
-                      type="button"
-                      className={styles.buttonGhost}
-                      onClick={handleNextSubscribersPage}
-                      disabled={!subscriberPagination.hasNextPage || isLoadingSubscribers}
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
-              </>
-            )}
           </div>
 
           <div className={styles.section}>
@@ -1269,6 +1142,14 @@ const NotificationDashboard: React.FC = () => {
                           Clear selection
                         </button>
                       )}
+                      <button
+                        type="button"
+                        className={styles.buttonGhost}
+                        onClick={handleSelectAllContacts}
+                        disabled={isSelectingAllContacts || marketingPagination.total === 0 || isLoadingMarketingContacts}
+                      >
+                        {isSelectingAllContacts ? 'Selecting all…' : 'Select all contacts'}
+                      </button>
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>

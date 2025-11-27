@@ -36,7 +36,7 @@ const Contact: React.FC = () => {
     setIsSubmitting(true);
     
     try {
-      const BASE_URL = process.env.REACT_APP_API_URL || 'https://mcb.instatripplan.com';
+      const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
       const API_BASE_URL = BASE_URL.endsWith('/api') ? BASE_URL : `${BASE_URL}/api`;
       
       const response = await fetch(`${API_BASE_URL}/email/contact`, {

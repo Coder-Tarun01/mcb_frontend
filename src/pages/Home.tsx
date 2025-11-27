@@ -184,11 +184,11 @@ const Home: React.FC = () => {
         title="mycareerbuild Jobs - Find Your Dream Career | Job Portal India"
         description="Discover 50,000+ jobs at mycareerbuild. Connect with top employers, build your career. Free job alerts, resume builder & career guidance."
         keywords="jobs, careers, employment, job portal, job search, recruitment, hiring, software engineer jobs, data scientist jobs, marketing jobs, hr jobs, remote jobs, work from home"
-        canonical="https://mycareerbuild.com"
+        canonical="http://localhost:3000"
         ogTitle="mycareerbuild Jobs - Find Your Dream Career | Job Portal India"
         ogDescription="Discover 50,000+ jobs at mycareerbuild. Connect with top employers, build your career. Free job alerts, resume builder & career guidance."
-        ogImage="https://mycareerbuild.com/logo.png"
-        ogUrl="https://mycareerbuild.com"
+        ogImage="http://localhost:3000/logo.png"
+        ogUrl="http://localhost:3000"
       />
       
       {/* Organization Schema */}

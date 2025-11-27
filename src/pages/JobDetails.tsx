@@ -278,11 +278,11 @@ const JobDetails: React.FC = () => {
         title={`${job.title} at ${job.company} - ${job.location} | mycareerbuild Jobs`}
         description={`Apply for ${job.title} at ${job.company} in ${job.location}. ${job.jobType} position with salary ${job.salary.currency} ${job.salary.min}-${job.salary.max}. Find more jobs at mycareerbuild.`}
         keywords={`${job.title}, ${job.company}, jobs in ${job.location}, ${job.jobType} jobs, ${job.requirements.skills.join(', ')}, career opportunities`}
-        canonical={`https://mycareerbuild.com/jobs/${job?.slug || slugOrId}`}
+        canonical={`http://localhost:3000/jobs/${job?.slug || slugOrId}`}
         ogTitle={`${job.title} at ${job.company} - ${job.location}`}
         ogDescription={`Apply for ${job.title} at ${job.company} in ${job.location}. ${job.jobType} position with competitive salary.`}
-        ogImage={job.companyLogo || "https://mycareerbuild.com/logo.png"}
-        ogUrl={`https://mycareerbuild.com/jobs/${job?.slug || slugOrId}`}
+        ogImage={job.companyLogo || "http://localhost:3000/logo.png"}
+        ogUrl={`http://localhost:3000/jobs/${job?.slug || slugOrId}`}
       />
       
       {/* Job Posting Schema */}

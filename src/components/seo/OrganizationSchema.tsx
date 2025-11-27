@@ -23,8 +23,8 @@ interface OrganizationSchemaProps {
 const OrganizationSchema: React.FC<OrganizationSchemaProps> = ({
   name = "mycareerbuild - MyCareerBuild",
   description = "India's leading job portal connecting talented professionals with amazing career opportunities. Find your dream job or hire the best talent.",
-  url = "https://mycareerbuild.com",
-  logo = "https://mycareerbuild.com/logo.png",
+  url = "http://localhost:3000",
+  logo = "http://localhost:3000/logo.png",
   contactPoint = {
     telephone: "+1 (555) 123-4567",
     email: "support@mycareerbuild.com",

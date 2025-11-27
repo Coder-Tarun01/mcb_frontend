@@ -66,7 +66,7 @@ const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ className = '' }) => {
               const raw = user?.avatarUrl || user?.profilePicture;
               if (raw) {
                 const isAbsolute = /^https?:\/\//i.test(raw);
-                const src = isAbsolute ? raw : `${process.env.REACT_APP_API_URL || 'https://mcb.instatripplan.com'}${raw.startsWith('/') ? '' : '/'}${raw}`;
+                const src = isAbsolute ? raw : `${process.env.REACT_APP_API_URL || 'http://localhost:4000'}${raw.startsWith('/') ? '' : '/'}${raw}`;
                 return <img src={src} alt={user?.name || 'User'} />;
               }
               return <User className="avatar-icon" />;

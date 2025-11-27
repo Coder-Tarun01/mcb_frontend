@@ -44,10 +44,10 @@ const Company: React.FC = () => {
       <SEOHead
         title={`${company.name} | mycareerbuild`}
         description={`Explore jobs at ${company.name}.`}
-        canonical={`https://mycareerbuild.com/companies/${companySlug}`}
+        canonical={`http://localhost:3000/companies/${companySlug}`}
         ogTitle={`${company.name}`}
         ogDescription={`Jobs and info for ${company.name}`}
-        ogUrl={`https://mycareerbuild.com/companies/${companySlug}`}
+        ogUrl={`http://localhost:3000/companies/${companySlug}`}
       />
 
       <div className="max-w-6xl mx-auto p-6">

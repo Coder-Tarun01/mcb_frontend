@@ -200,6 +200,29 @@ class NotificationService {
     });
   }
 
+  async fetchAllMarketingContactIds(adminKey: string): Promise<{
+    success: boolean;
+    data: { ids: number[]; total: number };
+  }> {
+    return this.request('/marketing/contacts/all-ids', {
+      adminKey,
+    });
+  }
+
+  async fetchMarketingContactDetails(params: {
+    adminKey: string;
+    ids: number[];
+  }): Promise<{
+    success: boolean;
+    data: { contacts: MarketingContact[]; count: number };
+  }> {
+    return this.request('/marketing/contacts/details', {
+      method: 'POST',
+      adminKey: params.adminKey,
+      data: { ids: params.ids },
+    });
+  }
+
   async createMarketingContact(params: {
     adminKey: string;
     payload: {

@@ -39,10 +39,10 @@ const SEOHead: React.FC<SEOHeadProps> = ({
   const fullDescription = description.length > 160 ? description.substring(0, 157) + "..." : description;
   
   // Generate canonical URL safely
-  const canonicalUrl = canonical || (typeof window !== 'undefined' ? window.location.href : 'https://mycareerbuild.com');
+  const canonicalUrl = canonical || (typeof window !== 'undefined' ? window.location.href : 'http://localhost:3000');
   
   // Generate Open Graph URL safely
-  const ogUrlFinal = ogUrl || (typeof window !== 'undefined' ? window.location.href : 'https://mycareerbuild.com');
+  const ogUrlFinal = ogUrl || (typeof window !== 'undefined' ? window.location.href : 'http://localhost:3000');
 
   return (
     <Helmet>
