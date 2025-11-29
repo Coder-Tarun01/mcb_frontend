@@ -712,6 +712,9 @@ const Home: React.FC = () => {
                     
                     <div className="flex-1 flex flex-col gap-2 min-h-0 overflow-hidden mb-3">
                       <p className="text-sm text-slate-500 m-0 font-medium leading-snug">{job.company}</p>
+                      {(job as any).department && (
+                        <p className="text-xs text-slate-400 m-0 font-medium">{((job as any).department as string)}</p>
+                      )}
                       
                       <div className="flex flex-col gap-1.5 mt-1.5 flex-shrink-0">
                         <div className="flex items-center gap-2.5 text-xs text-slate-500 font-medium">
@@ -736,6 +739,10 @@ const Home: React.FC = () => {
                           <DollarSign className="w-[14px] h-[14px] text-slate-400 flex-shrink-0" />
                           <span>
                             {(() => {
+                              // Check for displaySalary first (govt jobs)
+                              if ((job as any).displaySalary) {
+                                return (job as any).displaySalary;
+                              }
                               if (!job.salary) return 'Salary not specified';
                               if (typeof job.salary === 'string') return job.salary;
                               
@@ -767,10 +774,22 @@ const Home: React.FC = () => {
                             })()}
                           </span>
                         </div>
+                        {(job as any).vacancies && (
+                          <div className="flex items-center gap-2.5 text-xs text-slate-500 font-medium">
+                            <Users className="w-[14px] h-[14px] text-slate-400 flex-shrink-0" />
+                            <span>{(job as any).vacancies} {(job as any).vacancies === 1 ? 'vacancy' : 'vacancies'}</span>
+                          </div>
+                        )}
                         {job.postedDate && (
                           <div className="flex items-center gap-2.5 text-xs text-slate-500 font-medium">
                             <Clock className="w-[14px] h-[14px] text-slate-400 flex-shrink-0" />
-                            <span>{new Date(job.postedDate).toLocaleDateString()}</span>
+                            <span>Posted: {new Date(job.postedDate).toLocaleDateString()}</span>
+                          </div>
+                        )}
+                        {(job as any).applicationDeadline && (
+                          <div className="flex items-center gap-2.5 text-xs text-red-600 font-medium">
+                            <Clock className="w-[14px] h-[14px] text-red-500 flex-shrink-0" />
+                            <span>Last Date: {new Date((job as any).applicationDeadline).toLocaleDateString()}</span>
                           </div>
                         )}
                         {job.skills && job.skills.length > 0 && (
@@ -782,7 +801,18 @@ const Home: React.FC = () => {
                       </div>
                     </div>
                     
-                    <div className="mt-0 p-0 flex-shrink-0">
+                    <div className="mt-0 p-0 flex-shrink-0 flex flex-col gap-2">
+                      {(job as any).notificationPdf && (
+                        <a
+                          href={(job as any).notificationPdf}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="bg-gradient-to-r from-green-500 to-green-600 text-white border-none px-4 py-2 rounded-md text-xs font-semibold cursor-pointer transition-all duration-300 w-full h-8 flex items-center justify-center text-center whitespace-nowrap leading-none box-border text-decoration-none outline-none relative tracking-[0.3px] uppercase hover:bg-gradient-to-r hover:from-green-700 hover:to-green-800 hover:-translate-y-0.5"
+                        >
+                          View Notification PDF
+                        </a>
+                      )}
                       <button 
                         className="bg-gradient-to-r from-blue-500 to-blue-600 text-white border-none px-4 py-2 rounded-md text-xs font-semibold cursor-pointer transition-all duration-300 w-full h-8 flex items-center justify-center text-center whitespace-nowrap leading-none box-border text-decoration-none outline-none relative tracking-[0.3px] uppercase hover:bg-gradient-to-r hover:from-blue-700 hover:to-blue-800 hover:-translate-y-0.5"
                         onClick={(e) => {

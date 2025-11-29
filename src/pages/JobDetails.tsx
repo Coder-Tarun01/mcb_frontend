@@ -60,6 +60,21 @@ interface JobDetailsData {
   applyUrl?: string | null;
   jobUrl?: string | null;
   slug?: string;
+  // Govt job specific fields
+  department?: string | null;
+  eligibility?: string | null;
+  qualification?: string | null;
+  education?: string | null;
+  preferredQualifications?: string | null;
+  requirementsText?: string | null; // Detailed requirements text (separate from requirements object)
+  notificationPdf?: string | null;
+  lastDate?: string | null;
+  source?: string | null;
+  sourceUrl?: string | null;
+  vacancies?: number | null;
+  applicants?: string | null;
+  displaySalary?: string | null;
+  category?: string | null;
 }
 
 const JobDetails: React.FC = () => {
@@ -93,6 +108,36 @@ const JobDetails: React.FC = () => {
         // Get the canonical slug from the API response (backend now includes it)
         const canonicalSlug = (jobData as any).slug || slugOrId;
         
+        // Check if this is a govt job (has _source === 'govt' or has govt-specific fields)
+        const isGovtJob = (jobData as any)._source === 'govt' || 
+                          (jobData as any).department || 
+                          (jobData as any).notificationPdf ||
+                          (jobData as any).eligibility;
+
+        // Transform responsibilities - handle both array and string
+        let responsibilitiesList: string[] = [];
+        if ((jobData as any).responsibilities) {
+          if (Array.isArray((jobData as any).responsibilities)) {
+            responsibilitiesList = (jobData as any).responsibilities;
+          } else {
+            // Split by newline or bullet points
+            responsibilitiesList = String((jobData as any).responsibilities)
+              .split(/\n|•|\*/)
+              .map((r: string) => r.trim())
+              .filter((r: string) => r.length > 0);
+          }
+        }
+        
+        // If no responsibilities from API, use defaults for non-govt jobs
+        if (responsibilitiesList.length === 0 && !isGovtJob) {
+          responsibilitiesList = [
+            'Develop and maintain high-quality software solutions',
+            'Collaborate with cross-functional teams',
+            'Write clean, maintainable, and well-documented code',
+            'Participate in code reviews and technical discussions'
+          ];
+        }
+
         // Transform the API data to match the JobDetailsData interface using REAL data
         const transformedJob: JobDetailsData = {
           id: jobData.id,
@@ -103,7 +148,7 @@ const JobDetails: React.FC = () => {
           jobType: jobData.type || 'Full-time',
           experienceLevel: jobData.experienceLevel || 'Experience not specified',
           postedDate: jobData.postedDate || new Date().toISOString(),
-          applicationDeadline: jobData.applicationDeadline,
+          applicationDeadline: jobData.applicationDeadline || (jobData as any).lastDate || null,
           salary: {
             min: jobData.salary?.min || 0,
             max: jobData.salary?.max || 0,
@@ -112,36 +157,58 @@ const JobDetails: React.FC = () => {
           description: jobData.description || 'No description available.',
           requirements: {
             skills: jobData.skills || [],
-            education: 'Education requirements not specified',
+            education: (jobData as any).education || (jobData as any).educationRequired || (jobData as any).qualification || 'Education requirements not specified',
             experience: jobData.experienceLevel || 'Experience not specified',
-            preferred: jobData.skills || []
+            preferred: (jobData as any).preferredQualifications ? 
+              String((jobData as any).preferredQualifications).split(/\n|•|\*/).map((p: string) => p.trim()).filter((p: string) => p.length > 0) : 
+              (jobData.skills || [])
           },
-          responsibilities: [
-            'Develop and maintain high-quality software solutions',
-            'Collaborate with cross-functional teams',
-            'Write clean, maintainable, and well-documented code',
-            'Participate in code reviews and technical discussions'
-          ],
-          benefits: [
+          responsibilities: responsibilitiesList,
+          benefits: isGovtJob ? [
+            'Government job security',
+            'Pension benefits',
+            'Medical facilities',
+            'Housing allowances'
+          ] : [
             'Competitive salary package',
             'Health insurance',
             'Flexible working hours',
             'Professional development opportunities'
           ],
-          howToApply: 'To apply for this position, please submit your resume and cover letter through our online application portal.',
+          howToApply: (jobData as any).applyUrl ? 
+            `Apply directly through the official portal: ${(jobData as any).applyUrl}` : 
+            'To apply for this position, please submit your resume and cover letter through our online application portal.',
           contact: {
             hrContact: jobData.company || 'HR Team',
-            email: 'hr@company.com',
-            phone: '+1 (555) 123-4567'
+            email: (jobData as any).contactEmail || 'hr@company.com',
+            phone: (jobData as any).contactPhone || '+1 (555) 123-4567'
           },
           isBookmarked: jobData.isBookmarked || false,
           rating: jobData.rating || 4.5,
           applicantsCount: jobData.applicantsCount || 0,
           applyUrl: (jobData as any).applyUrl || null,
-          jobUrl: (jobData as any).jobUrl || null,
+          jobUrl: (jobData as any).jobUrl || (jobData as any).applyUrl || null,
           // Store slug for use in navigation and SEO
-          slug: canonicalSlug
-        };
+          slug: canonicalSlug,
+          // Store all govt job fields for display
+          ...(isGovtJob && {
+            department: (jobData as any).department,
+            eligibility: (jobData as any).eligibility,
+            qualification: (jobData as any).qualification,
+            education: (jobData as any).education || (jobData as any).educationRequired,
+            preferredQualifications: (jobData as any).preferredQualifications,
+            // Don't overwrite requirements object - store detailed requirements separately
+            requirementsText: (jobData as any).requirements,
+            notificationPdf: (jobData as any).notificationPdf,
+            lastDate: (jobData as any).lastDate || (jobData as any).applicationDeadline,
+            source: (jobData as any).source,
+            sourceUrl: (jobData as any).sourceUrl,
+            vacancies: (jobData as any).vacancies,
+            applicants: (jobData as any).applicants,
+            displaySalary: (jobData as any).displaySalary,
+            category: (jobData as any).category
+          })
+        } as any;
         
         setJob(transformedJob);
         setIsBookmarked(transformedJob.isBookmarked);
@@ -276,8 +343,8 @@ const JobDetails: React.FC = () => {
       {/* SEO Head */}
       <SEOHead
         title={`${job.title} at ${job.company} - ${job.location} | mycareerbuild Jobs`}
-        description={`Apply for ${job.title} at ${job.company} in ${job.location}. ${job.jobType} position with salary ${job.salary.currency} ${job.salary.min}-${job.salary.max}. Find more jobs at mycareerbuild.`}
-        keywords={`${job.title}, ${job.company}, jobs in ${job.location}, ${job.jobType} jobs, ${job.requirements.skills.join(', ')}, career opportunities`}
+        description={`Apply for ${job.title} at ${job.company} in ${job.location}. ${job.jobType} position${job.displaySalary ? ` with salary ${job.displaySalary}` : job.salary && job.salary.min > 0 ? ` with salary ${job.salary.currency} ${job.salary.min}-${job.salary.max}` : ''}. Find more jobs at mycareerbuild.`}
+        keywords={`${job.title}, ${job.company}, jobs in ${job.location}, ${job.jobType} jobs${job.requirements?.skills && Array.isArray(job.requirements.skills) && job.requirements.skills.length > 0 ? `, ${job.requirements.skills.join(', ')}` : ''}, career opportunities`}
         canonical={`http://localhost:3000/jobs/${job?.slug || slugOrId}`}
         ogTitle={`${job.title} at ${job.company} - ${job.location}`}
         ogDescription={`Apply for ${job.title} at ${job.company} in ${job.location}. ${job.jobType} position with competitive salary.`}
@@ -298,19 +365,19 @@ const JobDetails: React.FC = () => {
           postalCode: '',
           addressCountry: 'IN'
         }}
-        baseSalary={{
+        baseSalary={job.salary && job.salary.min > 0 ? {
           currency: job.salary.currency,
           minValue: job.salary.min,
           maxValue: job.salary.max
-        }}
+        } : undefined}
         employmentType={job.jobType.toUpperCase().replace('-', '_') as any}
         datePosted={job.postedDate}
-        validThrough={job.applicationDeadline}
-        qualifications={job.requirements.education}
-        responsibilities={job.responsibilities.join(', ')}
-        skills={job.requirements.skills.join(', ')}
+        validThrough={job.applicationDeadline || job.lastDate || undefined}
+        qualifications={job.requirements?.education || job.education || job.qualification || ''}
+        responsibilities={Array.isArray(job.responsibilities) ? job.responsibilities.join(', ') : (job.responsibilities || '')}
+        skills={job.requirements?.skills && Array.isArray(job.requirements.skills) ? job.requirements.skills.join(', ') : ''}
         workHours="40 hours per week"
-        benefits={job.benefits.join(', ')}
+        benefits={Array.isArray(job.benefits) ? job.benefits.join(', ') : ''}
       />
       
       <motion.main
@@ -415,6 +482,10 @@ const JobDetails: React.FC = () => {
               </span>
               <span className="text-sm font-semibold text-gray-700">
                 {(() => {
+                  // Check for displaySalary first (govt jobs)
+                  if (job.displaySalary) {
+                    return job.displaySalary;
+                  }
                   if (typeof job.salary === 'string') return job.salary;
                   if (job.salary.min === 0 && job.salary.max === 0) return 'Salary not specified';
                   
@@ -466,10 +537,10 @@ const JobDetails: React.FC = () => {
             <Users className="w-6 h-6 text-blue-500 flex-shrink-0" />
             <div className="flex flex-col gap-0.5">
               <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Applicants
+                {job.vacancies ? 'Vacancies' : 'Applicants'}
               </span>
               <span className="text-sm font-semibold text-gray-700">
-                {job.applicantsCount}
+                {job.vacancies ? `${job.vacancies} ${job.vacancies === 1 ? 'vacancy' : 'vacancies'}` : job.applicantsCount}
               </span>
             </div>
           </div>
@@ -497,17 +568,54 @@ const JobDetails: React.FC = () => {
               </h2>
               <div className="text-gray-700 leading-relaxed">
                 <div className="grid gap-6">
+                  {/* Department (Govt Jobs) */}
+                  {job.department && (
+                    <div className="bg-slate-50 p-5 rounded-xl border border-gray-200">
+                      <h3 className="flex items-center gap-2 text-base font-semibold text-gray-700 m-0 mb-3">
+                        <Building2 className="w-4.5 h-4.5 text-blue-500" />
+                        Department
+                      </h3>
+                      <p className="m-0 text-sm text-gray-700 font-medium">{job.department}</p>
+                    </div>
+                  )}
+
+                  {/* Eligibility (Govt Jobs) */}
+                  {job.eligibility && (
+                    <div className="bg-slate-50 p-5 rounded-xl border border-gray-200">
+                      <h3 className="flex items-center gap-2 text-base font-semibold text-gray-700 m-0 mb-3">
+                        <CheckCircle className="w-4.5 h-4.5 text-blue-500" />
+                        Eligibility
+                      </h3>
+                      <p className="m-0 text-sm text-gray-700 whitespace-pre-line">{job.eligibility}</p>
+                    </div>
+                  )}
+
+                  {/* Qualification (Govt Jobs) */}
+                  {job.qualification && (
+                    <div className="bg-slate-50 p-5 rounded-xl border border-gray-200">
+                      <h3 className="flex items-center gap-2 text-base font-semibold text-gray-700 m-0 mb-3">
+                        <Award className="w-4.5 h-4.5 text-blue-500" />
+                        Qualification
+                      </h3>
+                      <p className="m-0 text-sm text-gray-700 whitespace-pre-line">{job.qualification}</p>
+                    </div>
+                  )}
+
                   <div className="bg-slate-50 p-5 rounded-xl border border-gray-200">
                     <h3 className="flex items-center gap-2 text-base font-semibold text-gray-700 m-0 mb-3">
                       <CheckCircle className="w-4.5 h-4.5 text-blue-500" />
                       Required Skills
                     </h3>
                     <div className="flex flex-wrap gap-2">
-                      {job.requirements.skills.map((skill, index) => (
-                        <span key={index} className="bg-blue-500 text-white py-1.5 px-3 rounded-full text-xs font-medium uppercase tracking-wider">
-                          {skill}
-                        </span>
-                      ))}
+                      {job.requirements?.skills && Array.isArray(job.requirements.skills) && job.requirements.skills.length > 0 ? (
+                        job.requirements.skills.map((skill, index) => (
+                          <span key={index} className="bg-blue-500 text-white py-1.5 px-3 rounded-full text-xs font-medium uppercase tracking-wider">
+                            {skill}
+                          </span>
+                        ))
+                      ) : (
+                        <p className="m-0 text-sm text-gray-500">No specific skills listed</p>
+                      )}
                     </div>
                   </div>
                   
@@ -516,7 +624,7 @@ const JobDetails: React.FC = () => {
                       <GraduationCap className="w-4.5 h-4.5 text-blue-500" />
                       Education
                     </h3>
-                    <p className="m-0 text-sm text-gray-500">{job.requirements.education}</p>
+                    <p className="m-0 text-sm text-gray-700 whitespace-pre-line">{job.requirements?.education || 'Education requirements not specified'}</p>
                   </div>
                   
                   <div className="bg-slate-50 p-5 rounded-xl border border-gray-200">
@@ -524,10 +632,21 @@ const JobDetails: React.FC = () => {
                       <Clock className="w-4.5 h-4.5 text-blue-500" />
                       Experience
                     </h3>
-                    <p className="m-0 text-sm text-gray-500">{job.requirements.experience}</p>
+                    <p className="m-0 text-sm text-gray-700">{job.requirements?.experience || 'Experience not specified'}</p>
                   </div>
+
+                  {/* Requirements (Govt Jobs - detailed) */}
+                  {job.requirementsText && (
+                    <div className="bg-slate-50 p-5 rounded-xl border border-gray-200">
+                      <h3 className="flex items-center gap-2 text-base font-semibold text-gray-700 m-0 mb-3">
+                        <CheckCircle className="w-4.5 h-4.5 text-blue-500" />
+                        Detailed Requirements
+                      </h3>
+                      <p className="m-0 text-sm text-gray-700 whitespace-pre-line">{job.requirementsText}</p>
+                    </div>
+                  )}
                   
-                  {job.requirements.preferred.length > 0 && (
+                  {job.requirements?.preferred && Array.isArray(job.requirements.preferred) && job.requirements.preferred.length > 0 && (
                     <div className="bg-slate-50 p-5 rounded-xl border border-gray-200">
                       <h3 className="flex items-center gap-2 text-base font-semibold text-gray-700 m-0 mb-3">
                         <Star className="w-4.5 h-4.5 text-blue-500" />
@@ -540,6 +659,17 @@ const JobDetails: React.FC = () => {
                           </span>
                         ))}
                       </div>
+                    </div>
+                  )}
+
+                  {/* Preferred Qualifications (Govt Jobs - as string) */}
+                  {job.preferredQualifications && typeof job.preferredQualifications === 'string' && (
+                    <div className="bg-slate-50 p-5 rounded-xl border border-gray-200">
+                      <h3 className="flex items-center gap-2 text-base font-semibold text-gray-700 m-0 mb-3">
+                        <Star className="w-4.5 h-4.5 text-blue-500" />
+                        Preferred Qualifications
+                      </h3>
+                      <p className="m-0 text-sm text-gray-700 whitespace-pre-line">{job.preferredQualifications}</p>
                     </div>
                   )}
                 </div>
@@ -603,20 +733,91 @@ const JobDetails: React.FC = () => {
           </div>
 
           {/* Sidebar */}
-          {job.applicationDeadline && (
+          {(job.applicationDeadline || job.lastDate || job.notificationPdf || job.vacancies || job.category) && (
             <div className="flex flex-col gap-6">
-              {/* Application Deadline */}
-              <div className="bg-gradient-to-r from-amber-100 to-amber-200 rounded-xl p-4 sm:p-6 shadow-sm border border-amber-300">
-                <h3 className="text-lg font-semibold text-gray-900 m-0 mb-4">
-                  Application Deadline
-                </h3>
-                <div className="flex items-center gap-3">
-                  <Calendar className="w-5 h-5 text-amber-600" />
-                  <span className="text-base font-semibold text-amber-800">
-                    {new Date(job.applicationDeadline).toLocaleDateString()}
+              {/* Category (Govt Jobs) */}
+              {job.category && (
+                <div className="bg-gradient-to-r from-blue-100 to-blue-200 rounded-xl p-4 sm:p-6 shadow-sm border border-blue-300">
+                  <h3 className="text-lg font-semibold text-gray-900 m-0 mb-2">
+                    Category
+                  </h3>
+                  <span className="text-base font-semibold text-blue-800 capitalize">
+                    {job.category}
                   </span>
                 </div>
-              </div>
+              )}
+
+              {/* Vacancies (Govt Jobs) */}
+              {job.vacancies && (
+                <div className="bg-gradient-to-r from-green-100 to-green-200 rounded-xl p-4 sm:p-6 shadow-sm border border-green-300">
+                  <h3 className="text-lg font-semibold text-gray-900 m-0 mb-2">
+                    Vacancies
+                  </h3>
+                  <div className="flex items-center gap-3">
+                    <Users className="w-5 h-5 text-green-600" />
+                    <span className="text-base font-semibold text-green-800">
+                      {job.vacancies} {job.vacancies === 1 ? 'vacancy' : 'vacancies'}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Application Deadline */}
+              {(job.applicationDeadline || job.lastDate) && (
+                <div className="bg-gradient-to-r from-amber-100 to-amber-200 rounded-xl p-4 sm:p-6 shadow-sm border border-amber-300">
+                  <h3 className="text-lg font-semibold text-gray-900 m-0 mb-4">
+                    Application Deadline
+                  </h3>
+                  <div className="flex items-center gap-3">
+                    <Calendar className="w-5 h-5 text-amber-600" />
+                    <span className="text-base font-semibold text-amber-800">
+                      {new Date(job.applicationDeadline || job.lastDate || '').toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Notification PDF (Govt Jobs) */}
+              {job.notificationPdf && (
+                <div className="bg-gradient-to-r from-purple-100 to-purple-200 rounded-xl p-4 sm:p-6 shadow-sm border border-purple-300">
+                  <h3 className="text-lg font-semibold text-gray-900 m-0 mb-4">
+                    Official Notification
+                  </h3>
+                  <a
+                    href={job.notificationPdf}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-purple-600 text-white border-none rounded-lg py-2.5 px-5 text-sm font-semibold cursor-pointer transition-all duration-300 hover:bg-purple-700 hover:-translate-y-0.5"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    View PDF Notification
+                  </a>
+                </div>
+              )}
+
+              {/* Source (Govt Jobs) */}
+              {job.source && (
+                <div className="bg-gradient-to-r from-slate-100 to-slate-200 rounded-xl p-4 sm:p-6 shadow-sm border border-slate-300">
+                  <h3 className="text-lg font-semibold text-gray-900 m-0 mb-2">
+                    Source
+                  </h3>
+                  {job.sourceUrl ? (
+                    <a
+                      href={job.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-base font-semibold text-blue-800 hover:underline inline-flex items-center gap-2"
+                    >
+                      {job.source}
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  ) : (
+                    <span className="text-base font-semibold text-slate-800">
+                      {job.source}
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>

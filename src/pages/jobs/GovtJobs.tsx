@@ -32,18 +32,37 @@ const GovtJobs: React.FC = () => {
   const loadJobs = async () => {
     try {
       setLoading(true);
-      const response = await jobsAPI.fetchJobs();
+      // Use API filter to get government jobs (backend handles filtering for govt job categories)
+      const response = await jobsAPI.fetchJobs({ 
+        category: 'government',
+        limit: 500 
+      });
       const jobsData = response.jobs || response || [];
       const jobsArray = Array.isArray(jobsData) ? jobsData : [];
       
-      // Filter for government jobs
-      const govtJobs = jobsArray.filter(job => 
-        job.category?.toLowerCase().includes('government') ||
-        job.company?.toLowerCase().includes('government') ||
-        job.title?.toLowerCase().includes('government') ||
-        job.title?.toLowerCase().includes('govt') ||
-        job.title?.toLowerCase().includes('public sector')
-      );
+      // Additional client-side filter as fallback (in case API doesn't filter properly)
+      // This includes govt job categories: central, state, banking, psu, defence, university
+      const govtJobs = jobsArray.filter(job => {
+        const categoryLower = job.category?.toLowerCase() || '';
+        const companyLower = job.company?.toLowerCase() || '';
+        const titleLower = job.title?.toLowerCase() || '';
+        
+        return (
+          // Check for govt job categories
+          ['central', 'state', 'banking', 'psu', 'defence', 'university'].includes(categoryLower) ||
+          // Check for government-related keywords
+          categoryLower.includes('government') ||
+          categoryLower.includes('public sector') ||
+          companyLower.includes('government') ||
+          companyLower.includes('govt') ||
+          companyLower.includes('commission') ||
+          companyLower.includes('ministry') ||
+          companyLower.includes('board') ||
+          titleLower.includes('government') ||
+          titleLower.includes('govt') ||
+          titleLower.includes('public sector')
+        );
+      });
       
       setJobs(govtJobs);
       setFilteredJobs(govtJobs);
