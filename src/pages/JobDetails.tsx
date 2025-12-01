@@ -11,13 +11,16 @@ import {
   Calendar,
   Star,
   Bookmark,
-  Share2,
   CheckCircle,
   ExternalLink,
   Building2,
   Award,
-  GraduationCap
+  GraduationCap,
+  LogIn,
+  UserX,
+  AlertCircle
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import SEOHead from '../components/seo/SEOHead';
 import { buildCompanySlug, extractIdFromSlug } from '../utils/slug';
 import JobPostingSchema from '../components/seo/JobPostingSchema';
@@ -213,12 +216,15 @@ const JobDetails: React.FC = () => {
         setJob(transformedJob);
         setIsBookmarked(transformedJob.isBookmarked);
         
-        // Check if job is saved
-        try {
-          const isSaved = await savedJobsAPI.isJobSaved(currentExtractedId);
-          setIsBookmarked(isSaved);
-        } catch (error) {
-          console.error('Error checking if job is saved:', error);
+        // Check if job is saved (only if user is logged in)
+        if (user) {
+          try {
+            const isSaved = await savedJobsAPI.isJobSaved(currentExtractedId);
+            setIsBookmarked(isSaved);
+          } catch (error) {
+            console.error('Error checking if job is saved:', error);
+            setIsBookmarked(false);
+          }
         }
       } catch (error) {
         console.error('Error loading job details:', error);
@@ -230,22 +236,68 @@ const JobDetails: React.FC = () => {
     };
 
     loadJobDetails();
-  }, [slugOrId]);
+  }, [slugOrId, user]);
 
   const handleBookmark = async () => {
-    if (!extractedId) return;
+    // Use job.id if available, otherwise fall back to extractedId
+    const jobIdToUse = job?.id || extractedId;
+    
+    if (!jobIdToUse) {
+      toast.error('Job ID not found. Please refresh the page and try again.');
+      return;
+    }
+    
+    if (!user) {
+      toast.error('Please login to save jobs.', {
+        duration: 3000,
+        icon: '🔐',
+      });
+      const redirectPath = location.pathname;
+      setTimeout(() => {
+        navigate(`/login?redirect=${encodeURIComponent(redirectPath)}`);
+      }, 1500);
+      return;
+    }
     
     setBookmarkLoading(true);
     try {
       if (isBookmarked) {
-        await savedJobsAPI.unsaveJob(extractedId);
+        await savedJobsAPI.unsaveJob(jobIdToUse);
         setIsBookmarked(false);
+        toast.success('Job removed from saved jobs', {
+          duration: 2000,
+          icon: '✅',
+        });
       } else {
-        await savedJobsAPI.saveJob(extractedId);
+        await savedJobsAPI.saveJob(jobIdToUse);
         setIsBookmarked(true);
+        toast.success('Job saved successfully!', {
+          duration: 2000,
+          icon: '💾',
+        });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error toggling bookmark:', error);
+      
+      // Handle specific error cases
+      let errorMessage = 'Failed to save job. Please try again.';
+      
+      if (error?.message) {
+        if (error.message.includes('Job not found') || error.message.includes('404')) {
+          errorMessage = 'This job cannot be saved as it is from an external source. You can still apply directly through the application link.';
+        } else if (error.message.includes('already saved') || error.message.includes('409')) {
+          errorMessage = 'This job is already saved.';
+        } else {
+          errorMessage = error.message;
+        }
+      } else if (error?.status === 404) {
+        errorMessage = 'This job cannot be saved as it is from an external source. You can still apply directly through the application link.';
+      }
+      
+      toast.error(errorMessage, {
+        duration: 4000,
+        icon: '❌',
+      });
       // Revert the state on error
       setIsBookmarked(!isBookmarked);
     } finally {
@@ -256,7 +308,22 @@ const JobDetails: React.FC = () => {
   const handleApply = async () => {
     // Employers should not be applying to jobs
     if (user?.role === 'employer') {
-      navigate('/employer/dashboard');
+      toast.error(
+        'This feature is for job seekers only. As an employer, you can post jobs and manage applications from your dashboard.',
+        {
+          duration: 5000,
+          icon: '👔',
+          style: {
+            borderRadius: '10px',
+            background: '#333',
+            color: '#fff',
+          },
+        }
+      );
+      // Still navigate to employer dashboard but with clear messaging
+      setTimeout(() => {
+        navigate('/employer/dashboard');
+      }, 2000);
       return;
     }
 
@@ -266,15 +333,33 @@ const JobDetails: React.FC = () => {
     if (jobUrl) {
       // External job flow - redirect to external URL
       if (!user) {
-        // Not logged in - redirect to login with redirect param
+        // Not logged in - show message and redirect to login
+        toast.error(
+          'Please login to apply for this job. You will be redirected to the external application page after logging in.',
+          {
+            duration: 4000,
+            icon: '🔐',
+            style: {
+              borderRadius: '10px',
+              background: '#333',
+              color: '#fff',
+            },
+          }
+        );
         const redirectPath = location.pathname;
-        navigate(`/login?redirect=${encodeURIComponent(redirectPath)}`);
+        setTimeout(() => {
+          navigate(`/login?redirect=${encodeURIComponent(redirectPath)}`);
+        }, 1500);
         return;
       }
       
       // Logged in - record click and open external URL
       try {
         await jobsAPI.recordApplyClick(extractedId);
+        toast.success('Opening external application page...', {
+          duration: 2000,
+          icon: '🔗',
+        });
       } catch (error) {
         console.error('Error recording apply click:', error);
         // Continue even if click recording fails
@@ -283,9 +368,23 @@ const JobDetails: React.FC = () => {
     } else {
       // Internal job flow (existing behavior)
       if (!user) {
-        // If not authenticated, redirect to login with redirect param
+        // If not authenticated, show message and redirect to login
+        toast.error(
+          'Please login to apply for this job. Your application progress will be saved.',
+          {
+            duration: 4000,
+            icon: '🔐',
+            style: {
+              borderRadius: '10px',
+              background: '#333',
+              color: '#fff',
+            },
+          }
+        );
         const redirectPath = location.pathname;
-        navigate(`/login?redirect=${encodeURIComponent(redirectPath)}`);
+        setTimeout(() => {
+          navigate(`/login?redirect=${encodeURIComponent(redirectPath)}`);
+        }, 1500);
         return;
       }
       
@@ -295,18 +394,6 @@ const JobDetails: React.FC = () => {
     }
   };
 
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: job?.title,
-        text: `Check out this job opportunity: ${job?.title} at ${job?.company}`,
-        url: window.location.href
-      });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      alert('Job link copied to clipboard!');
-    }
-  };
 
   if (loading) {
     return (
@@ -417,21 +504,43 @@ const JobDetails: React.FC = () => {
             </div>
             
             <div className="flex gap-3 flex-shrink-0 flex-wrap w-full md:w-auto">
-              <button 
-                onClick={handleBookmark} 
-                disabled={bookmarkLoading}
-                className={`flex items-center gap-1.5 py-2.5 px-4 rounded-lg text-sm font-medium cursor-pointer transition-all duration-300 ${isBookmarked ? 'bg-emerald-600 border-2 border-emerald-700 text-white shadow-md shadow-emerald-500/30 hover:bg-emerald-700 hover:border-emerald-800' : 'bg-slate-50 border border-gray-200 text-gray-700 hover:bg-gray-200 hover:border-gray-300'} ${bookmarkLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
-              >
-                <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-white' : ''}`} />
-                {bookmarkLoading ? 'Saving...' : (isBookmarked ? 'Saved' : 'Save')}
-              </button>
-              <button onClick={handleShare} className="flex items-center gap-1.5 py-2.5 px-4 bg-slate-50 border border-gray-200 rounded-lg text-gray-700 text-sm font-medium cursor-pointer transition-all duration-300 hover:bg-gray-200 hover:border-gray-300 flex-1 md:flex-none justify-center">
-                <Share2 className="w-4 h-4" />
-                Share
-              </button>
-              <button onClick={handleApply} className="bg-gradient-to-r from-blue-500 to-blue-700 text-white border-none rounded-lg py-3 px-6 text-base font-semibold cursor-pointer transition-all duration-300 shadow-lg shadow-blue-500/30 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/40 flex-1 md:flex-none justify-center">
-                Apply Now
-              </button>
+              {user && (
+                <button 
+                  onClick={handleBookmark} 
+                  disabled={bookmarkLoading}
+                  className={`flex items-center gap-1.5 py-2.5 px-4 rounded-lg text-sm font-medium cursor-pointer transition-all duration-300 ${isBookmarked ? 'bg-emerald-600 border-2 border-emerald-700 text-white shadow-md shadow-emerald-500/30 hover:bg-emerald-700 hover:border-emerald-800' : 'bg-slate-50 border border-gray-200 text-gray-700 hover:bg-gray-200 hover:border-gray-300'} ${bookmarkLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                >
+                  <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-white' : ''}`} />
+                  {bookmarkLoading ? 'Saving...' : (isBookmarked ? 'Saved' : 'Save')}
+                </button>
+              )}
+              {!user ? (
+                <button 
+                  onClick={handleApply} 
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 text-white border-none rounded-lg py-3 px-6 text-base font-semibold cursor-pointer transition-all duration-300 shadow-lg shadow-blue-500/30 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/40 flex-1 md:flex-none justify-center flex items-center gap-2"
+                  title="Login required to apply"
+                >
+                  <LogIn className="w-5 h-5" />
+                  Login to Apply
+                </button>
+              ) : user.role === 'employer' ? (
+                <button 
+                  onClick={handleApply} 
+                  className="bg-gradient-to-r from-gray-400 to-gray-500 text-white border-none rounded-lg py-3 px-6 text-base font-semibold cursor-not-allowed transition-all duration-300 flex-1 md:flex-none justify-center flex items-center gap-2"
+                  disabled
+                  title="This feature is for job seekers only"
+                >
+                  <UserX className="w-5 h-5" />
+                  For Job Seekers Only
+                </button>
+              ) : (
+                <button 
+                  onClick={handleApply} 
+                  className="bg-gradient-to-r from-blue-500 to-blue-700 text-white border-none rounded-lg py-3 px-6 text-base font-semibold cursor-pointer transition-all duration-300 shadow-lg shadow-blue-500/30 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/40 flex-1 md:flex-none justify-center"
+                >
+                  Apply Now
+                </button>
+              )}
             </div>
           </div>
         </div>

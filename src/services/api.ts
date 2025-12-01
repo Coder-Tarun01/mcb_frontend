@@ -2,7 +2,9 @@ import { Job, JobFilter } from '../types/job';
 import { User } from '../types/user';
 import { SuggestionResponseDto } from '../types/search';
 
-const DEFAULT_BACKEND_URL = 'http://localhost:4000';
+// Default backend URL for production/staging when env var is not set
+// Uses the publicly accessible API base
+const DEFAULT_BACKEND_URL = 'https://mcb.instatripplan.com';
 
 function resolveBackendBaseUrl(): string {
   const envUrl = (process.env.REACT_APP_API_URL || '').trim();
@@ -10,7 +12,7 @@ function resolveBackendBaseUrl(): string {
     return envUrl.replace(/\/+$/, '');
   }
 
-  return DEFAULT_BACKEND_URL;
+  return DEFAULT_BACKEND_URL.replace(/\/+$/, '');
 }
 
 export const BACKEND_BASE_URL = resolveBackendBaseUrl();

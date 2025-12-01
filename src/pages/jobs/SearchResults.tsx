@@ -37,6 +37,14 @@ interface SearchFilters {
   isRemote: boolean;
 }
 
+interface SavedSearchEntry {
+  id: string;
+  keyword: string;
+  location: string;
+  jobType?: string;
+  createdAt: string;
+}
+
 const SearchResults: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -59,6 +67,8 @@ const SearchResults: React.FC = () => {
   const [sortBy, setSortBy] = useState('newest');
   const [showFilters, setShowFilters] = useState(true);
   const [savedJobs, setSavedJobs] = useState<Set<string>>(new Set());
+  const [savedSearches, setSavedSearches] = useState<SavedSearchEntry[]>([]);
+  const [recentSearches, setRecentSearches] = useState<SavedSearchEntry[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const jobsPerPage = 12;
 
@@ -92,6 +102,32 @@ const SearchResults: React.FC = () => {
 
   useEffect(() => {
     loadSavedJobs();
+
+    // Load saved searches
+    try {
+      const savedRaw = localStorage.getItem('savedSearches');
+      if (savedRaw) {
+        const parsed = JSON.parse(savedRaw);
+        if (Array.isArray(parsed)) {
+          setSavedSearches(parsed);
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to load saved searches:', e);
+    }
+
+    // Load recent search history
+    try {
+      const historyRaw = localStorage.getItem('searchHistory');
+      if (historyRaw) {
+        const parsed = JSON.parse(historyRaw);
+        if (Array.isArray(parsed)) {
+          setRecentSearches(parsed);
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to load search history:', e);
+    }
   }, []);
 
   const loadSavedJobs = async () => {
@@ -377,6 +413,36 @@ const SearchResults: React.FC = () => {
       }
 
       setJobs(filteredResults);
+
+      // Update recent search history (only when user has entered something)
+      if (filters.keyword || filters.location) {
+        const entry: SavedSearchEntry = {
+          id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+          keyword: filters.keyword || '',
+          location: filters.location || '',
+          jobType: filters.jobType || '',
+          createdAt: new Date().toISOString()
+        };
+
+        setRecentSearches(prev => {
+          const withoutDup = prev.filter(
+            s =>
+              !(
+                s.keyword === entry.keyword &&
+                s.location === entry.location &&
+                (s.jobType || '') === (entry.jobType || '')
+              )
+          );
+          const updated = [entry, ...withoutDup].slice(0, 5);
+          try {
+            localStorage.setItem('searchHistory', JSON.stringify(updated));
+          } catch (e) {
+            console.warn('Failed to save search history:', e);
+          }
+          return updated;
+        });
+      }
+
       // Reset to page 1 when search results change
       setCurrentPage(1);
     } catch (error) {
@@ -438,15 +504,46 @@ const SearchResults: React.FC = () => {
   };
 
   const handleSaveSearch = () => {
-    const searchQuery = {
-      keyword: filters.keyword,
-      location: filters.location,
-      jobType: filters.jobType,
-      filters: JSON.stringify(filters)
+    if (!filters.keyword && !filters.location && !filters.jobType) {
+      alert('Add at least a keyword, location, or job type before saving a search.');
+      return;
+    }
+
+    const entry: SavedSearchEntry = {
+      id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      keyword: filters.keyword || '',
+      location: filters.location || '',
+      jobType: filters.jobType || '',
+      createdAt: new Date().toISOString()
     };
-    
-    localStorage.setItem('savedSearch', JSON.stringify(searchQuery));
+
+    setSavedSearches(prev => {
+      const withoutDup = prev.filter(
+        s =>
+          !(
+            s.keyword === entry.keyword &&
+            s.location === entry.location &&
+            (s.jobType || '') === (entry.jobType || '')
+          )
+      );
+      const updated = [entry, ...withoutDup].slice(0, 10);
+      try {
+        localStorage.setItem('savedSearches', JSON.stringify(updated));
+      } catch (e) {
+        console.warn('Failed to save savedSearches:', e);
+      }
+      return updated;
+    });
+
     alert('Search saved successfully!');
+  };
+
+  const applySavedSearch = (entry: SavedSearchEntry) => {
+    const params = new URLSearchParams();
+    if (entry.keyword) params.set('q', entry.keyword);
+    if (entry.location) params.set('location', entry.location);
+    if (entry.jobType) params.set('type', entry.jobType);
+    setSearchParams(params);
   };
 
   const clearFilters = () => {
@@ -625,6 +722,44 @@ const SearchResults: React.FC = () => {
               <option value="salary-low" className="bg-blue-800 text-white">Lowest Salary</option>
             </select>
           </div>
+
+          {/* Saved & Recent Searches */}
+          {(savedSearches.length > 0 || recentSearches.length > 0) && (
+            <div className="mt-4 space-y-2 text-sm">
+              {savedSearches.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-white/80 font-medium">Saved searches:</span>
+                  {savedSearches.map(entry => (
+                    <button
+                      key={entry.id}
+                      type="button"
+                      onClick={() => applySavedSearch(entry)}
+                      className="px-3 py-1 rounded-full bg-white/15 border border-white/30 text-white text-xs font-medium hover:bg-white/25 hover:border-white/50 transition-colors"
+                    >
+                      {(entry.keyword || 'Any role')}
+                      {entry.location && ` • ${entry.location}`}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {recentSearches.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-white/80 font-medium">Recent:</span>
+                  {recentSearches.map(entry => (
+                    <button
+                      key={entry.id}
+                      type="button"
+                      onClick={() => applySavedSearch(entry)}
+                      className="px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white/90 text-xs hover:bg-white/20 hover:border-white/40 transition-colors"
+                    >
+                      {(entry.keyword || 'Any role')}
+                      {entry.location && ` • ${entry.location}`}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </motion.div>
 
@@ -812,7 +947,7 @@ const SearchResults: React.FC = () => {
                 No Jobs Found
               </h3>
               <p className="text-gray-500 text-base m-0">
-                Try adjusting your search criteria or filters
+                Try adjusting your search criteria or filters. You can also clear all filters or reuse a previous search.
               </p>
               <button 
                 className="py-3 px-6 bg-gradient-to-br from-blue-500 to-blue-700 text-white border-none rounded-lg text-15 font-semibold cursor-pointer transition-all duration-300 mt-4 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/30" 
@@ -820,6 +955,46 @@ const SearchResults: React.FC = () => {
               >
                 Clear All Filters
               </button>
+              {(savedSearches.length > 0 || recentSearches.length > 0) && (
+                <div className="mt-6 space-y-3 max-w-xl mx-auto">
+                  {savedSearches.length > 0 && (
+                    <div>
+                      <p className="text-gray-600 text-sm mb-2">Try one of your saved searches:</p>
+                      <div className="flex flex-wrap gap-2 justify-center">
+                        {savedSearches.map(entry => (
+                          <button
+                            key={entry.id}
+                            type="button"
+                            onClick={() => applySavedSearch(entry)}
+                            className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-medium border border-blue-100 hover:bg-blue-100 transition-colors"
+                          >
+                            {(entry.keyword || 'Any role')}
+                            {entry.location && ` • ${entry.location}`}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {recentSearches.length > 0 && (
+                    <div>
+                      <p className="text-gray-600 text-sm mb-2">Or repeat a recent search:</p>
+                      <div className="flex flex-wrap gap-2 justify-center">
+                        {recentSearches.map(entry => (
+                          <button
+                            key={entry.id}
+                            type="button"
+                            onClick={() => applySavedSearch(entry)}
+                            className="px-3 py-1 rounded-full bg-gray-50 text-gray-700 text-xs font-medium border border-gray-200 hover:bg-gray-100 transition-colors"
+                          >
+                            {(entry.keyword || 'Any role')}
+                            {entry.location && ` • ${entry.location}`}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           ) : (
             <>
@@ -892,6 +1067,10 @@ const SearchResults: React.FC = () => {
                             <DollarSign size={14} />
                             <span>
                               {(() => {
+                                // Prefer displaySalary when available (e.g., government jobs)
+                                const displaySalary = (job as any).displaySalary;
+                                if (displaySalary) return displaySalary;
+
                                 if (!job.salary) return 'Salary not specified';
                                 if (typeof job.salary === 'string') return job.salary;
                                 

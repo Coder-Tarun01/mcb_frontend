@@ -34,9 +34,12 @@ const Apply: React.FC = () => {
   const extractedId = slugOrId ? extractIdFromSlug(slugOrId) : '';
   const navigate = useNavigate();
   const { user } = useAuth();
+  const DRAFT_STORAGE_KEY = `apply_draft_${extractedId || 'new'}`;
   const [job, setJob] = useState<Job | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentStep, setCurrentStep] = useState<number>(1);
+  const TOTAL_STEPS = 4;
   const [formData, setFormData] = useState({
     // Personal Information
     name: user?.name || '',
@@ -79,6 +82,40 @@ const Apply: React.FC = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loadingCVFiles, setLoadingCVFiles] = useState(false);
+
+  // Load draft from localStorage (if any)
+  useEffect(() => {
+    try {
+      const savedDraft = localStorage.getItem(DRAFT_STORAGE_KEY);
+      if (savedDraft) {
+        const parsed = JSON.parse(savedDraft);
+        if (parsed && typeof parsed === 'object') {
+          setFormData(prev => ({
+            ...prev,
+            ...parsed.formData,
+          }));
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to load draft application:', e);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [DRAFT_STORAGE_KEY]);
+
+  // Auto-save draft whenever form data or resume selection changes
+  useEffect(() => {
+    try {
+      const payload = {
+        formData,
+        hasResumeFile: !!resume,
+        selectedResumeFromCVId: selectedResumeFromCV?.id || null,
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(payload));
+    } catch (e) {
+      console.warn('Failed to save draft application:', e);
+    }
+  }, [formData, resume, selectedResumeFromCV, DRAFT_STORAGE_KEY]);
 
   useEffect(() => {
     if (slugOrId && job) {
@@ -197,6 +234,20 @@ const Apply: React.FC = () => {
   };
 
   const handleResumeUpload = (file: File) => {
+    // Basic validation: type and size (max 5MB)
+    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    const maxSizeBytes = 5 * 1024 * 1024;
+
+    if (!allowedTypes.includes(file.type)) {
+      setError('Please upload a PDF or Word document (.pdf, .doc, .docx).');
+      return;
+    }
+
+    if (file.size > maxSizeBytes) {
+      setError('File size should not exceed 5MB.');
+      return;
+    }
+
     setResume(file);
     if (error) setError('');
   };
@@ -228,6 +279,16 @@ const Apply: React.FC = () => {
     setResume(null); // Clear uploaded file
     setShowCVManager(false);
     setError(''); // Clear any previous errors
+  };
+
+  const goToNextStep = () => {
+    setCurrentStep(prev => Math.min(prev + 1, TOTAL_STEPS));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const goToPreviousStep = () => {
+    setCurrentStep(prev => Math.max(prev - 1, 1));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const validateForm = () => {
@@ -268,6 +329,12 @@ const Apply: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Only submit on last step
+    if (currentStep !== TOTAL_STEPS) {
+      goToNextStep();
+      return;
+    }
     
     if (!validateForm()) return;
     
@@ -297,7 +364,8 @@ const Apply: React.FC = () => {
         formDataToSend.append('resumeId', selectedResumeFromCV.id.toString());
       }
 
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:4000'}/api/applications`, {
+      const apiBase = (process.env.REACT_APP_API_URL || 'https://mcb.instatripplan.com').replace(/\/+$/, '');
+      const response = await fetch(`${apiBase}/api/applications`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -315,6 +383,12 @@ const Apply: React.FC = () => {
 
       if (result.success) {
         setSuccess('Application submitted successfully! We will review your application and get back to you soon.');
+        // Clear draft on successful submit
+        try {
+          localStorage.removeItem(DRAFT_STORAGE_KEY);
+        } catch (e) {
+          console.warn('Failed to clear draft after submit:', e);
+        }
         setTimeout(() => {
           navigate('/dashboard');
         }, 3000);
@@ -488,11 +562,27 @@ const Apply: React.FC = () => {
             className="order-1 xl:order-2 xl:col-span-2"
           >
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              {/* Progress Header */}
               <div className="p-4 sm:p-6 border-b border-gray-200">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Application Details</h3>
-                <p className="text-gray-600">
-                Please fill in your information and upload your resume
-              </p>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-1">Application Details</h3>
+                    <p className="text-gray-600 text-sm">
+                      Step {currentStep} of {TOTAL_STEPS} &middot; Your progress is saved automatically
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 w-full sm:w-64">
+                    <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                      <div
+                        className="h-2 bg-blue-600 rounded-full transition-all duration-300"
+                        style={{ width: `${(currentStep / TOTAL_STEPS) * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-xs text-gray-600 font-medium min-w-[40px] text-right">
+                      {Math.round((currentStep / TOTAL_STEPS) * 100)}%
+                    </span>
+                  </div>
+                </div>
             </div>
 
               <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-8">
@@ -518,7 +608,8 @@ const Apply: React.FC = () => {
                 </motion.div>
               )}
 
-              {/* Personal Information */}
+              {/* STEP 1 - Personal Information */}
+              {currentStep === 1 && (
                 <div>
                   <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                     <User size={20} className="text-blue-600" />
@@ -587,9 +678,12 @@ const Apply: React.FC = () => {
                   </div>
                 </div>
               </div>
+              )}
 
-                {/* Professional Details */}
+                {/* STEP 2 - Professional & Education Details */}
+              {currentStep === 2 && (
                 <div>
+                  {/* Professional Details */}
                   <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                     <Briefcase size={20} className="text-blue-600" />
                     Professional Details
@@ -715,10 +809,8 @@ const Apply: React.FC = () => {
                     />
                     <p className="text-sm text-gray-500 mt-1">Separate skills with commas</p>
                   </div>
-                </div>
-
                 {/* Education Details */}
-                <div>
+                <div className="mt-8">
                   <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                     <GraduationCap size={20} className="text-blue-600" />
                     Education Details
@@ -793,8 +885,11 @@ const Apply: React.FC = () => {
                     </div>
                   </div>
                 </div>
+                </div>
+              )}
 
-                {/* Resume Upload */}
+                {/* STEP 3 - Resume Upload */}
+              {currentStep === 3 && (
                 <div>
                   <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                     <File size={20} className="text-blue-600" />
@@ -878,7 +973,11 @@ const Apply: React.FC = () => {
                     </div>
                   )}
                 </div>
+              )}
 
+                {/* STEP 4 - Links, Cover Letter & Declaration */}
+              {currentStep === 4 && (
+                <>
                 {/* Additional Links */}
                 <div>
                   <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
@@ -943,7 +1042,7 @@ const Apply: React.FC = () => {
               </div>
 
               {/* Cover Letter */}
-                <div>
+                <div className="mt-8">
                   <h4 className="text-lg font-semibold text-gray-900 mb-4">Cover Letter (Optional)</h4>
                   <div>
                     <label htmlFor="coverLetter" className="block text-sm font-medium text-gray-700 mb-2">
@@ -962,7 +1061,7 @@ const Apply: React.FC = () => {
               </div>
 
                 {/* Declaration */}
-                <div>
+                <div className="mt-8">
                   <div className="flex items-start gap-3">
                     <input
                       type="checkbox"
@@ -979,14 +1078,36 @@ const Apply: React.FC = () => {
                   </div>
                 </div>
 
-              {/* Submit Button */}
-                <div className="pt-6 border-t border-gray-200">
+                {/* Navigation / Submit */}
+                <div className="pt-6 border-t border-gray-200 flex flex-col sm:flex-row gap-3 sm:gap-4">
+                  {currentStep > 1 && (
+                    <button
+                      type="button"
+                      onClick={goToPreviousStep}
+                      className="w-full sm:w-auto px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition-colors flex items-center justify-center gap-2"
+                    >
+                      <ArrowLeft size={18} />
+                      Previous
+                    </button>
+                  )}
+
+                  {currentStep < TOTAL_STEPS && (
+                    <button
+                      type="button"
+                      onClick={goToNextStep}
+                      className="w-full sm:flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+                    >
+                      Next
+                    </button>
+                  )}
+
+                  {currentStep === TOTAL_STEPS && (
                 <motion.button
                   type="submit"
                   disabled={isSubmitting}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-4 px-6 rounded-lg transition-colors flex items-center justify-center gap-3"
+                      className="w-full sm:flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-4 px-6 rounded-lg transition-colors flex items-center justify-center gap-3"
                 >
                   {isSubmitting ? (
                     <>
@@ -1000,7 +1121,10 @@ const Apply: React.FC = () => {
                     </>
                   )}
                 </motion.button>
+                  )}
               </div>
+                </>
+              )}
             </form>
             </div>
           </motion.div>

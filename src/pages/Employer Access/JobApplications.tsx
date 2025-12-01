@@ -56,7 +56,8 @@ const JobApplications: React.FC = () => {
   const resolveResumeUrl = (url?: string | null) => {
     if (!url) return null;
     if (/^https?:\/\//i.test(url)) return url;
-    return `${process.env.REACT_APP_API_URL || 'http://localhost:4000'}${url}`;
+    const backendBase = (process.env.REACT_APP_API_URL || 'https://mcb.instatripplan.com').replace(/\/+$/, '');
+    return `${backendBase}${url.startsWith('/') ? '' : '/'}${url}`;
   };
 
   const handleResumeAction = async (

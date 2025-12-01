@@ -451,12 +451,12 @@ const EmployerDashboard: React.FC = () => {
                 <div className="flex gap-3 flex-wrap">
                   {application.user?.resumeUrl && (
                     <>
-                      <button className="flex items-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium w-auto h-auto bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-all duration-300" onClick={() => window.open(`${process.env.REACT_APP_API_URL || 'http://localhost:4000'}${application.user.resumeUrl}`, '_blank')}>
+                      <button className="flex items-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium w-auto h-auto bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-all duration-300" onClick={() => window.open(`${BACKEND_BASE_URL}${application.user.resumeUrl.startsWith('/') ? '' : '/'}${application.user.resumeUrl}`, '_blank')}>
                         <FileText className="w-4 h-4" />
                         <span>View Resume</span>
                       </button>
                        <a 
-                         href={`${process.env.REACT_APP_API_URL || 'http://localhost:4000'}${application.user.resumeUrl}`}
+                         href={`${BACKEND_BASE_URL}${application.user.resumeUrl.startsWith('/') ? '' : '/'}${application.user.resumeUrl}`}
                          download={`resume-${application.user.name}.pdf`}
                          target="_self"
                          className="flex items-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium w-auto h-auto bg-green-50 text-green-600 border border-green-200 hover:bg-green-100 transition-all duration-300 no-underline"

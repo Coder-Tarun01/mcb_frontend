@@ -193,7 +193,8 @@ const ProfilePhotoUpload: React.FC<ProfilePhotoUploadProps> = ({
           ) : currentAvatarUrl ? (
             (() => {
               const isAbsolute = /^https?:\/\//i.test(currentAvatarUrl);
-              const src = isAbsolute ? currentAvatarUrl : `${process.env.REACT_APP_API_URL || 'http://localhost:4000'}${currentAvatarUrl.startsWith('/') ? '' : '/'}${currentAvatarUrl}`;
+              const backendBase = (process.env.REACT_APP_API_URL || 'https://mcb.instatripplan.com').replace(/\/+$/, '');
+              const src = isAbsolute ? currentAvatarUrl : `${backendBase}${currentAvatarUrl.startsWith('/') ? '' : '/'}${currentAvatarUrl}`;
               return (
                 <img
                   src={src}

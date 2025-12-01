@@ -841,10 +841,13 @@ const Home: React.FC = () => {
             transition={{ duration: 0.6, delay: 0.8 }}
             className="text-center flex justify-center items-center w-full"
           >
-            <a href="/jobs?category=government" className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-500 to-blue-700 text-white border-none px-8 py-4 rounded-xl text-base font-bold text-decoration-none transition-all duration-300 relative overflow-hidden tracking-[0.025em] uppercase w-auto mx-auto hover:bg-gradient-to-r hover:from-blue-700 hover:to-blue-800 hover:-translate-y-1 hover:scale-[1.02] hover:text-white active:-translate-y-0.5 active:scale-[1.01] focus:outline-2 focus:outline-blue-500/50 focus:outline-offset-2 group">
+            <button 
+              onClick={() => navigate('/govt-jobs')}
+              className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-500 to-blue-700 text-white border-none px-8 py-4 rounded-xl text-base font-bold text-decoration-none transition-all duration-300 relative overflow-hidden tracking-[0.025em] uppercase w-auto mx-auto hover:bg-gradient-to-r hover:from-blue-700 hover:to-blue-800 hover:-translate-y-1 hover:scale-[1.02] hover:text-white active:-translate-y-0.5 active:scale-[1.01] focus:outline-2 focus:outline-blue-500/50 focus:outline-offset-2 group cursor-pointer"
+            >
               <span className="text-white whitespace-nowrap">View All Government Jobs</span>
               <ArrowRight className="w-[18px] h-[18px] text-white transition-transform duration-300 group-hover:translate-x-1" />
-            </a>
+            </button>
           </motion.div>
         </div>
       </section>

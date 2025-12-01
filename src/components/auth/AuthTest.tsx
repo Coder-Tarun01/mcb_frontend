@@ -148,7 +148,7 @@ const AuthTest: React.FC = () => {
           <li><strong>POST /api/auth/register</strong> - User registration</li>
           <li><strong>GET /api/auth/me</strong> - Get current user</li>
         </ul>
-        <p><strong>Backend URL:</strong> {process.env.REACT_APP_API_URL || 'http://localhost:4000/api'}</p>
+        <p><strong>Backend URL:</strong> {process.env.REACT_APP_API_URL || 'https://mcb.instatripplan.com/api'}</p>
       </div>
     </div>
   );
