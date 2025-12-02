@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Briefcase, Calendar, MapPin, DollarSign, Eye, FileText, CheckCircle, Clock, XCircle, Grid3X3, List, Search, RefreshCw, AlertCircle } from 'lucide-react';
 import { applicationsAPI } from '../../services/api';
+import { logger } from '../../utils/logger';
 
 interface AppliedJob {
   id: string;
@@ -80,7 +81,7 @@ const AppliedJobs: React.FC = () => {
     setError(null);
     try {
       const applications = await applicationsAPI.getUserApplications();
-      console.log('Applications response:', applications);
+      logger.debug('Applications response', applications);
 
       // Transform applications data to match AppliedJob interface
       const transformedJobs = applications.map((application: any) => ({
@@ -106,7 +107,7 @@ const AppliedJobs: React.FC = () => {
 
       setAppliedJobs(transformedJobs);
     } catch (err: any) {
-      console.error('Error loading applied jobs:', err);
+      logger.error('Error loading applied jobs', err);
       setError(err.message || 'Failed to load applied jobs. Please check if the backend is running.');
       setAppliedJobs([]);
     } finally {
@@ -148,9 +149,9 @@ const AppliedJobs: React.FC = () => {
         await applicationsAPI.withdrawApplication(id);
         // Remove the job from the local state
         setAppliedJobs(prev => prev.filter(job => job.id !== id));
-        console.log('Application withdrawn successfully');
+        logger.info('Application withdrawn successfully');
       } catch (err: any) {
-        console.error('Error withdrawing application:', err);
+        logger.error('Error withdrawing application', err);
         setError(err.message || 'Failed to withdraw application');
       } finally {
         setWithdrawLoading(null);
@@ -306,180 +307,265 @@ const AppliedJobs: React.FC = () => {
           <p className="text-gray-500">Loading your applications...</p>
         </div>
       ) : (
-        /* Modern Content */
-        viewMode === 'list' ? (
-        <div className="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Title</th>
-                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
-                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Salary</th>
-                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applied Date</th>
-                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredJobs.length > 0 ? (
-                    filteredJobs.map((job) => (
-                      <tr key={job.id} className="hover:bg-gray-50">
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">{job.title}</div>
-                          <div className="text-sm text-gray-500">{job.jobType} • {job.experience}</div>
-                        </td>
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">@{job.company}</div>
-                        </td>
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center text-sm text-gray-900">
-                            <MapPin className="w-4 h-4 text-gray-400 mr-1" />
-                            {job.location}
-                          </div>
-                        </td>
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center text-sm text-gray-900">
-                            <DollarSign className="w-4 h-4 text-gray-400 mr-1" />
-                            {job.salary}
-                          </div>
-                        </td>
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {formatDate(job.appliedDate)}
-                        </td>
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            job.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                            job.status === 'reviewed' ? 'bg-blue-100 text-blue-800' :
-                            job.status === 'accepted' ? 'bg-green-100 text-green-800' :
-                            'bg-red-100 text-red-800'
-                          }`}>
-                            {getStatusIcon(job.status)}
-                            <span className="ml-1">{job.status.charAt(0).toUpperCase() + job.status.slice(1)}</span>
-                          </span>
-                        </td>
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <div className="flex space-x-2">
-                            <button 
-                              className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50" 
-                              onClick={() => handleJobAction(job.id, 'view')}
-                              title="View Details"
-                            >
-                              <Eye className="w-4 h-4" />
-                            </button>
-                            <button 
-                              className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 disabled:opacity-50" 
-                              onClick={() => handleJobAction(job.id, 'withdraw')}
-                              disabled={withdrawLoading === job.id}
-                              title="Withdraw Application"
-                            >
-                              {withdrawLoading === job.id ? (
-                                <RefreshCw className="w-4 h-4 animate-spin" />
-                              ) : (
-                                <XCircle className="w-4 h-4" />
-                              )}
-                            </button>
-                          </div>
-                        </td>
+        <>
+          {/* Desktop / tablet: respect list vs grid toggle */}
+          <div className="hidden md:block">
+            {viewMode === 'list' ? (
+              <div className="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Title</th>
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Salary</th>
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applied Date</th>
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                       </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={7} className="px-4 sm:px-6 py-12 text-center">
-                        <div className="flex flex-col items-center">
-                          <div className="text-4l mb-4">📋</div>
-                          <h3 className="text-lg font-medium text-gray-900 mb-2">No applied jobs found</h3>
-                          <p className="text-gray-500 mb-4">Start applying to jobs to see them here.</p>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {filteredJobs.length > 0 ? (
+                        filteredJobs.map((job) => (
+                          <tr key={job.id} className="hover:bg-gray-50">
+                            <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm font-medium text-gray-900">{job.title}</div>
+                              <div className="text-sm text-gray-500">{job.jobType} • {job.experience}</div>
+                            </td>
+                            <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-900">@{job.company}</div>
+                            </td>
+                            <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center text-sm text-gray-900">
+                                <MapPin className="w-4 h-4 text-gray-400 mr-1" />
+                                {job.location}
+                              </div>
+                            </td>
+                            <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center text-sm text-gray-900">
+                                <DollarSign className="w-4 h-4 text-gray-400 mr-1" />
+                                {job.salary}
+                              </div>
+                            </td>
+                            <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {formatDate(job.appliedDate)}
+                            </td>
+                            <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                job.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                job.status === 'reviewed' ? 'bg-blue-100 text-blue-800' :
+                                job.status === 'accepted' ? 'bg-green-100 text-green-800' :
+                                'bg-red-100 text-red-800'
+                              }`}>
+                                {getStatusIcon(job.status)}
+                                <span className="ml-1">{job.status.charAt(0).toUpperCase() + job.status.slice(1)}</span>
+                              </span>
+                            </td>
+                            <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
+                              <div className="flex space-x-2">
+                                <button 
+                                  className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50" 
+                                  onClick={() => handleJobAction(job.id, 'view')}
+                                  title="View Details"
+                                >
+                                  <Eye className="w-4 h-4" />
+                                </button>
+                                <button 
+                                  className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 disabled:opacity-50" 
+                                  onClick={() => handleJobAction(job.id, 'withdraw')}
+                                  disabled={withdrawLoading === job.id}
+                                  title="Withdraw Application"
+                                >
+                                  {withdrawLoading === job.id ? (
+                                    <RefreshCw className="w-4 h-4 animate-spin" />
+                                  ) : (
+                                    <XCircle className="w-4 h-4" />
+                                  )}
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={7} className="px-4 sm:px-6 py-12 text-center">
+                            <div className="flex flex-col items-center">
+                              <div className="text-4l mb-4">📋</div>
+                              <h3 className="text-lg font-medium text-gray-900 mb-2">No applied jobs found</h3>
+                              <p className="text-gray-500 mb-4">Start applying to jobs to see them here.</p>
+                              <button 
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                                onClick={() => navigate('/jobs')}
+                              >
+                                Browse Jobs
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredJobs.length > 0 ? (
+                  filteredJobs.map((job) => (
+                    <div key={job.id} className="bg-white rounded-2xl p-6 shadow-md border border-gray-200 hover:shadow-lg transition-shadow duration-200">
+                      <div className="mb-4">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-1">{job.title}</h3>
+                        <p className="text-sm text-gray-500">{job.jobType} • {job.experience}</p>
+                      </div>
+                      <div className="space-y-3 mb-6">
+                        <div className="flex items-center text-sm text-gray-600">
+                          <span className="font-medium">@{job.company}</span>
+                        </div>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <MapPin className="w-4 h-4 text-gray-400 mr-2" />
+                          {job.location}
+                        </div>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <DollarSign className="w-4 h-4 text-gray-400 mr-2" />
+                          {job.salary}
+                        </div>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <Calendar className="w-4 h-4 text-gray-400 mr-2" />
+                          Applied: {formatDate(job.appliedDate)}
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          job.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                          job.status === 'reviewed' ? 'bg-blue-100 text-blue-800' :
+                          job.status === 'accepted' ? 'bg-green-100 text-green-800' :
+                          'bg-red-100 text-red-800'
+                        }`}>
+                          {getStatusIcon(job.status)}
+                          <span className="ml-1">{job.status.charAt(0).toUpperCase() + job.status.slice(1)}</span>
+                        </span>
+                        <div className="flex space-x-2">
                           <button 
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
-                            onClick={() => navigate('/jobs')}
+                            className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
+                            onClick={() => handleJobAction(job.id, 'view')}
+                            title="View Details"
                           >
-                            Browse Jobs
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button 
+                            className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 disabled:opacity-50"
+                            onClick={() => handleJobAction(job.id, 'withdraw')}
+                            disabled={withdrawLoading === job.id}
+                            title="Withdraw Application"
+                          >
+                            {withdrawLoading === job.id ? (
+                              <RefreshCw className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <XCircle className="w-4 h-4" />
+                            )}
                           </button>
                         </div>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredJobs.length > 0 ? (
-              filteredJobs.map((job) => (
-                <div key={job.id} className="bg-white rounded-2xl p-6 shadow-md border border-gray-200 hover:shadow-lg transition-shadow duration-200">
-                  <div className="mb-4">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-1">{job.title}</h3>
-                    <p className="text-sm text-gray-500">{job.jobType} • {job.experience}</p>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="col-span-full flex flex-col items-center justify-center py-20">
+                    <div className="text-4xl mb-4">📋</div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No applied jobs found</h3>
+                    <p className="text-gray-500 mb-4">Start applying to jobs to see them here.</p>
+                    <button 
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                      onClick={() => navigate('/jobs')}
+                    >
+                      Browse Jobs
+                    </button>
                   </div>
-                  <div className="space-y-3 mb-6">
-                    <div className="flex items-center text-sm text-gray-600">
-                      <span className="font-medium">@{job.company}</span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <MapPin className="w-4 h-4 text-gray-400 mr-2" />
-                      {job.location}
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <DollarSign className="w-4 h-4 text-gray-400 mr-2" />
-                      {job.salary}
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Calendar className="w-4 h-4 text-gray-400 mr-2" />
-                      Applied: {formatDate(job.appliedDate)}
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      job.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                      job.status === 'reviewed' ? 'bg-blue-100 text-blue-800' :
-                      job.status === 'accepted' ? 'bg-green-100 text-green-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {getStatusIcon(job.status)}
-                      <span className="ml-1">{job.status.charAt(0).toUpperCase() + job.status.slice(1)}</span>
-                    </span>
-                    <div className="flex space-x-2">
-                      <button 
-                        className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
-                        onClick={() => handleJobAction(job.id, 'view')}
-                        title="View Details"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      <button 
-                        className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 disabled:opacity-50"
-                        onClick={() => handleJobAction(job.id, 'withdraw')}
-                        disabled={withdrawLoading === job.id}
-                        title="Withdraw Application"
-                      >
-                        {withdrawLoading === job.id ? (
-                          <RefreshCw className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <XCircle className="w-4 h-4" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="col-span-full flex flex-col items-center justify-center py-20">
-                <div className="text-4xl mb-4">📋</div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No applied jobs found</h3>
-                <p className="text-gray-500 mb-4">Start applying to jobs to see them here.</p>
-                <button 
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
-                  onClick={() => navigate('/jobs')}
-                >
-                  Browse Jobs
-                </button>
+                )}
               </div>
             )}
           </div>
-        )
+
+          {/* Mobile: always show card layout */}
+          <div className="block md:hidden mt-4">
+            <div className="grid grid-cols-1 gap-4">
+              {filteredJobs.length > 0 ? (
+                filteredJobs.map((job) => (
+                  <div
+                    key={job.id}
+                    className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200"
+                  >
+                    <div className="mb-3">
+                      <h3 className="text-base font-semibold text-gray-800 mb-1">{job.title}</h3>
+                      <p className="text-xs text-gray-500">{job.jobType} • {job.experience}</p>
+                    </div>
+                    <div className="space-y-2 mb-4 text-sm text-gray-700">
+                      <div className="flex items-center">
+                        <span className="font-medium">@{job.company}</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
+                        <span>{job.location}</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <DollarSign className="w-4 h-4 text-gray-400 mt-0.5" />
+                        <span>{job.salary}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                        <span>Applied: {formatDate(job.appliedDate)}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium ${
+                        job.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                        job.status === 'reviewed' ? 'bg-blue-100 text-blue-800' :
+                        job.status === 'accepted' ? 'bg-green-100 text-green-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {getStatusIcon(job.status)}
+                        <span className="ml-1">{job.status.charAt(0).toUpperCase() + job.status.slice(1)}</span>
+                      </span>
+                      <div className="flex gap-2">
+                        <button 
+                          className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg active:bg-blue-100"
+                          onClick={() => handleJobAction(job.id, 'view')}
+                          title="View Details"
+                        >
+                          <Eye className="w-3.5 h-3.5 mr-1" />
+                          View
+                        </button>
+                        <button 
+                          className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg active:bg-red-100 disabled:opacity-60"
+                          onClick={() => handleJobAction(job.id, 'withdraw')}
+                          disabled={withdrawLoading === job.id}
+                          title="Withdraw Application"
+                        >
+                          {withdrawLoading === job.id ? (
+                            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <XCircle className="w-3.5 h-3.5" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+                  <div className="text-4xl mb-4">📋</div>
+                  <h3 className="text-base font-medium text-gray-900 mb-2">No applied jobs found</h3>
+                  <p className="text-sm text-gray-500 mb-4">Start applying to jobs to see them here.</p>
+                  <button 
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                    onClick={() => navigate('/jobs')}
+                  >
+                    Browse Jobs
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </>
       )}
       </div>
 

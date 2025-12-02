@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
+import { logger } from '../utils/logger';
 import { 
   Mail, 
   MapPin, 
@@ -78,7 +79,7 @@ const Contact: React.FC = () => {
         throw new Error(data.message || 'Failed to send message');
       }
     } catch (error) {
-      console.error('Error sending contact form:', error);
+      logger.error('Error sending contact form', error);
       toast.error(
         error instanceof Error 
           ? error.message 

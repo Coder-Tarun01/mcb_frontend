@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, UserRole, AuthContextType } from '../types/user';
 import { authAPI, usersAPI } from '../services/api';
+import { logger } from '../utils/logger';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -27,7 +28,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           // Auto-fix: If user is employer and missing companyName, try to set it
           if (currentUser.role === 'employer' && !currentUser.companyName) {
             try {
-              console.log('Auto-fixing missing company name for employer:', currentUser.email);
+              logger.debug('Auto-fixing missing company name for employer', currentUser.email);
               
               // Determine company name based on email domain
               let companyName = 'My Company';
@@ -41,22 +42,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               const updatedUser = await usersAPI.updateProfile({ companyName });
               currentUser.companyName = updatedUser.companyName;
               localStorage.setItem('user', JSON.stringify(currentUser));
-              console.log('Company name auto-fixed:', currentUser.companyName);
+              logger.info('Company name auto-fixed', currentUser.companyName);
             } catch (error) {
-              console.error('Failed to auto-fix company name:', error);
+              logger.error('Failed to auto-fix company name', error);
             }
           }
           
           setUser(currentUser);
         } catch (error: any) {
-          console.log('Token validation failed:', error);
+          logger.debug('Token validation failed', error);
           // Token is invalid, clear storage
           authAPI.logout();
           setUser(null);
           
           // If it's a 401 error, show a message to the user
           if (error.status === 401) {
-            console.log('Session expired, user needs to login again');
+            logger.info('Session expired, user needs to login again');
             setSessionExpired(true);
           }
         }
@@ -77,7 +78,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Auto-fix: If backend didn't return companyName for employer, try to set it
         if (userToStore.role === 'employer' && !userToStore.companyName) {
           try {
-            console.log('Auto-fixing missing company name during login for:', userToStore.email);
+            logger.debug('Auto-fixing missing company name during login', userToStore.email);
             
             // Determine company name based on email domain
             let companyName = 'My Company';
@@ -90,9 +91,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             
             const updatedUser = await usersAPI.updateProfile({ companyName });
             userToStore.companyName = updatedUser.companyName;
-            console.log('Company name auto-fixed during login:', userToStore.companyName);
+            logger.info('Company name auto-fixed during login', userToStore.companyName);
           } catch (error) {
-            console.error('Failed to auto-fix company name during login:', error);
+            logger.error('Failed to auto-fix company name during login', error);
           }
         }
         
@@ -101,7 +102,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const storedCompanyName = localStorage.getItem('employerCompanyName');
           if (storedCompanyName) {
             userToStore.companyName = storedCompanyName;
-            console.log('Frontend: Added companyName from localStorage to user object during login:', userToStore.companyName);
+            logger.debug('Added companyName from localStorage to user object during login', userToStore.companyName);
           }
         }
         
@@ -113,7 +114,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       return false;
     } catch (error: any) {
-      console.error('Login error:', error);
+      logger.error('Login error', error);
       
       // Handle specific error cases
       if (error.status === 401) {
@@ -142,7 +143,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Auto-fix: If backend didn't return companyName for employer, try to set it
         if (userToStore.role === 'employer' && !userToStore.companyName) {
           try {
-            console.log('Auto-fixing missing company name during OTP login for:', userToStore.email);
+            logger.debug('Auto-fixing missing company name during OTP login', userToStore.email);
             
             // Determine company name based on email domain
             let companyName = 'My Company';
@@ -155,9 +156,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             
             const updatedUser = await usersAPI.updateProfile({ companyName });
             userToStore.companyName = updatedUser.companyName;
-            console.log('Company name auto-fixed during OTP login:', userToStore.companyName);
+            logger.info('Company name auto-fixed during OTP login', userToStore.companyName);
           } catch (error) {
-            console.error('Failed to auto-fix company name during OTP login:', error);
+            logger.error('Failed to auto-fix company name during OTP login', error);
           }
         }
         
@@ -166,7 +167,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const storedCompanyName = localStorage.getItem('employerCompanyName');
           if (storedCompanyName) {
             userToStore.companyName = storedCompanyName;
-            console.log('Frontend: Added companyName from localStorage to user object during OTP login:', userToStore.companyName);
+            logger.debug('Added companyName from localStorage to user object during OTP login', userToStore.companyName);
           }
         }
         
@@ -178,7 +179,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       return false;
     } catch (error: any) {
-      console.error('OTP login error:', error);
+      logger.error('OTP login error', error);
       
       // Handle specific error cases
       if (error.status === 400) {
@@ -205,11 +206,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         skills: additionalData.skills || undefined,
       };
       
-      console.log('Registration data being sent:', registrationData);
+      logger.debug('Registration data being sent', registrationData);
       
       const response = await authAPI.register(registrationData);
       
-      console.log('Registration response received:', response);
+      logger.debug('Registration response received', response);
 
       if (response.token && response.user) {
         let userToStore = { ...response.user };
@@ -217,17 +218,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Frontend fix: If backend didn't return companyName for employer, add it manually
         if (role === 'employer' && additionalData.companyName && !userToStore.companyName) {
           userToStore.companyName = additionalData.companyName;
-          console.log('Frontend: Added companyName to user object:', userToStore.companyName);
+          logger.debug('Added companyName to user object', userToStore.companyName);
         }
         
         // Store company name separately for robustness
         if (role === 'employer' && additionalData.companyName) {
           localStorage.setItem('employerCompanyName', additionalData.companyName);
-          console.log('Frontend: Stored companyName in localStorage:', additionalData.companyName);
+          logger.debug('Stored companyName in localStorage', additionalData.companyName);
         }
         
-        console.log('User data from registration:', userToStore);
-        console.log('Company name in user data:', userToStore.companyName);
+        logger.debug('User data from registration', userToStore);
+        logger.debug('Company name in user data', userToStore.companyName);
         
         // Store token and user data
         localStorage.setItem('token', response.token);
@@ -237,7 +238,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
       return false;
     } catch (error: any) {
-      console.error('Signup error:', error);
+      logger.error('Signup error', error);
       
       // Handle specific error cases
       if (error.status === 409) {
@@ -259,7 +260,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const handleSessionExpired = () => {
-    console.log('Handling session expiration');
+    logger.info('Handling session expiration');
     authAPI.logout();
     setUser(null);
     setSessionExpired(true);

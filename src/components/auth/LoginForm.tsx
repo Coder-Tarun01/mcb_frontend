@@ -8,6 +8,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { LoginFormValues, loginSchema } from '../../utils/validation';
 import { authAPI } from '../../services/api';
 import toast from 'react-hot-toast';
+import { logger } from '../../utils/logger';
 
 const LoginForm: React.FC = () => {
   const { login, loginWithOTP } = useAuth();
@@ -77,15 +78,15 @@ const LoginForm: React.FC = () => {
       return;
     }
 
-    console.log('OTP login triggered:', { emailValue, otpSent });
+    logger.debug('OTP login triggered', { emailValue, otpSent });
     setIsLoading(true);
     
     try {
       if (!otpSent) {
         // Send OTP
-        console.log('Sending OTP to:', emailValue);
+        logger.debug('Sending OTP to', emailValue);
         const response = await authAPI.sendOTP(emailValue.trim().toLowerCase());
-        console.log('OTP response:', response);
+        logger.debug('OTP response', response);
         if (response.success) {
           setEmailSuccess(true);
           setOtpSent(true);
@@ -98,7 +99,7 @@ const LoginForm: React.FC = () => {
           return;
         }
         
-        console.log('Verifying OTP:', { emailValue, otpCode });
+        logger.debug('Verifying OTP', { emailValue, otpCode });
         const success = await loginWithOTP(emailValue.trim().toLowerCase(), otpCode);
         if (success) {
           toast.success('Login successful');
@@ -109,7 +110,7 @@ const LoginForm: React.FC = () => {
                   }
       }
     } catch (error: any) {
-      console.error('OTP error:', error);
+      logger.error('OTP error', error);
       
       // Handle specific error cases with user-friendly messages
       if (error.status === 404 || error.message?.includes('not found') || error.message?.includes('No account found')) {
@@ -134,7 +135,7 @@ const LoginForm: React.FC = () => {
   };
 
   const onSubmit = async (values: LoginFormValues) => {
-    console.log('Form submitted:', { loginMethod, otpSent, values });
+    logger.debug('Form submitted', { loginMethod, otpSent, values });
     setIsLoading(true);
     try {
       if (loginMethod === 'email') {
@@ -153,16 +154,16 @@ const LoginForm: React.FC = () => {
         // OTP login
         if (!otpSent) {
           // Send OTP
-          console.log('Sending OTP to:', values.email);
+          logger.debug('Sending OTP to', values.email);
           try {
             const response = await authAPI.sendOTP(values.email.trim().toLowerCase());
-            console.log('OTP response:', response);
+            logger.debug('OTP response', response);
             if (response.success) {
               toast.success('OTP sent successfully to your email');
               setOtpSent(true);
             }
           } catch (error: any) {
-            console.error('OTP send error:', error);
+            logger.error('OTP send error', error);
             toast.error(error.message || 'Failed to send OTP. Please try again.');
           }
         } else {

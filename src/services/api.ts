@@ -1,6 +1,8 @@
 import { Job, JobFilter } from '../types/job';
 import { User } from '../types/user';
 import { SuggestionResponseDto } from '../types/search';
+import { logger } from '../utils/logger';
+import { normalizeError } from '../utils/errorHandler';
 
 // Default backend URL for production/staging when env var is not set
 // Uses the publicly accessible API base
@@ -226,46 +228,29 @@ const makeRequest = async (url: string, options: RequestInit = {}): Promise<Resp
         };
       }
 
-      const apiError: APIError = {
-        message: errorData.message || `HTTP error! status: ${response.status}`,
+      // Use normalized error handling
+      const normalizedError = normalizeError({
+        message: errorData.message,
         status: response.status,
         code: errorData.code,
         details: errorData.details
+      });
+
+      const apiError: APIError = {
+        message: normalizedError.userMessage,
+        status: normalizedError.status,
+        code: normalizedError.code,
+        details: errorData.details
       };
 
-      // Handle specific HTTP status codes
-      switch (response.status) {
-        case 401:
-          // Token expired or invalid - clear local storage
-          const errorCode = errorData.code;
-          if (errorCode === 'TOKEN_EXPIRED') {
-            apiError.message = 'Session expired. Please login again.';
-            window.dispatchEvent(new CustomEvent('sessionExpired'));
-          } else if (errorCode === 'NO_TOKEN') {
-            apiError.message = 'Authentication required. Please login.';
-          } else if (errorCode === 'TOKEN_INVALID') {
-            apiError.message = 'Invalid authentication. Please login again.';
-          } else {
-            apiError.message = 'Authentication failed. Please login again.';
-          }
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          break;
-        case 403:
-          apiError.message = 'Access denied. You do not have permission to perform this action.';
-          break;
-        case 404:
-          apiError.message = 'Resource not found.';
-          break;
-        case 422:
-          apiError.message = 'Validation failed. Please check your input.';
-          break;
-        case 429:
-          apiError.message = 'Too many requests. Please try again later.';
-          break;
-        case 500:
-          apiError.message = 'Server error. Please try again later.';
-          break;
+      // Handle 401 errors with session expiration
+      if (response.status === 401) {
+        const errorCode = errorData.code;
+        if (errorCode === 'TOKEN_EXPIRED') {
+          window.dispatchEvent(new CustomEvent('sessionExpired'));
+        }
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
       }
 
       throw apiError;
@@ -273,11 +258,13 @@ const makeRequest = async (url: string, options: RequestInit = {}): Promise<Resp
 
     return response;
   } catch (error) {
+    // Use normalized error handling for network errors
     if (error instanceof TypeError && error.message.includes('fetch')) {
+      const normalizedError = normalizeError(error);
       const networkError: APIError = {
-        message: 'Unable to connect to the server. Please make sure the backend is running.',
-        status: 0,
-        code: 'NETWORK_ERROR'
+        message: normalizedError.userMessage,
+        status: normalizedError.status || 0,
+        code: normalizedError.code || 'NETWORK_ERROR'
       };
       throw networkError;
     }
@@ -341,7 +328,7 @@ export const authAPI = {
         throw new Error('Invalid response format from server');
       }
     } catch (error) {
-      console.error('Registration error:', error);
+      logger.apiError('/auth/register', error);
       throw error;
     }
   },
@@ -364,7 +351,7 @@ export const authAPI = {
         throw new Error('Invalid response format from server');
       }
     } catch (error) {
-      console.error('Login error:', error);
+      logger.apiError('/auth/login', error);
       throw error;
     }
   },
@@ -386,7 +373,7 @@ export const authAPI = {
         throw new Error('Invalid user data format');
       }
     } catch (error) {
-      console.error('Get current user error:', error);
+      logger.apiError('/auth/me', error);
       throw error;
     }
   },
@@ -409,7 +396,7 @@ export const authAPI = {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error('Change password error:', error);
+      logger.apiError('/auth/change-password', error);
       throw error;
     }
   },
@@ -430,7 +417,7 @@ export const authAPI = {
 
       return data;
     } catch (error) {
-      console.error('Send OTP error:', error);
+      logger.apiError('/auth/send-otp', error);
       throw error;
     }
   },
@@ -450,7 +437,7 @@ export const authAPI = {
 
       return data;
     } catch (error) {
-      console.error('Verify OTP error:', error);
+      logger.apiError('/auth/verify-otp', error);
       throw error;
     }
   },
@@ -471,7 +458,7 @@ export const authAPI = {
       
       return await response.json();
     } catch (error) {
-      console.error('Resume upload error:', error);
+      logger.apiError('/upload/resume', error);
       throw error;
     }
   },
@@ -491,7 +478,7 @@ export const authAPI = {
       
       return await response.json();
     } catch (error) {
-      console.error('Avatar upload error:', error);
+      logger.apiError('/upload/avatar', error);
       throw error;
     }
   },
@@ -529,7 +516,7 @@ export const authAPI = {
         throw new Error(uploadResult.message || 'Failed to upload company logo');
       }
     } catch (error) {
-      console.error('Company logo upload error:', error);
+      logger.apiError('/upload/company-logo (profile)', error);
       throw error;
     }
   },
@@ -552,7 +539,7 @@ export const authAPI = {
         throw new Error('Invalid refresh token response');
       }
     } catch (error) {
-      console.error('Token refresh error:', error);
+      logger.apiError('/auth/refresh', error);
       // If refresh fails, logout user
       authAPI.logout();
       throw error;
@@ -572,7 +559,7 @@ export const authAPI = {
       const userData = localStorage.getItem('user');
       return userData ? JSON.parse(userData) : null;
     } catch (error) {
-      console.error('Error parsing stored user data:', error);
+      logger.error('Error parsing stored user data', error);
       return null;
     }
   }
@@ -639,7 +626,7 @@ export const employerAPI = {
     try {
       const response = await makeRequest('/jobs/employer/my-jobs');
       const data = await response.json();
-      console.log('Employer jobs response:', data);
+      logger.debug('Employer jobs response', data);
       if (Array.isArray(data)) {
         return filterJobsForEmployer(data, options);
       }
@@ -648,12 +635,12 @@ export const employerAPI = {
       }
       return [];
     } catch (error: any) {
-      console.error('Error fetching employer jobs:', error);
+      logger.apiError('/jobs/employer', error);
 
       // Fallback: if employer endpoint fails (e.g. not implemented yet), attempt to filter regular jobs by company
       if (options?.companyName || options?.companyId || options?.employerId) {
         try {
-          console.warn('Falling back to jobsAPI.fetchJobs using employer filters:', options);
+          logger.warn('Falling back to jobsAPI.fetchJobs using employer filters', options);
           const fallback = await jobsAPI.fetchJobs({
             company: options.companyName || undefined,
             limit: 100,
@@ -667,7 +654,7 @@ export const employerAPI = {
             return filteredFallback;
           }
         } catch (fallbackError) {
-          console.error('Fallback jobs fetch failed:', fallbackError);
+          logger.apiError('/jobs (fallback)', fallbackError);
         }
       }
 
@@ -680,10 +667,10 @@ export const employerAPI = {
     try {
       const response = await makeRequest('/applications/employer/all');
       const data = await response.json();
-      console.log('Employer applications response:', data);
+      logger.debug('Employer applications response', data);
       return Array.isArray(data) ? data : [];
     } catch (error) {
-      console.error('Error fetching employer applications:', error);
+      logger.apiError('/applications/employer', error);
       throw error;
     }
   },
@@ -701,10 +688,10 @@ export const employerAPI = {
     try {
       const response = await makeRequest('/applications/employer/stats');
       const data = await response.json();
-      console.log('Employer stats response:', data);
+      logger.debug('Employer stats response', data);
       return data;
     } catch (error) {
-      console.error('Error fetching employer stats:', error);
+      logger.apiError('/analytics/employer', error);
       throw error;
     }
   },
@@ -752,7 +739,7 @@ export const jobsAPI = {
       // Backend returns { jobs, pagination }
       return data;
     } catch (error) {
-      console.error('Error fetching jobs:', error);
+      logger.apiError('/jobs', error);
       throw error;
     }
   },
@@ -769,7 +756,7 @@ export const jobsAPI = {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error('Error fetching home page jobs:', error);
+      logger.apiError('/jobs (home page)', error);
       throw error;
     }
   },
@@ -780,7 +767,7 @@ export const jobsAPI = {
       const response = await makeRequest(`/jobs/${id}`);
       return response.json();
     } catch (error) {
-      console.error('Error fetching job by ID:', error);
+      logger.apiError('/jobs/:id', error);
       throw error;
     }
   },
@@ -802,10 +789,10 @@ export const jobsAPI = {
       }
       
       const data = await response.json();
-      console.log('Job created successfully:', data);
+      logger.info('Job created successfully', data);
       return data;
     } catch (error) {
-      console.error('Error creating job:', error);
+      logger.apiError('/jobs (create)', error);
       throw error;
     }
   },
@@ -819,7 +806,7 @@ export const jobsAPI = {
       });
       return response.json();
     } catch (error) {
-      console.error('Error updating job:', error);
+      logger.apiError('/jobs/:id (update)', error);
       throw error;
     }
   },
@@ -832,7 +819,7 @@ export const jobsAPI = {
       });
       return response.json();
     } catch (error) {
-      console.error('Error deleting job:', error);
+      logger.apiError('/jobs/:id (delete)', error);
       throw error;
     }
   },
@@ -852,7 +839,7 @@ export const jobsAPI = {
       const response = await makeRequest(`/search/jobs?${queryParams.toString()}`);
       return response.json();
     } catch (error) {
-      console.error('Error searching jobs:', error);
+      logger.apiError('/jobs/search', error);
       throw error;
     }
   },
@@ -863,7 +850,7 @@ export const jobsAPI = {
       const response = await makeRequest(`/companies/${companyId}/jobs`);
       return response.json();
     } catch (error) {
-      console.error('Error fetching company jobs:', error);
+      logger.apiError('/jobs/company/:companyId', error);
       throw error;
     }
   },
@@ -879,7 +866,7 @@ export const jobsAPI = {
       const response = await makeRequest('/jobs/stats');
       return response.json();
     } catch (error) {
-      console.error('Error fetching job stats:', error);
+      logger.apiError('/jobs/:id/stats', error);
       throw error;
     }
   },
@@ -893,7 +880,7 @@ export const jobsAPI = {
       });
       return response.json();
     } catch (error) {
-      console.error('Error bulk deleting jobs:', error);
+      logger.apiError('/jobs/bulk-delete', error);
       throw error;
     }
   },
@@ -907,7 +894,7 @@ export const jobsAPI = {
       });
       return response.json();
     } catch (error) {
-      console.error('Error updating job status:', error);
+      logger.apiError('/jobs/:id/status', error);
       throw error;
     }
   },
@@ -918,7 +905,7 @@ export const jobsAPI = {
       const response = await makeRequest(`/jobs/${jobId}/applications`);
       return response.json();
     } catch (error) {
-      console.error('Error fetching job applications:', error);
+      logger.apiError('/jobs/:id/applications', error);
       throw error;
     }
   },
@@ -931,7 +918,7 @@ export const jobsAPI = {
       });
       return response.json();
     } catch (error) {
-      console.error('Error recording apply click:', error);
+      logger.apiError('/jobs/:id/apply-click', error);
       throw error;
     }
   },
@@ -942,7 +929,7 @@ export const usersAPI = {
   // Update user profile
   updateProfile: async (profileData: any): Promise<any> => {
     try {
-      console.log('🔄 Frontend: Sending profile update request:', profileData);
+      logger.debug('Sending profile update request', profileData);
       
       const response = await makeRequest('/profile', {
         method: 'PUT',
@@ -958,10 +945,10 @@ export const usersAPI = {
       }
       
       const data = await response.json();
-      console.log('✅ Frontend: Profile update response:', data);
+      logger.info('Profile update successful', data);
       return data;
     } catch (error) {
-      console.error('❌ Frontend: Error updating profile:', error);
+      logger.apiError('/profile', error);
       throw error;
     }
   },
@@ -1005,7 +992,7 @@ export const usersAPI = {
         throw new Error('Invalid response format from server');
       }
     } catch (error) {
-      console.error('Error fetching users:', error);
+      logger.apiError('/users', error);
       throw error;
     }
   },
@@ -1025,7 +1012,7 @@ export const usersAPI = {
         throw new Error('Invalid user data format');
       }
     } catch (error) {
-      console.error('Error fetching user by ID:', error);
+      logger.apiError('/users/:id', error);
       throw error;
     }
   },
@@ -1057,7 +1044,7 @@ export const usersAPI = {
         throw new Error('Invalid user creation response');
       }
     } catch (error) {
-      console.error('Error creating user:', error);
+      logger.apiError('/users (create)', error);
       throw error;
     }
   },
@@ -1081,7 +1068,7 @@ export const usersAPI = {
         throw new Error('Invalid user update response');
       }
     } catch (error) {
-      console.error('Error updating user:', error);
+      logger.apiError('/users/:id (update)', error);
       throw error;
     }
   },
@@ -1096,7 +1083,7 @@ export const usersAPI = {
       const data = await response.json();
       return { success: true, message: data.message };
     } catch (error) {
-      console.error('Error deleting user:', error);
+      logger.apiError('/users/:id (delete)', error);
       throw error;
     }
   },
@@ -1120,7 +1107,7 @@ export const usersAPI = {
       
       return Array.isArray(data) ? data : data.users || [];
     } catch (error) {
-      console.error('Error searching users:', error);
+      logger.apiError('/users/search', error);
       throw error;
     }
   },
@@ -1137,7 +1124,7 @@ export const usersAPI = {
       const response = await makeRequest('/users/stats');
       return response.json();
     } catch (error) {
-      console.error('Error fetching user stats:', error);
+      logger.apiError('/users/stats', error);
       throw error;
     }
   },
@@ -1152,7 +1139,7 @@ export const usersAPI = {
       
       return response.json();
     } catch (error) {
-      console.error('Error bulk deleting users:', error);
+      logger.apiError('/users/bulk-delete', error);
       throw error;
     }
   },
@@ -1168,7 +1155,7 @@ export const usersAPI = {
       const data = await response.json();
       return data.user || data;
     } catch (error) {
-      console.error('Error updating user role:', error);
+      logger.apiError('/users/:id/role', error);
       throw error;
     }
   },
@@ -1184,7 +1171,7 @@ export const usersAPI = {
       const data = await response.json();
       return data.user || data;
     } catch (error) {
-      console.error('Error toggling user status:', error);
+      logger.apiError('/users/:id/status', error);
       throw error;
     }
   }
@@ -1261,7 +1248,7 @@ export const applicationsAPI = {
       });
       return response.json();
     } catch (error) {
-      console.error('Error updating application status:', error);
+      logger.apiError('/applications/:id/status', error);
       throw error;
     }
   },
@@ -1275,7 +1262,7 @@ export const applicationsAPI = {
       });
       return response.json();
     } catch (error) {
-      console.error('Error bulk updating application statuses:', error);
+      logger.apiError('/applications/bulk-update', error);
       throw error;
     }
   },
@@ -1293,7 +1280,7 @@ export const applicationsAPI = {
       const response = await makeRequest('/applications/stats');
       return response.json();
     } catch (error) {
-      console.error('Error fetching application stats:', error);
+      logger.apiError('/applications/stats', error);
       throw error;
     }
   },
@@ -1320,7 +1307,7 @@ export const applicationsAPI = {
       const response = await makeRequest(`/search/applications?${queryParams.toString()}`);
       return response.json();
     } catch (error) {
-      console.error('Error searching applications:', error);
+      logger.apiError('/applications/search', error);
       throw error;
     }
   },
@@ -1335,7 +1322,7 @@ export const applicationsAPI = {
       const response = await makeRequest('/applications/analytics');
       return response.json();
     } catch (error) {
-      console.error('Error fetching application analytics:', error);
+      logger.apiError('/applications/analytics', error);
       throw error;
     }
   }
@@ -1376,7 +1363,7 @@ export const searchAPI = {
       const response = await makeRequest(`/search/autocomplete?q=${encodeURIComponent(query)}&limit=5`);
       return response.json();
     } catch (error) {
-      console.error('Autocomplete error:', error);
+      logger.apiError('/autocomplete', error);
       return { jobs: [], companies: [], locations: [], skills: [] };
     }
   },
@@ -1387,7 +1374,7 @@ export const searchAPI = {
       const response = await makeRequest(`/search/autocomplete/titles?q=${encodeURIComponent(query)}&limit=10`);
       return response.json();
     } catch (error) {
-      console.error('Autocomplete titles error:', error);
+      logger.apiError('/autocomplete/titles', error);
       return [];
     }
   },
@@ -1398,7 +1385,7 @@ export const searchAPI = {
       const response = await makeRequest(`/search/autocomplete/companies?q=${encodeURIComponent(query)}&limit=10`);
       return response.json();
     } catch (error) {
-      console.error('Autocomplete companies error:', error);
+      logger.apiError('/autocomplete/companies', error);
       return [];
     }
   },
@@ -1409,7 +1396,7 @@ export const searchAPI = {
       const response = await makeRequest(`/search/autocomplete/locations?q=${encodeURIComponent(query)}&limit=10`);
       return response.json();
     } catch (error) {
-      console.error('Autocomplete locations error:', error);
+      logger.apiError('/autocomplete/locations', error);
       return [];
     }
   },
@@ -1429,7 +1416,7 @@ export const suggestAPI = {
     } catch (error: any) {
       // Don't log AbortError as it's expected when cancelling requests
       if (error?.name !== 'AbortError') {
-        console.error('Suggestions error:', error);
+        logger.apiError('/suggest', error);
       }
       // Re-throw AbortError so caller can handle it
       throw error;
@@ -1468,7 +1455,7 @@ export const savedJobsAPI = {
 
       const response = await makeRequest(`/saved-jobs?${queryParams.toString()}`);
       const data = await response.json();
-      console.log('Saved Jobs API Response:', data);
+      logger.debug('Saved Jobs API Response', data);
       
       // Handle different response structures
       if (Array.isArray(data)) {
@@ -1477,7 +1464,7 @@ export const savedJobsAPI = {
       
       return data;
     } catch (error) {
-      console.error('Error fetching saved jobs:', error);
+      logger.apiError('/saved-jobs', error);
       throw error;
     }
   },
@@ -1499,7 +1486,7 @@ export const savedJobsAPI = {
       await response.json();
       return { success: true, message: 'Job saved successfully' };
     } catch (error) {
-      console.error('Error saving job:', error);
+      logger.apiError('/saved-jobs (save)', error);
       throw error;
     }
   },
@@ -1519,7 +1506,7 @@ export const savedJobsAPI = {
       const result = await response.json();
       return { success: result.deleted, message: 'Job removed from saved jobs' };
     } catch (error) {
-      console.error('Error unsaving job:', error);
+      logger.apiError('/saved-jobs/:id (unsave)', error);
       throw error;
     }
   },
@@ -1530,14 +1517,14 @@ export const savedJobsAPI = {
       const response = await makeRequest(`/saved-jobs/check/${jobId}`);
       
       if (!response.ok) {
-        console.error('Error checking if job is saved:', response.statusText);
+        logger.apiError('/saved-jobs/check', new Error(response.statusText));
         return false;
       }
       
       const result = await response.json();
       return result.isSaved || false;
     } catch (error) {
-      console.error('Error checking if job is saved:', error);
+      logger.apiError('/saved-jobs/check', error);
       return false;
     }
   },
@@ -1551,7 +1538,7 @@ export const savedJobsAPI = {
       });
       return response.json();
     } catch (error) {
-      console.error('Error bulk saving jobs:', error);
+      logger.apiError('/saved-jobs/bulk-save', error);
       throw error;
     }
   },
@@ -1565,7 +1552,7 @@ export const savedJobsAPI = {
       });
       return response.json();
     } catch (error) {
-      console.error('Error bulk unsaving jobs:', error);
+      logger.apiError('/saved-jobs/bulk-unsave', error);
       throw error;
     }
   },
@@ -1581,7 +1568,7 @@ export const savedJobsAPI = {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error('Error fetching saved jobs stats:', error);
+      logger.apiError('/saved-jobs/stats', error);
       throw error;
     }
   },
@@ -1608,7 +1595,7 @@ export const savedJobsAPI = {
       const response = await makeRequest(`/search/saved-jobs?${queryParams.toString()}`);
       return response.json();
     } catch (error) {
-      console.error('Error searching saved jobs:', error);
+      logger.apiError('/saved-jobs/search', error);
       throw error;
     }
   },
@@ -1624,7 +1611,7 @@ export const savedJobsAPI = {
       const response = await makeRequest('/saved-jobs/analytics');
       return response.json();
     } catch (error) {
-      console.error('Error fetching saved jobs analytics:', error);
+      logger.apiError('/saved-jobs/analytics', error);
       throw error;
     }
   },
@@ -1637,7 +1624,7 @@ export const savedJobsAPI = {
       });
       return response.json();
     } catch (error) {
-      console.error('Error clearing all saved jobs:', error);
+      logger.apiError('/saved-jobs/clear', error);
       throw error;
     }
   }
@@ -1669,7 +1656,7 @@ export const candidatesAPI = {
       const response = await makeRequest(`/candidates?${queryParams.toString()}`);
       return response.json();
     } catch (error) {
-      console.error('Error fetching candidates:', error);
+      logger.apiError('/candidates', error);
       throw error;
     }
   },
@@ -1680,7 +1667,7 @@ export const candidatesAPI = {
       const response = await makeRequest(`/candidates/${id}`);
       return response.json();
     } catch (error) {
-      console.error('Error fetching candidate:', error);
+      logger.apiError('/candidates/:id', error);
       throw error;
     }
   },
@@ -1698,7 +1685,7 @@ export const candidatesAPI = {
       }
       throw new Error(data?.message || 'Failed to get resume download URL');
     } catch (error) {
-      console.error('Error downloading candidate resume:', error);
+      logger.apiError('/candidates/:id/resume', error);
       throw error;
     }
   },
@@ -1712,7 +1699,7 @@ export const savedCandidatesAPI = {
       const response = await makeRequest('/saved-candidates');
       return response.json();
     } catch (error) {
-      console.error('Error fetching saved candidates:', error);
+      logger.apiError('/saved-candidates', error);
       throw error;
     }
   },
@@ -1732,7 +1719,7 @@ export const savedCandidatesAPI = {
       
       return { success: true, message: 'Candidate saved successfully' };
     } catch (error) {
-      console.error('Error saving candidate:', error);
+      logger.apiError('/saved-candidates (save)', error);
       throw error;
     }
   },
@@ -1751,7 +1738,7 @@ export const savedCandidatesAPI = {
       
       return { success: true, message: 'Candidate removed from saved' };
     } catch (error) {
-      console.error('Error unsaving candidate:', error);
+      logger.apiError('/saved-candidates/:id (unsave)', error);
       throw error;
     }
   },
@@ -1762,14 +1749,14 @@ export const savedCandidatesAPI = {
       const response = await makeRequest(`/saved-candidates/${candidateId}/check`);
       
       if (!response.ok) {
-        console.error('Error checking if candidate is saved:', response.statusText);
+        logger.apiError('/saved-candidates/check', new Error(response.statusText));
         return false;
       }
       
       const result = await response.json();
       return result.isSaved || false;
     } catch (error) {
-      console.error('Error checking if candidate is saved:', error);
+      logger.apiError('/saved-candidates/check', error);
       return false;
     }
   },
@@ -1959,7 +1946,7 @@ export const profileAPI = {
         throw new Error(uploadResult.message || 'Failed to upload company logo');
       }
     } catch (error) {
-      console.error('Company logo upload error:', error);
+      logger.apiError('/upload/company-logo (company)', error);
       throw error;
     }
   },
@@ -1967,7 +1954,7 @@ export const profileAPI = {
   getSkills: async (): Promise<string[]> => {
     const response = await makeRequest('/profile/skills');
     const data = await response.json();
-    console.log('getSkills API response:', data);
+    logger.debug('getSkills API response', data);
     // The API returns { skills: [...] }, so extract the skills array
     return data.skills || [];
   },
@@ -1978,7 +1965,7 @@ export const profileAPI = {
       body: JSON.stringify({ skills }),
     });
     const data = await response.json();
-    console.log('updateSkills API response:', data);
+    logger.info('updateSkills API response', data);
     return data;
   },
 
@@ -1989,7 +1976,7 @@ export const profileAPI = {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error('Error fetching resume data:', error);
+      logger.apiError('/profile/resume', error);
       throw error;
     }
   },
@@ -2002,7 +1989,7 @@ export const profileAPI = {
       });
       return response.json();
     } catch (error) {
-      console.error('Error updating resume headline:', error);
+      logger.apiError('/profile/resume/headline', error);
       throw error;
     }
   },
@@ -2015,7 +2002,7 @@ export const profileAPI = {
       });
       return response.json();
     } catch (error) {
-      console.error('Error updating key skills:', error);
+      logger.apiError('/profile/resume/skills', error);
       throw error;
     }
   },
@@ -2028,7 +2015,7 @@ export const profileAPI = {
       });
       return response.json();
     } catch (error) {
-      console.error('Error updating employment:', error);
+      logger.apiError('/profile/resume/employment', error);
       throw error;
     }
   },
@@ -2041,7 +2028,7 @@ export const profileAPI = {
       });
       return response.json();
     } catch (error) {
-      console.error('Error updating education:', error);
+      logger.apiError('/profile/resume/education', error);
       throw error;
     }
   },
@@ -2054,7 +2041,7 @@ export const profileAPI = {
       });
       return response.json();
     } catch (error) {
-      console.error('Error updating IT skills:', error);
+      logger.apiError('/profile/resume/it-skills', error);
       throw error;
     }
   },
@@ -2067,7 +2054,7 @@ export const profileAPI = {
       });
       return response.json();
     } catch (error) {
-      console.error('Error updating projects:', error);
+      logger.apiError('/profile/resume/projects', error);
       throw error;
     }
   },
@@ -2080,7 +2067,7 @@ export const profileAPI = {
       });
       return response.json();
     } catch (error) {
-      console.error('Error updating profile summary:', error);
+      logger.apiError('/profile/resume/summary', error);
       throw error;
     }
   },
@@ -2093,7 +2080,7 @@ export const profileAPI = {
       });
       return response.json();
     } catch (error) {
-      console.error('Error updating accomplishments:', error);
+      logger.apiError('/profile/resume/accomplishments', error);
       throw error;
     }
   },
@@ -2106,7 +2093,7 @@ export const profileAPI = {
       });
       return response.json();
     } catch (error) {
-      console.error('Error updating desired career:', error);
+      logger.apiError('/profile/resume/career', error);
       throw error;
     }
   },
@@ -2119,7 +2106,7 @@ export const profileAPI = {
       });
       return response.json();
     } catch (error) {
-      console.error('Error updating personal details:', error);
+      logger.apiError('/profile/resume/personal', error);
       throw error;
     }
   },
@@ -2348,7 +2335,7 @@ export const fetchJobById = async (id: string): Promise<Job | null> => {
   try {
     return await jobsAPI.fetchJobById(id);
   } catch (error) {
-    console.error('Error fetching job:', error);
+    logger.apiError('/jobs/:id (fetchJob)', error);
     return null;
   }
 };
@@ -2363,7 +2350,7 @@ export const handleAPIResponse = async <T>(apiCall: () => Promise<T>): Promise<{
     const data = await apiCall();
     return { data };
   } catch (error) {
-    console.error('API Error:', error);
+    logger.error('API Error in handleAPIResponse', error);
     return { error: error as APIError };
   }
 };
@@ -2381,7 +2368,7 @@ export const applyToJob = async (jobId: string, applicationData: {
     });
     return { success: true, applicationId: result.applicationId };
   } catch (error) {
-    console.error('Error applying to job:', error);
+    logger.apiError('/applications (applyToJob)', error);
     const apiError = error as APIError;
     return { success: false, error: apiError.message };
   }

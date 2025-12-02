@@ -9,7 +9,8 @@ import {
   Clock,
   GraduationCap,
   LogIn,
-  UserX
+  UserX,
+  Shield
 } from 'lucide-react';
 import { Job } from '../../types/job';
 import { jobsAPI } from '../../services/api';
@@ -25,6 +26,27 @@ const JobCard: React.FC<JobCardProps> = ({ job, index }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
+
+  // Check if job is a government job
+  const isGovernmentJob = () => {
+    const categoryLower = job.category?.toLowerCase() || '';
+    const companyLower = job.company?.toLowerCase() || '';
+    const titleLower = job.title?.toLowerCase() || '';
+    
+    return (
+      ['central', 'state', 'banking', 'psu', 'defence', 'university', 'government'].includes(categoryLower) ||
+      categoryLower.includes('government') ||
+      categoryLower.includes('public sector') ||
+      companyLower.includes('government') ||
+      companyLower.includes('govt') ||
+      companyLower.includes('commission') ||
+      companyLower.includes('ministry') ||
+      companyLower.includes('board') ||
+      titleLower.includes('government') ||
+      titleLower.includes('govt') ||
+      titleLower.includes('public sector')
+    );
+  };
 
   // Handle card click - always navigate to job details page
   const handleCardClick = () => {
@@ -75,6 +97,12 @@ const JobCard: React.FC<JobCardProps> = ({ job, index }) => {
             {job.title}
           </h3>
           <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+            {isGovernmentJob() && (
+              <div className="inline-flex items-center gap-1.5 bg-green-600 text-white px-2.5 py-1 rounded-lg text-[10px] font-semibold uppercase tracking-[0.5px] shadow-[0_2px_6px_rgba(22,163,74,0.3)] border-none transition-all duration-300 whitespace-nowrap">
+                <Shield className="w-[12px] h-[12px] text-white" />
+                <span className="text-white font-semibold">Govt_Job</span>
+              </div>
+            )}
             <div className="inline-flex items-center gap-1.5 bg-blue-500 text-white px-3 py-1.5 rounded-2xl text-[11px] font-semibold uppercase tracking-[0.5px] shadow-[0_2px_8px_rgba(59,130,246,0.25)] border-none transition-all duration-300 whitespace-nowrap hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(59,130,246,0.3)]">
               {job.isRemote ? (
                 <>

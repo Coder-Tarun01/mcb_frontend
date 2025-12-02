@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { logger } from '../utils/logger';
 import { 
   Search, 
   MapPin, 
@@ -89,7 +90,7 @@ const Home: React.FC = () => {
         setIsLoadingGovernment(false);
         setIsLoadingExperienced(false);
       } catch (error) {
-        console.error('Error loading home page jobs:', error);
+        logger.error('Error loading home page jobs', error);
         setApiError('Unable to load jobs. Please make sure the backend server is running.');
         setRemoteJobs([]);
         setFresherJobs([]);

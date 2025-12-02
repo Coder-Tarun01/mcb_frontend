@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { logger } from '../../utils/logger';
 import { 
   Search, 
   User, 
@@ -108,7 +109,7 @@ const Navbar: React.FC = () => {
       if (error?.name === 'AbortError') {
         return;
       }
-      console.error('Autocomplete error:', error);
+      logger.error('Autocomplete error', error);
       setSuggestions({ jobs: [], companies: [], locations: [], skills: [] });
     }
   };

@@ -18,7 +18,6 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { usersAPI, jobsAPI, applicationsAPI, savedJobsAPI } from '../services/api';
 import { Job } from '../types/job';
-import SessionExpiredModal from '../components/SessionExpiredModal';
 import { buildJobSlug } from '../utils/slug';
 import './Dashboard.css';
 
@@ -48,7 +47,6 @@ const Dashboard: React.FC = () => {
   const [savedJobs, setSavedJobs] = useState<Job[]>([]);
   const [unsaveLoading, setUnsaveLoading] = useState<string | null>(null);
   const [savedJobsLoading, setSavedJobsLoading] = useState(false);
-  const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(false);
 
   const [jobFilters, setJobFilters] = useState({
     search: '',
@@ -2010,12 +2008,6 @@ const Dashboard: React.FC = () => {
           )}
         </div>
       </div>
-      
-      {/* Session Expired Modal */}
-      <SessionExpiredModal 
-        isOpen={showSessionExpiredModal}
-        onClose={() => setShowSessionExpiredModal(false)}
-      />
     </div>
   );
 };
